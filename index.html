@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
-/* Layout: court-navy masthead, sticky category + tab bar, then one column of scoreboard cards / tables per category. */
+/* Layout: navy masthead, sticky category chips + tab bar, then one section per category (games by day, standings, scorers, teams). */
 :root{
   --bg:#F6F3EF; --surface:#FFFFFF; --surface-2:#FAF8F5; --ink:#16182E; --muted:#5E6077; --line:#E3DFDA;
   --accent:#D2400B; --accent-ink:#B23A06; --accent-soft:#FFE7D9; --court:#0A0D5C; --court-ink:#FFFFFF;
@@ -61,6 +61,14 @@ nav.bar .wrap{display:grid;gap:8px;padding-block:10px}
 .tabs button[aria-selected="true"]{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent);border-radius:0;background:transparent}
 main{padding-block:18px 56px;display:grid;gap:22px}
 h2.sec{margin:0;font:700 22px/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.cath .ctag{font:700 16px/1 var(--font-display);letter-spacing:.06em;padding:6px 9px;border-radius:6px;background:var(--accent);color:var(--on-accent)}
+.cath{flex-wrap:wrap;row-gap:4px}
+.cath .cn{font-size:20px;white-space:nowrap}
+.catblk{display:grid;gap:10px;padding-top:14px;border-top:2px solid var(--line)}
+.catblk:first-child{border-top:0;padding-top:0}
+h3.dia{margin:4px 0 0;font:600 14px/1 var(--font-display);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
+h3.dia.vivo{color:var(--live)}
+.row button .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin-left:6px;vertical-align:2px}
 h2.sec small{font:500 14px/1 var(--font-body);letter-spacing:0;text-transform:none;color:var(--muted)}
 .games{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
 .g{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px;min-width:0}
@@ -137,8 +145,8 @@ header.top .logo{width:46px;height:46px}
 </header>
 <nav class="bar" aria-label="Filtros">
   <div class="wrap">
-    <div class="row tabs" role="tablist" id="tabs"></div>
     <div class="row" id="cats" role="group" aria-label="Categoria"></div>
+    <div class="row tabs" role="tablist" id="tabs"></div>
   </div>
 </nav>
 <div class="wrap"><main id="main"></main></div>
@@ -168,6 +176,7 @@ const L = {
     lid:{jog:"Jogador", eq:"Equipa", j:"J", pts:"Pts", ppj:"Pts/J", t3:"Triplos", t3j:"Tri/J", f:"Faltas"},
     critLid:"Totais e média por jogo. Pontos registados pela mesa no fim de cada período.",
     semPontos:"Ainda sem pontos individuais registados.",
+    resumo:(f,n)=>`${f} de ${n} ${n===1?"jogo terminado":"jogos terminados"}`,
     equipasN:(n)=>`${n} ${n===1?"equipa":"equipas"}`, conf:"Confirmada", pend:"Pagamento por confirmar",
     semEquipas:"Ainda sem inscrições nesta categoria.",
     rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:"Inscrever uma equipa (até 9 Nov) →",
@@ -185,6 +194,7 @@ const L = {
     lid:{jog:"Player", eq:"Team", j:"GP", pts:"Pts", ppj:"PPG", t3:"3PM", t3j:"3PM/G", f:"Fouls"},
     critLid:"Totals and per-game averages. Points entered by the table officials at the end of each quarter.",
     semPontos:"No individual points recorded yet.",
+    resumo:(f,n)=>`${f} of ${n} ${n===1?"game":"games"} played`,
     equipasN:(n)=>`${n} ${n===1?"team":"teams"}`, conf:"Confirmed", pend:"Payment pending",
     semEquipas:"No registrations in this category yet.",
     rodape:"Associação Craques da Boca · Official table results · WhatsApp +258 84 787 4692", insc:"Register a team (until 9 Nov) →",
@@ -244,6 +254,9 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) carr
 /* ---------------- cálculo ---------------- */
 const catNome = c => (DATA && DATA.categorias && DATA.categorias[c] && DATA.categorias[c].curto) || c;
 const ORDEM_CAT = ["M35","M40","M50","F30","F40","F50"];
+const catLongo = c => { const n = (DATA && DATA.categorias && DATA.categorias[c] && DATA.categorias[c].nome) || c;
+  return LANG === "en" ? n.replace(/^Masculino/, "Men").replace(/^Feminino/, "Women") : n; };
+const catHead = (c, extra) => `<h2 class="sec cath"><span class="ctag">${esc(catNome(c))}</span><span class="cn">${esc(catLongo(c))}</span>${extra ? ` <small>${extra}</small>` : ""}</h2>`;
 const cats = () => ORDEM_CAT.filter(c => DATA.equipas.some(e => e.cat === c) || DATA.jogos.some(g => g.cat === c));
 const jogado = g => g.estado === "Final" && n0(g.tc) !== null && n0(g.tf) !== null;
 function estatisticas(ids, jogos){
@@ -282,12 +295,12 @@ function pillEstado(g){
   const m = {"Ao vivo":["live",t().aoVivo],"Final":["fin",t().final],"Adiado":["",t().adiado],"Cancelado":["",t().cancelado]}[g.estado];
   return m ? `<span class="pill ${m[0]}">${m[1]}</span>` : `<span class="pill">${esc(g.hora || "—")}</span>`;
 }
-function cartao(g){
+function cartao(g, semCat){
   const tc = n0(g.tc), tf = n0(g.tf), tem = tc !== null && tf !== null, fim = g.estado === "Final" && tem;
   const per = (g.pc||[]).map((x,i) => (x === "" && (g.pf||[])[i] === "") ? null : `${t().q[i]} ${x === "" ? "–" : x}-${(g.pf||[])[i] === "" ? "–" : g.pf[i]}`).filter(Boolean);
   const fase = g.fase && g.fase !== "Grupos" ? (t().fase[g.fase] || g.fase) : (g.grupo ? `${t().grupo} ${esc(g.grupo)}` : "");
   return `<article class="g ${g.estado === "Ao vivo" ? "live" : ""}">
-    <div class="hd"><span><span class="pill cat">${esc(catNome(g.cat))}</span> ${esc(fase)}</span>
+    <div class="hd"><span>${semCat ? "" : `<span class="pill cat">${esc(catNome(g.cat))}</span> `}${esc(fase)}</span>
       <span>${g.hora && g.estado !== "Agendado" ? esc(g.hora) + " · " : ""}${g.campo ? esc(t().campo + " " + g.campo) + " · " : ""}${pillEstado(g)}</span></div>
     <div class="teams">
       <div class="t ${fim && tc < tf ? "lose" : ""}"><span class="nm">${esc(g.casaNome)}</span><span class="sc">${tem ? tc : ""}</span></div>
@@ -300,11 +313,18 @@ function cartao(g){
 function vJogos(){
   const js = DATA.jogos.filter(g => !CAT || g.cat === CAT);
   if (!js.length) return `<p class="empty">${t().semJogos}</p>`;
-  const vivos = js.filter(g => g.estado === "Ao vivo"), out = [];
-  if (vivos.length) out.push(`<section class="blk"><h2 class="sec">${t().aoVivo}</h2><div class="games">${vivos.map(cartao).join("")}</div></section>`);
-  const dias = [...new Set(js.map(g => g.data || ""))].sort((a,b) => (a===""?1:b===""?-1:a.localeCompare(b)));
-  dias.forEach(d => { const l = js.filter(g => (g.data||"") === d).sort((a,b) => (a.hora||"99").localeCompare(b.hora||"99") || a.id.localeCompare(b.id));
-    out.push(`<section class="blk"><h2 class="sec">${esc(fmtDia(d))} <small>${l.length}</small></h2><div class="games">${l.map(cartao).join("")}</div></section>`); });
+  const porHora = (a,b) => (a.hora||"99").localeCompare(b.hora||"99") || (a.campo||"").localeCompare(b.campo||"") || a.id.localeCompare(b.id);
+  const out = [];
+  cats().filter(c => !CAT || c === CAT).forEach(c => {
+    const l = js.filter(g => g.cat === c); if (!l.length) return;
+    const vivos = l.filter(g => g.estado === "Ao vivo").sort(porHora), resto = l.filter(g => g.estado !== "Ao vivo");
+    const dias = [...new Set(resto.map(g => g.data || ""))].sort((a,b) => (a===""?1:b===""?-1:a.localeCompare(b)));
+    let h = `<section class="catblk" id="sec-${c}">${catHead(c, t().resumo(l.filter(g => g.estado === "Final").length, l.length))}`;
+    if (vivos.length) h += `<h3 class="dia vivo">${t().aoVivo}</h3><div class="games">${vivos.map(g => cartao(g, true)).join("")}</div>`;
+    dias.forEach(d => { const dl = resto.filter(g => (g.data||"") === d).sort(porHora);
+      h += `<h3 class="dia">${esc(fmtDia(d))}</h3><div class="games">${dl.map(g => cartao(g, true)).join("")}</div>`; });
+    out.push(h + `</section>`);
+  });
   return out.join("");
 }
 function vClass(){
@@ -318,7 +338,7 @@ function vClass(){
     grupos.forEach(gr => {
       const gi = ids.filter(i => (grupoDe[i] || "") === gr), gj = jg.filter(g => gi.includes(g.casa) && gi.includes(g.fora));
       const S = estatisticas(gi, gj), ord = ordenar(gi, gj, S, i => nomes[i] || i), h = t().cab;
-      out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))}${gr ? ` · ${t().grupo} ${esc(gr)}` : ""}</h2>
+      out.push(`<section class="blk">${catHead(c, gr ? `${t().grupo} ${esc(gr)}` : "")}
         <div class="tblw"><table><thead><tr><th>${h.pos}</th><th class="l">${h.eq}</th><th>${h.j}</th><th>${h.v}</th><th>${h.d}</th><th>${h.pts}</th><th>${h.pm}</th><th>${h.ps}</th><th>${h.dif}</th></tr></thead>
         <tbody>${ord.map((i,k) => { const s = S[i], dif = s.pm - s.ps; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(nomes[i] || i)}</td><td>${s.j}</td><td>${s.v}</td><td>${s.d}</td><td class="pts">${s.pts}</td><td>${s.pm}</td><td>${s.ps}</td><td>${dif > 0 ? "+" : ""}${dif}</td></tr>`; }).join("")}</tbody></table></div></section>`);
     });
@@ -336,7 +356,7 @@ function vLideres(){
   cats().filter(c => !CAT || c === CAT).forEach(c => {
     const l = Object.values(P).filter(r => r.cat === c).sort((a,b) => b.pts - a.pts || (b.pts/b.jogos.size) - (a.pts/a.jogos.size) || a.nome.localeCompare(b.nome)).slice(0, 10);
     if (!l.length) return;
-    out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))}</h2><div class="tblw"><table>
+    out.push(`<section class="blk">${catHead(c, "")}<div class="tblw"><table>
       <thead><tr><th>#</th><th class="l">${h.jog}</th><th>${h.j}</th><th>${h.pts}</th><th>${h.ppj}</th><th>${h.t3}</th><th>${h.t3j}</th><th>${h.f}</th></tr></thead>
       <tbody>${l.map((r,k) => { const j = r.jogos.size; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(r.nome)} <span class="sub">#${esc(r.cam)} · ${esc(nomeEq[r.insc] || r.insc)}</span></td><td>${j}</td><td class="pts">${r.pts}</td><td>${f1(r.pts/j)}</td><td>${r.tl3}</td><td>${f1(r.tl3/j)}</td><td>${r.f}</td></tr>`; }).join("")}</tbody></table></div></section>`);
   });
@@ -346,7 +366,7 @@ function vEquipas(){
   const out = [];
   cats().filter(c => !CAT || c === CAT).forEach(c => {
     const l = DATA.equipas.filter(e => e.cat === c).sort((a,b) => a.clube.localeCompare(b.clube));
-    out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))} <small>${t().equipasN(l.length)}</small></h2>
+    out.push(`<section class="blk">${catHead(c, t().equipasN(l.length))}
       ${l.length ? `<div class="teamlist">${l.map(e => `<div class="tm"><span><b>${esc(e.clube)}</b><small>${esc(e.pais || "")}</small></span><span class="st ${e.estado === "confirmada" ? "ok" : "pend"}">${e.estado === "confirmada" ? t().conf : t().pend}</span></div>`).join("")}</div>` : `<p class="empty">${t().semEquipas}</p>`}</section>`);
   });
   return out.join("") || `<p class="empty">${t().semEquipas}</p>`;
@@ -368,7 +388,7 @@ function desenhar(){
   document.getElementById("auto").textContent = ENDPOINT ? x.auto : "";
   const dm = document.getElementById("demo"); dm.hidden = !DATA.demo; dm.textContent = x.demo;
   const cs = cats(); if (CAT && !cs.includes(CAT)) CAT = "";
-  document.getElementById("cats").innerHTML = [["",x.todas]].concat(cs.map(c => [c, catNome(c)])).map(([c,v]) => `<button type="button" id="cat-${c||"todas"}" aria-pressed="${c===CAT}" data-cat="${c}">${esc(v)}</button>`).join("");
+  document.getElementById("cats").innerHTML = [["",x.todas]].concat(cs.map(c => [c, catNome(c)])).map(([c,v]) => `<button type="button" id="cat-${c||"todas"}" aria-pressed="${c===CAT}" data-cat="${c}">${esc(v)}${DATA.jogos.some(g => g.estado === "Ao vivo" && (!c || g.cat === c)) ? `<span class="dot" title="${x.aoVivo}"></span>` : ""}</button>`).join("");
   document.querySelectorAll("#cats button").forEach(b => b.onclick = () => { CAT = b.dataset.cat; try { localStorage.setItem("cbist-cat", CAT); } catch(e) {} desenhar(); });
   document.getElementById("main").innerHTML = {jogos:vJogos, class:vClass, lideres:vLideres, equipas:vEquipas}[TAB]();
 }
