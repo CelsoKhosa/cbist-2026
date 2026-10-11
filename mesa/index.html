@@ -1,1 +1,235 @@
-<!-- a substituir -->
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mesa CBIST 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: phone-first score sheet — game list, then one game open with a period grid and per-player points. */
+:root{
+  --bg:#F4F2EF; --surface:#FFFFFF; --surface-2:#FAF8F6; --ink:#1C1A19; --muted:#6A635D; --line:#E2DCD5;
+  --accent:#E2570E; --accent-ink:#B23F00; --accent-soft:#FDE9DC; --court:#1E3354; --court-ink:#F4F2EF;
+  --ok:#1E7A46; --ok-soft:#E3F3E9; --warn:#9A5B00; --warn-soft:#FFF1D6; --bad:#C4283D; --bad-soft:#FBE3E6; --live:#D3213B;
+  --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-body:"Barlow","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font-body)}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+header{background:var(--court);color:var(--court-ink);padding-top:env(safe-area-inset-top,0px)}
+header .wrap{padding-block:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{margin:0;font:700 28px/1 var(--font-display);letter-spacing:.03em}
+header h1 span{color:var(--accent)}
+header .who{font-size:14px;opacity:.9}
+main{display:grid;gap:16px;margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+h2{margin:0;font:700 22px/1.1 var(--font-display);text-transform:uppercase;letter-spacing:.04em}
+label.f{display:grid;gap:4px;font-size:14px;font-weight:600}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+button.btn{font:700 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;border:0;border-radius:8px;padding:14px 18px;cursor:pointer;background:var(--accent);color:#fff}
+button.btn.dark{background:var(--ink);color:var(--bg)}
+button.btn:disabled{opacity:.6;cursor:progress}
+button.ghost{font:600 15px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--ink);background:var(--surface);border-radius:8px;padding:10px 12px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.msg{border-radius:8px;padding:10px 12px;font-size:15px}
+.msg.err{background:var(--bad-soft);border:1px solid var(--bad)}
+.msg.ok{background:var(--ok-soft);border:1px solid var(--ok)}
+.msg.warn{background:var(--warn-soft);border:1px solid var(--warn)}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters select{width:auto}
+.list{display:grid;gap:8px}
+.it{all:unset;cursor:pointer;display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.it:focus-visible{outline:2px solid var(--accent)}
+.it .h{font:700 20px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.it .h small{display:block;font:500 12px/1.3 var(--font-body);color:var(--muted)}
+.it .m{min-width:0} .it .m b{font-weight:600} .it .m small{color:var(--muted)}
+.it .s{font:700 22px/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:right}
+.it .s small{display:block;font:600 11px/1.4 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.it.live{border-color:var(--live)} .it.live .s small{color:var(--live)}
+.score{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:6px 4px;text-align:center}
+th{font:600 13px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td.l,th.l{text-align:left}
+.score input{width:44px;text-align:center;font:700 21px/1 var(--font-display);padding:8px 2px}
+.score th,.score td{padding:6px 3px}
+.score td.l{font-size:14px;font-weight:600;overflow-wrap:anywhere;min-width:70px}
+.score .tot{font:700 30px/1.1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--accent-ink)}
+.actions.save{position:sticky;bottom:0;background:var(--bg);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;background:var(--surface-2)}
+.seg input{width:auto}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.pts table input{width:58px;text-align:center;padding:7px 4px}
+.pts td.l{font-size:15px}
+.pts td.l small{color:var(--muted)}
+.soma{font-size:14px} .soma.bad{color:var(--bad);font-weight:600} .soma.ok{color:var(--ok)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted);font-size:14px;margin:0}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>MESA · CBIST <span>2026</span></h1><span class="who" id="who"></span></div></header>
+<div class="wrap"><main id="main"></main></div>
+<script>
+/* ========================= CONFIGURAÇÃO =========================
+   API = URL /exec da Web App do Apps Script (o mesmo nas três páginas). */
+const API = "https://script.google.com/macros/s/AKfycbxR28668y76usK0EXG9Xmalj7M1e0Ho_QBLB7WQ9PC4PDaFyDizS54uoEG7Qd5712j_/exec";   // Web App CBIST 2026 (implementação v1, 11/10/2026)
+/* ================================================================ */
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const ENDPOINT = (LOCAL && new URLSearchParams(location.search).get("api")) || API;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ss = { get(k){ try { return sessionStorage.getItem(k) || ""; } catch(e){ return ""; } }, set(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} } };
+const ls = { get(k){ try { return localStorage.getItem(k) || ""; } catch(e){ return ""; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+let PIN = ss.get("cbist-pin"), D = null, ABERTO = null, filtroDia = ss.get("cbist-dia"), filtroCat = "";
+const Q = ["1.º","2.º","3.º","4.º","Prol."];
+const main = document.getElementById("main");
+
+async function api(corpo){
+  if (!ENDPOINT) throw new Error("Esta página ainda não está ligada ao sistema (falta o URL no ficheiro).");
+  const r = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(corpo)});
+  const j = await r.json().catch(() => ({ok:false, erro:"HTTP " + r.status}));
+  if (!j.ok) throw new Error(j.erro || "Erro desconhecido");
+  return j;
+}
+
+/* ---------- entrar ---------- */
+function vEntrar(erro){
+  main.innerHTML = `<section class="card"><h2>Entrar</h2>
+    <p class="muted">Página só para os oficiais de mesa. O PIN é dado pela organização.</p>
+    ${erro ? `<div class="msg err">${esc(erro)}</div>` : ""}
+    <form id="fpin" class="grid">
+      <label class="f">PIN<input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label>
+      <label class="f">O seu nome<input id="nome" autocomplete="name" maxlength="40" value="${esc(ls.get("cbist-mesa-nome"))}" required></label>
+      <button class="btn" id="entrar">Entrar</button>
+    </form></section>`;
+  document.getElementById("fpin").onsubmit = async ev => { ev.preventDefault();
+    const b = document.getElementById("entrar"); b.disabled = true; b.textContent = "A verificar…";
+    PIN = document.getElementById("pin").value.trim(); ls.set("cbist-mesa-nome", document.getElementById("nome").value.trim());
+    try { await recarregar(); ss.set("cbist-pin", PIN); vLista(); } catch(e) { PIN = ""; vEntrar(e.message); } };
+  document.getElementById("pin").focus();
+}
+async function recarregar(){ D = await api({acao:"mesa", pin:PIN}); document.getElementById("who").textContent = ls.get("cbist-mesa-nome"); }
+
+/* ---------- lista de jogos ---------- */
+const nomeCat = c => (D.categorias[c] && D.categorias[c].curto) || c;
+function vLista(aviso){
+  const dias = [...new Set(D.jogos.map(g => g.data || ""))].sort();
+  if (filtroDia && !dias.includes(filtroDia)) filtroDia = "";
+  const hoje = new Date().toISOString().slice(0,10);
+  if (!filtroDia && dias.includes(hoje)) filtroDia = hoje;
+  const l = D.jogos.filter(g => (!filtroDia || (g.data||"") === filtroDia) && (!filtroCat || g.cat === filtroCat))
+    .sort((a,b) => (a.data||"9").localeCompare(b.data||"9") || (a.hora||"99").localeCompare(b.hora||"99") || a.id.localeCompare(b.id));
+  main.innerHTML = `${aviso ? `<div class="msg ok">${esc(aviso)}</div>` : ""}
+    <section class="card"><h2>Jogos</h2>
+      <div class="filters">
+        <select id="fdia" aria-label="Dia"><option value="">Todos os dias</option>${dias.map(d => `<option value="${d}" ${d===filtroDia?"selected":""}>${d || "Sem data"}</option>`).join("")}</select>
+        <select id="fcat" aria-label="Categoria"><option value="">Todas as categorias</option>${Object.keys(D.categorias).map(c => `<option value="${c}" ${c===filtroCat?"selected":""}>${esc(nomeCat(c))}</option>`).join("")}</select>
+        <button class="ghost" id="act" type="button">Actualizar</button>
+      </div>
+      <div class="list">${l.length ? l.map(g => `<button type="button" class="it ${g.estado === "Ao vivo" ? "live" : ""}" data-id="${esc(g.id)}">
+        <span class="h">${esc(g.hora || "—")}<small>${esc(g.id)}${g.campo ? " · " + esc(g.campo) : ""}</small></span>
+        <span class="m"><b>${esc(g.casaNome)}</b> × <b>${esc(g.foraNome)}</b><br><small>${esc(nomeCat(g.cat))}${g.grupo ? " · Grupo " + esc(g.grupo) : ""}${g.fase && g.fase !== "Grupos" ? " · " + esc(g.fase) : ""}</small></span>
+        <span class="s">${g.tc !== "" ? `${g.tc}–${g.tf}` : ""}<small>${esc(g.estado)}</small></span></button>`).join("") : `<p class="muted">Sem jogos para este filtro.</p>`}</div>
+      <p class="muted"><button class="ghost" type="button" id="sair">Sair</button></p>
+    </section>`;
+  document.getElementById("fdia").onchange = e => { filtroDia = e.target.value; ss.set("cbist-dia", filtroDia); vLista(); };
+  document.getElementById("fcat").onchange = e => { filtroCat = e.target.value; vLista(); };
+  document.getElementById("act").onclick = async () => { try { await recarregar(); vLista("Lista actualizada."); } catch(e) { vLista(); } };
+  document.getElementById("sair").onclick = () => { PIN = ""; ss.set("cbist-pin", ""); vEntrar(); };
+  main.querySelectorAll(".it").forEach(b => b.onclick = () => vJogo(b.dataset.id));
+}
+
+/* ---------- um jogo ---------- */
+function vJogo(id, msg){
+  const g = D.jogos.find(x => x.id === id); if (!g) return vLista();
+  ABERTO = id;
+  const ant = {}; (D.pontos[id] || []).forEach(p => ant[p.insc + "|" + p.cam] = p);
+  const plantel = k => (D.plantel[k] || []).slice().sort((a,b) => (+a.cam || 0) - (+b.cam || 0));
+  const lado = (k, nome) => `<div class="pts"><h2 style="font-size:19px">${esc(nome)}</h2>
+    <table><thead><tr><th class="l">Atleta</th><th>Pts</th><th>Triplos</th><th>Faltas</th></tr></thead><tbody>
+    ${plantel(k).map(a => { const p = ant[k + "|" + a.cam] || {}; const v = x => (x === undefined || x === "" ? "" : x);
+      return `<tr data-insc="${esc(k)}" data-cam="${esc(a.cam)}" data-nome="${esc(a.nome)}"><td class="l"><b>#${esc(a.cam)}</b> ${esc(a.nome)}</td>
+      <td><input inputmode="numeric" maxlength="2" data-k="pts" value="${v(p.pts)}" aria-label="Pontos ${esc(a.nome)}"></td>
+      <td><input inputmode="numeric" maxlength="2" data-k="tl3" value="${v(p.tl3)}" aria-label="Triplos ${esc(a.nome)}"></td>
+      <td><input inputmode="numeric" maxlength="1" data-k="faltas" value="${v(p.faltas)}" aria-label="Faltas ${esc(a.nome)}"></td></tr>`; }).join("") || `<tr><td class="l muted" colspan="4">Sem plantel na folha Atletas.</td></tr>`}
+    </tbody></table><p class="soma" id="soma-${esc(k)}"></p></div>`;
+  const q = (arr, i) => (arr && arr[i] !== undefined && arr[i] !== "") ? arr[i] : "";
+  main.innerHTML = `${msg ? `<div class="msg ${msg[0]}">${esc(msg[1])}</div>` : ""}
+    <section class="card">
+      <div class="actions"><button class="ghost" type="button" id="voltar">← Jogos</button><span class="muted">${esc(g.id)} · ${esc(nomeCat(g.cat))} · ${esc(g.data || "")} ${esc(g.hora || "")}${g.campo ? " · Campo " + esc(g.campo) : ""}</span></div>
+      <h2>${esc(g.casaNome)} × ${esc(g.foraNome)}</h2>
+      <div class="score"><table><thead><tr><th class="l">Equipa</th>${Q.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>
+        <tr data-lado="casa"><td class="l">${esc(g.casaNome)}<div class="tot" id="tc">0</div></td>${Q.map((x,i) => `<td><input inputmode="numeric" maxlength="2" id="c${i}" value="${q(g.pc,i)}" aria-label="${esc(g.casaNome)} ${x}"></td>`).join("")}</tr>
+        <tr data-lado="fora"><td class="l">${esc(g.foraNome)}<div class="tot" id="tf">0</div></td>${Q.map((x,i) => `<td><input inputmode="numeric" maxlength="2" id="f${i}" value="${q(g.pf,i)}" aria-label="${esc(g.foraNome)} ${x}"></td>`).join("")}</tr>
+      </tbody></table></div>
+      <div class="seg" role="radiogroup" aria-label="Estado">
+        ${["Agendado","Ao vivo","Final","Adiado","Cancelado"].map(e => `<label><input type="radio" name="estado" value="${e}" ${e === (g.estado === "Agendado" ? "Ao vivo" : g.estado) ? "checked" : ""}> ${e}</label>`).join("")}
+      </div>
+      <label class="f">Notas (aparecem na página pública)<input id="notas" maxlength="120" value="${esc(/^Ronda \d+$/.test(g.notas||"") ? "" : (g.notas || ""))}"></label>
+    </section>
+    <section class="card"><p class="muted">Pontos por atleta: facultativo durante o jogo, pedido no fim. Escreva só quem marcou.</p>
+      ${lado(g.casa, g.casaNome)}${lado(g.fora, g.foraNome)}</section>
+    <div id="av"></div>
+    <div class="actions save"><button class="btn" id="gravar" type="button">Guardar</button><span class="muted" id="st"></span></div>`;
+  const totais = () => { let a = 0, b = 0; for (let i = 0; i < 5; i++){ a += +document.getElementById("c"+i).value || 0; b += +document.getElementById("f"+i).value || 0; }
+    document.getElementById("tc").textContent = a; document.getElementById("tf").textContent = b;
+    [[g.casa,a],[g.fora,b]].forEach(([k,tot]) => { const el = document.getElementById("soma-" + k); if (!el) return;
+      const s = [...main.querySelectorAll(`tr[data-insc="${CSS.escape(k)}"] input[data-k="pts"]`)].reduce((x,i) => x + (+i.value || 0), 0);
+      el.textContent = s ? `Soma dos atletas: ${s} · total da equipa: ${tot}` : ""; el.className = "soma " + (s && s !== tot ? "bad" : (s ? "ok" : "")); });
+    return [a,b]; };
+  main.querySelectorAll("input").forEach(i => i.addEventListener("input", () => { if (i.inputMode === "numeric") i.value = i.value.replace(/\D/g, ""); totais(); confirmado = ""; }));
+  totais();
+  document.getElementById("voltar").onclick = () => vLista();
+  let confirmado = "";
+  document.getElementById("gravar").onclick = async () => {
+    const [a,b] = totais(), estado = main.querySelector('input[name="estado"]:checked').value, av = document.getElementById("av");
+    const pontos = [...main.querySelectorAll("tr[data-insc]")].map(tr => ({inscricao:tr.dataset.insc, camisola:tr.dataset.cam, nome:tr.dataset.nome,
+      pts:tr.querySelector('[data-k="pts"]').value, tl3:tr.querySelector('[data-k="tl3"]').value, faltas:tr.querySelector('[data-k="faltas"]').value}));
+    const somas = [g.casa,g.fora].map(k => pontos.filter(p => p.inscricao === k).reduce((x,p) => x + (+p.pts || 0), 0));
+    const avisos = [];
+    if (estado === "Final" && a === b) { av.innerHTML = `<div class="msg err">Um jogo não pode acabar empatado: registe o prolongamento.</div>`; return; }
+    if (estado === "Final" && (somas[0] !== a || somas[1] !== b)) avisos.push(`Os pontos por atleta (${somas[0]} e ${somas[1]}) não batem com os totais (${a} e ${b}).`);
+    if (estado === "Final" && !main.querySelector("#c3").value) avisos.push("O 4.º período está vazio.");
+    const assin = avisos.join("|");
+    if (avisos.length && confirmado !== assin) { confirmado = assin; av.innerHTML = `<div class="msg warn">${avisos.map(esc).join("<br>")}<br><b>Carregue outra vez em Guardar para gravar assim.</b></div>`; return; }
+    const btn = document.getElementById("gravar"); btn.disabled = true; btn.textContent = "A gravar…";
+    try {
+      const out = await api({acao:"resultado", pin:PIN, jogo:g.id, estado, por:ls.get("cbist-mesa-nome"), notas:document.getElementById("notas").value,
+        parciais:{casa:Q.map((x,i) => document.getElementById("c"+i).value), fora:Q.map((x,i) => document.getElementById("f"+i).value)}, pontos});
+      await recarregar();
+      const h = new Date().toLocaleTimeString("pt-PT", {hour:"2-digit", minute:"2-digit"});
+      vJogo(g.id, ["ok", `Gravado às ${h}: ${g.casaNome} ${out.casa} – ${out.fora} ${g.foraNome} (${out.estado}). A página pública mostra-o em menos de 30 s.`]);
+    } catch(e) {
+      btn.disabled = false; btn.textContent = "Guardar";
+      av.innerHTML = `<div class="msg err">Não gravado: ${esc(e.message)}. Os números continuam no ecrã — tente de novo.</div>`;
+      if (/PIN/.test(e.message)) { PIN = ""; ss.set("cbist-pin", ""); }
+    }
+  };
+}
+
+(async () => {
+  if (!ENDPOINT) { main.innerHTML = `<div class="msg warn">Esta página ainda não está ligada ao sistema: falta colar o URL /exec no ficheiro.</div>`; return; }
+  if (PIN) { try { await recarregar(); return vLista(); } catch(e) { PIN = ""; } }
+  vEntrar();
+})();
+</script>
+</body>
+</html>
