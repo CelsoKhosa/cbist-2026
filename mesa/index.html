@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="utf-8">
-<meta name="theme-color" content="#1B1F4B">
+<meta name="theme-color" content="#0A0D5C">
 <link rel="icon" type="image/png" href="../logo.png">
 <link rel="apple-touch-icon" href="../logo.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,21 +15,21 @@
 /* Layout: phone-first score sheet — game list, then one game open with a period grid and per-player points. */
 :root{
   --bg:#F6F3EF; --surface:#FFFFFF; --surface-2:#FAF8F5; --ink:#16182E; --muted:#5E6077; --line:#E3DFDA;
-  --accent:#D2400B; --accent-ink:#B23A06; --accent-soft:#FFE7D9; --court:#1B1F4B; --court-ink:#FFFFFF;
+  --accent:#D2400B; --accent-ink:#B23A06; --accent-soft:#FFE7D9; --court:#0A0D5C; --court-ink:#FFFFFF;
   --ok:#1E7A46; --ok-soft:#E3F3E9; --warn:#9A5B00; --warn-soft:#FFF1D6; --bad:#C4283D; --bad-soft:#FBE3E6; --live:#D3213B;
   --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
   --font-body:"Barlow","Segoe UI",system-ui,-apple-system,sans-serif;
-  --court-2:#262C6B; --gold:#F7CB10; --on-accent:#FFFFFF; --fire:linear-gradient(90deg,#C8170F 0%,#EF6010 55%,#F7CB10 100%);
+  --court-2:#1B2290; --gold:#F7CB10; --on-accent:#FFFFFF; --fire:linear-gradient(90deg,#C8170F 0%,#EF6010 55%,#F7CB10 100%);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#0E1026; --surface:#171A38; --surface-2:#1D2144; --ink:#F2F1F6; --muted:#A3A6C2; --line:#2D3263;
-  --accent:#FF7A2F; --accent-ink:#FF9F63; --accent-soft:#3B2016; --court:#161A44; --court-ink:#FFFFFF;
-  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; --court-2:#1F2560; --on-accent:#14163A; color-scheme:dark }}
+  --accent:#FF7A2F; --accent-ink:#FF9F63; --accent-soft:#3B2016; --court:#0A0D4A; --court-ink:#FFFFFF;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; --court-2:#151B70; --on-accent:#14163A; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0E1026; --surface:#171A38; --surface-2:#1D2144; --ink:#F2F1F6; --muted:#A3A6C2; --line:#2D3263;
-  --accent:#FF7A2F; --accent-ink:#FF9F63; --accent-soft:#3B2016; --court:#161A44; --court-ink:#FFFFFF;
-  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; --court-2:#1F2560; --on-accent:#14163A; color-scheme:dark }
+  --accent:#FF7A2F; --accent-ink:#FF9F63; --accent-soft:#3B2016; --court:#0A0D4A; --court-ink:#FFFFFF;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; --live:#FF4D63; --court-2:#151B70; --on-accent:#14163A; color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
@@ -92,12 +92,12 @@ header.mast,header.top{background:radial-gradient(85% 130% at 100% 0%,rgba(239,9
 header.mast::after,header.top::after{content:"";display:block;height:5px;background:var(--fire)}
 .idn{display:flex;align-items:center;gap:14px;min-width:0}
 .idn .tx{display:grid;gap:6px;min-width:0}
-.logo{width:76px;height:76px;flex:none;border-radius:50%;object-fit:contain;background:#fff;box-shadow:0 0 0 3px var(--gold),0 6px 18px rgba(0,0,0,.35)}
-header.top .logo{width:40px;height:40px;box-shadow:0 0 0 2px var(--gold)}
+.logo{width:92px;height:92px;flex:none;object-fit:contain;filter:drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 6px 12px rgba(0,0,0,.35))}
+header.top .logo{width:46px;height:46px}
 .mast h1 span,header.top h1 span{color:var(--gold)}
 .brand b{color:var(--gold);font-weight:700}
 .lang button[aria-pressed="true"]{background:var(--gold);color:#1B1F4B}
-@media (max-width:420px){.logo{width:60px;height:60px}.brand{font-size:12.5px;letter-spacing:.1em}.chip{letter-spacing:.03em}}
+@media (max-width:420px){.logo{width:70px;height:70px}.brand{font-size:12.5px;letter-spacing:.1em}.chip{letter-spacing:.03em}}
 </style>
 </head>
 <body>
