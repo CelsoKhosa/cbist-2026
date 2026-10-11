@@ -66,6 +66,7 @@ h2.sec{margin:0;font:700 22px/1.1 var(--font-display);letter-spacing:.06em;text-
 .cath .cn{font-size:20px;white-space:nowrap}
 .catblk{display:grid;gap:10px;padding-top:14px;border-top:2px solid var(--line)}
 .catblk:first-child{border-top:0;padding-top:0}
+.empty.mini{padding:10px 14px;font-size:14px;border-style:dashed}
 h3.dia{margin:4px 0 0;font:600 14px/1 var(--font-display);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
 h3.dia.vivo{color:var(--live)}
 .row button .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin-left:6px;vertical-align:2px}
@@ -179,6 +180,9 @@ const L = {
     resumo:(f,n)=>`${f} de ${n} ${n===1?"jogo terminado":"jogos terminados"}`,
     equipasN:(n)=>`${n} ${n===1?"equipa":"equipas"}`, conf:"Confirmada", pend:"Pagamento por confirmar",
     semEquipas:"Ainda sem inscrições nesta categoria.",
+    catSemJogos:"Ainda sem jogos nesta categoria. O calendário sai depois do fecho das inscrições (9 Nov).",
+    catSemClass:"A classificação aparece quando houver jogos nesta categoria.",
+    catSemPontos:"Ainda sem pontos registados nesta categoria.",
     rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:"Inscrever uma equipa (até 9 Nov) →",
     dias:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"], meses:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]},
   en: { sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 Dec 2026",
@@ -197,6 +201,9 @@ const L = {
     resumo:(f,n)=>`${f} of ${n} ${n===1?"game":"games"} played`,
     equipasN:(n)=>`${n} ${n===1?"team":"teams"}`, conf:"Confirmed", pend:"Payment pending",
     semEquipas:"No registrations in this category yet.",
+    catSemJogos:"No games in this category yet. The schedule comes out after registration closes (9 Nov).",
+    catSemClass:"Standings appear once this category has games.",
+    catSemPontos:"No points recorded in this category yet.",
     rodape:"Associação Craques da Boca · Official table results · WhatsApp +258 84 787 4692", insc:"Register a team (until 9 Nov) →",
     dias:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], meses:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]}
 };
@@ -257,7 +264,7 @@ const ORDEM_CAT = ["M35","M40","M50","F30","F40","F50"];
 const catLongo = c => { const n = (DATA && DATA.categorias && DATA.categorias[c] && DATA.categorias[c].nome) || c;
   return LANG === "en" ? n.replace(/^Masculino/, "Men").replace(/^Feminino/, "Women") : n; };
 const catHead = (c, extra) => `<h2 class="sec cath"><span class="ctag">${esc(catNome(c))}</span><span class="cn">${esc(catLongo(c))}</span>${extra ? ` <small>${extra}</small>` : ""}</h2>`;
-const cats = () => ORDEM_CAT.filter(c => DATA.equipas.some(e => e.cat === c) || DATA.jogos.some(g => g.cat === c));
+const cats = () => ORDEM_CAT.filter(c => !DATA.categorias || DATA.categorias[c] || DATA.equipas.some(e => e.cat === c) || DATA.jogos.some(g => g.cat === c));
 const jogado = g => g.estado === "Final" && n0(g.tc) !== null && n0(g.tf) !== null;
 function estatisticas(ids, jogos){
   const S = {}; ids.forEach(i => S[i] = {id:i, j:0, v:0, d:0, pts:0, pm:0, ps:0});
@@ -312,11 +319,11 @@ function cartao(g, semCat){
 }
 function vJogos(){
   const js = DATA.jogos.filter(g => !CAT || g.cat === CAT);
-  if (!js.length) return `<p class="empty">${t().semJogos}</p>`;
   const porHora = (a,b) => (a.hora||"99").localeCompare(b.hora||"99") || (a.campo||"").localeCompare(b.campo||"") || a.id.localeCompare(b.id);
   const out = [];
   cats().filter(c => !CAT || c === CAT).forEach(c => {
-    const l = js.filter(g => g.cat === c); if (!l.length) return;
+    const l = js.filter(g => g.cat === c);
+    if (!l.length) { out.push(`<section class="catblk" id="sec-${c}">${catHead(c, t().equipasN(DATA.equipas.filter(e => e.cat === c).length))}<p class="empty mini">${t().catSemJogos}</p></section>`); return; }
     const vivos = l.filter(g => g.estado === "Ao vivo").sort(porHora), resto = l.filter(g => g.estado !== "Ao vivo");
     const dias = [...new Set(resto.map(g => g.data || ""))].sort((a,b) => (a===""?1:b===""?-1:a.localeCompare(b)));
     let h = `<section class="catblk" id="sec-${c}">${catHead(c, t().resumo(l.filter(g => g.estado === "Final").length, l.length))}`;
@@ -334,6 +341,7 @@ function vClass(){
     const nomes = {}; eqs.forEach(e => nomes[e.id] = e.clube); jg.forEach(g => { nomes[g.casa] = nomes[g.casa] || g.casaNome; nomes[g.fora] = nomes[g.fora] || g.foraNome; });
     const grupoDe = {}; jg.forEach(g => { if (g.grupo) { grupoDe[g.casa] = grupoDe[g.casa] || g.grupo; grupoDe[g.fora] = grupoDe[g.fora] || g.grupo; } });
     const ids = [...new Set(eqs.map(e => e.id).concat(jg.flatMap(g => [g.casa, g.fora])))].filter(Boolean);
+    if (!ids.length) { out.push(`<section class="blk">${catHead(c, "")}<p class="empty mini">${t().catSemClass}</p></section>`); return; }
     const grupos = [...new Set(ids.map(i => grupoDe[i] || ""))].sort();
     grupos.forEach(gr => {
       const gi = ids.filter(i => (grupoDe[i] || "") === gr), gj = jg.filter(g => gi.includes(g.casa) && gi.includes(g.fora));
@@ -343,7 +351,7 @@ function vClass(){
         <tbody>${ord.map((i,k) => { const s = S[i], dif = s.pm - s.ps; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(nomes[i] || i)}</td><td>${s.j}</td><td>${s.v}</td><td>${s.d}</td><td class="pts">${s.pts}</td><td>${s.pm}</td><td>${s.ps}</td><td>${dif > 0 ? "+" : ""}${dif}</td></tr>`; }).join("")}</tbody></table></div></section>`);
     });
   });
-  return out.length ? out.join("") + `<p class="note">${t().critClass}</p>` : `<p class="empty">${t().semEquipas}</p>`;
+  return out.join("") + `<p class="note">${t().critClass}</p>`;
 }
 function vLideres(){
   const jogoDe = {}; DATA.jogos.forEach(g => jogoDe[g.id] = g);
@@ -355,12 +363,12 @@ function vLideres(){
   const out = [], h = t().lid, f1 = v => v.toLocaleString(LANG === "en" ? "en-GB" : "pt-PT", {minimumFractionDigits:1, maximumFractionDigits:1});
   cats().filter(c => !CAT || c === CAT).forEach(c => {
     const l = Object.values(P).filter(r => r.cat === c).sort((a,b) => b.pts - a.pts || (b.pts/b.jogos.size) - (a.pts/a.jogos.size) || a.nome.localeCompare(b.nome)).slice(0, 10);
-    if (!l.length) return;
+    if (!l.length) { out.push(`<section class="blk">${catHead(c, "")}<p class="empty mini">${t().catSemPontos}</p></section>`); return; }
     out.push(`<section class="blk">${catHead(c, "")}<div class="tblw"><table>
       <thead><tr><th>#</th><th class="l">${h.jog}</th><th>${h.j}</th><th>${h.pts}</th><th>${h.ppj}</th><th>${h.t3}</th><th>${h.t3j}</th><th>${h.f}</th></tr></thead>
       <tbody>${l.map((r,k) => { const j = r.jogos.size; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(r.nome)} <span class="sub">#${esc(r.cam)} · ${esc(nomeEq[r.insc] || r.insc)}</span></td><td>${j}</td><td class="pts">${r.pts}</td><td>${f1(r.pts/j)}</td><td>${r.tl3}</td><td>${f1(r.tl3/j)}</td><td>${r.f}</td></tr>`; }).join("")}</tbody></table></div></section>`);
   });
-  return out.length ? out.join("") + `<p class="note">${t().critLid}</p>` : `<p class="empty">${t().semPontos}</p>`;
+  return out.join("") + `<p class="note">${t().critLid}</p>`;
 }
 function vEquipas(){
   const out = [];
