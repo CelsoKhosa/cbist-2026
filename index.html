@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central CBIST 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: court-navy masthead, sticky category + tab bar, then one column of scoreboard cards / tables per category. */
+:root{
+  --bg:#F4F2EF; --surface:#FFFFFF; --surface-2:#FAF8F6; --ink:#1C1A19; --muted:#6A635D; --line:#E2DCD5;
+  --accent:#E2570E; --accent-ink:#B23F00; --accent-soft:#FDE9DC; --court:#1E3354; --court-ink:#F4F2EF;
+  --ok:#1E7A46; --ok-soft:#E3F3E9; --warn:#9A5B00; --warn-soft:#FFF1D6; --live:#D3213B; --live-soft:#FCE4E7;
+  --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-body:"Barlow","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --live:#FF4D63; --live-soft:#3B1A20; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --live:#FF4D63; --live-soft:#3B1A20; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font-body)}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px}
+header.mast{background:var(--court);color:var(--court-ink);padding-top:env(safe-area-inset-top,0px)}
+.mast .wrap{padding-block:18px 20px;display:grid;gap:8px}
+.mast .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font:700 15px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.mast h1{font:700 clamp(34px,7vw,54px)/1 var(--font-display);margin:0;letter-spacing:.01em}
+.mast h1 span{color:var(--accent)}
+.mast p{margin:0;opacity:.85}
+.meta{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;font-size:14px;opacity:.9}
+.pulse{display:inline-flex;align-items:center;gap:6px}
+.pulse i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.pulse.err i{background:var(--live)}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
+.lang button{all:unset;cursor:pointer;font:600 14px/1 var(--font-display);letter-spacing:.08em;padding:7px 12px;color:inherit}
+.lang button[aria-pressed="true"]{background:var(--court-ink);color:var(--court)}
+.lang button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.demo{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn);border-radius:8px;padding:10px 12px;font-size:14px;margin-top:14px}
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.bar .wrap{display:grid;gap:8px;padding-block:10px}
+.row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.row::-webkit-scrollbar{display:none}
+.row button{all:unset;cursor:pointer;white-space:nowrap;font:600 15px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.row button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tabs button{border-radius:6px;border:0;background:transparent;font-size:17px;padding:8px 10px;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent);border-radius:0;background:transparent}
+main{padding-block:18px 56px;display:grid;gap:22px}
+h2.sec{margin:0;font:700 22px/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+h2.sec small{font:500 14px/1 var(--font-body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.games{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.g{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px;min-width:0}
+.g.live{border-color:var(--live);box-shadow:0 0 0 1px var(--live)}
+.g .hd{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);align-items:center}
+.pill{font:700 13px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;padding:4px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.pill.cat{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink)}
+.pill.live{background:var(--live);border-color:var(--live);color:#fff;display:inline-flex;gap:5px;align-items:center}
+.pill.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:bl 1.2s infinite}
+@keyframes bl{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.pill.live::before{animation:none}}
+.pill.fin{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.teams{display:grid;gap:4px}
+.t{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline}
+.t .nm{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.t .nm small{color:var(--muted);font-weight:400}
+.t .sc{font:700 30px/1 var(--font-display);font-variant-numeric:tabular-nums;min-width:2ch;text-align:right}
+.t.lose .nm,.t.lose .sc{color:var(--muted)}
+.qs{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:6px}
+.empty{color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:16px}
+.tblw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:15px}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap}
+th{font:600 13px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+td{border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th.l,td.l{text-align:left;white-space:normal}
+td.pos{font:700 18px/1 var(--font-display);color:var(--muted);width:2.5em}
+td.pts{font-weight:700}
+td .sub{color:var(--muted);font-size:13px}
+.blk{display:grid;gap:10px}
+.note{color:var(--muted);font-size:13px;margin:0}
+.teamlist{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.tm{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tm b{font-weight:600}
+.tm small{color:var(--muted);display:block}
+.st{font:600 12px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;padding:4px 6px;border-radius:5px}
+.st.ok{background:var(--ok-soft);color:var(--ok)} .st.pend{background:var(--warn-soft);color:var(--warn)}
+footer{color:var(--muted);font-size:13px;padding-block:0 40px;display:flex;gap:6px 14px;flex-wrap:wrap}
+footer a{color:var(--accent-ink);font-weight:600}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Craques da Boca · Elephant Bet</div>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" id="lang-pt" data-lang="pt" aria-pressed="true">PT</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <h1>CBIST <span>2026</span></h1>
+    <p id="sub">Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 Dez 2026</p>
+    <div class="meta"><span class="pulse" id="pulse"><i></i><span id="upd">A carregar…</span></span><span id="auto"></span></div>
+    <div class="demo" id="demo" hidden></div>
+  </div>
+</header>
+<nav class="bar" aria-label="Filtros">
+  <div class="wrap">
+    <div class="row tabs" role="tablist" id="tabs"></div>
+    <div class="row" id="cats" role="group" aria-label="Categoria"></div>
+  </div>
+</nav>
+<div class="wrap"><main id="main"></main></div>
+<div class="wrap"><footer><span id="foot"></span> <a id="link-insc" href="inscricao/index.html" hidden></a></footer></div>
+
+<script>
+/* ========================= CONFIGURAÇÃO =========================
+   API = URL /exec da Web App do Apps Script (o mesmo nas três páginas).
+   Vazio = modo de demonstração com dados de exemplo. */
+const API = "https://script.google.com/macros/s/AKfycbxR28668y76usK0EXG9Xmalj7M1e0Ho_QBLB7WQ9PC4PDaFyDizS54uoEG7Qd5712j_/exec";   // Web App CBIST 2026 (implementação v1, 11/10/2026)
+const REFRESH_S = 30;
+/* ================================================================ */
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const ENDPOINT = (LOCAL && new URLSearchParams(location.search).get("api")) || API;
+
+const L = {
+  pt: { sub:"Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 Dez 2026",
+    tabs:{jogos:"Jogos", class:"Classificação", lideres:"Marcadores", equipas:"Equipas"}, todas:"Todas",
+    carregando:"A carregar…", act:(h)=>`Actualizado às ${h}`, auto:`Actualiza sozinho a cada ${REFRESH_S} s`, falha:"Sem ligação — a mostrar os últimos dados",
+    demo:"Demonstração com dados de exemplo: jogos, resultados e jogadores são fictícios. As equipas são as da lista de confirmações de 6 Out.",
+    aoVivo:"Ao vivo", final:"Final", agendado:"Agendado", adiado:"Adiado", cancelado:"Cancelado", porMarcar:"Data por marcar",
+    semJogos:"Ainda não há jogos marcados. O calendário sai depois do fecho das inscrições (9 Nov).",
+    q:["1.º","2.º","3.º","4.º","Prol."], campo:"Campo",
+    grupo:"Grupo", fase:{"Grupos":"Fase de grupos","Quartos-de-final":"Quartos-de-final","Meia-final":"Meia-final","3.º lugar":"3.º lugar","Final":"Final"},
+    cab:{pos:"#", eq:"Equipa", j:"J", v:"V", d:"D", pts:"Pts", pm:"PM", ps:"PS", dif:"Dif"},
+    critClass:"Vitória 2 pontos, derrota 1. Empates desfeitos pelos jogos entre as equipas empatadas (pontos, diferença, pontos marcados) e depois pela diferença geral — Regras Oficiais FIBA, Secção D.",
+    lid:{jog:"Jogador", eq:"Equipa", j:"J", pts:"Pts", ppj:"Pts/J", t3:"Triplos", t3j:"Tri/J", f:"Faltas"},
+    critLid:"Totais e média por jogo. Pontos registados pela mesa no fim de cada período.",
+    semPontos:"Ainda sem pontos individuais registados.",
+    equipasN:(n)=>`${n} ${n===1?"equipa":"equipas"}`, conf:"Confirmada", pend:"Pagamento por confirmar",
+    semEquipas:"Ainda sem inscrições nesta categoria.",
+    rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:"Inscrever uma equipa (até 9 Nov) →",
+    dias:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"], meses:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]},
+  en: { sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 Dec 2026",
+    tabs:{jogos:"Games", class:"Standings", lideres:"Scorers", equipas:"Teams"}, todas:"All",
+    carregando:"Loading…", act:(h)=>`Updated at ${h}`, auto:`Refreshes every ${REFRESH_S} s`, falha:"No connection — showing the last data",
+    demo:"Demo with sample data: games, scores and players are fictional. Teams are those on the 6 Oct confirmation list.",
+    aoVivo:"Live", final:"Final", agendado:"Scheduled", adiado:"Postponed", cancelado:"Cancelled", porMarcar:"Date to be set",
+    semJogos:"No games scheduled yet. The schedule comes out after registration closes (9 Nov).",
+    q:["Q1","Q2","Q3","Q4","OT"], campo:"Court",
+    grupo:"Group", fase:{"Grupos":"Group stage","Quartos-de-final":"Quarter-final","Meia-final":"Semi-final","3.º lugar":"3rd place","Final":"Final"},
+    cab:{pos:"#", eq:"Team", j:"GP", v:"W", d:"L", pts:"Pts", pm:"PF", ps:"PA", dif:"Diff"},
+    critClass:"Win 2 points, loss 1. Ties broken by games between the tied teams (points, difference, points scored), then overall difference — FIBA Official Rules, Section D.",
+    lid:{jog:"Player", eq:"Team", j:"GP", pts:"Pts", ppj:"PPG", t3:"3PM", t3j:"3PM/G", f:"Fouls"},
+    critLid:"Totals and per-game averages. Points entered by the table officials at the end of each quarter.",
+    semPontos:"No individual points recorded yet.",
+    equipasN:(n)=>`${n} ${n===1?"team":"teams"}`, conf:"Confirmed", pend:"Payment pending",
+    semEquipas:"No registrations in this category yet.",
+    rodape:"Associação Craques da Boca · Official table results · WhatsApp +258 84 787 4692", insc:"Register a team (until 9 Nov) →",
+    dias:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], meses:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]}
+};
+let LANG = "pt", TAB = "jogos", CAT = "", DATA = null, falhou = false;
+try { LANG = localStorage.getItem("cbist-lang") || (/^pt/i.test(navigator.language) ? "pt" : "en"); CAT = localStorage.getItem("cbist-cat") || ""; } catch(e) {}
+if (["jogos","class","lideres","equipas"].includes(location.hash.slice(1))) TAB = location.hash.slice(1);
+const t = () => L[LANG];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const n0 = v => (v === "" || v === null || v === undefined) ? null : Number(v);
+
+/* ---------------- dados de exemplo (só sem API) ---------------- */
+function demo(){
+  const eq = [["M35","Mahotas"],["M35","Mozal"],["M35","CFM Hoopers"],["M35","Mentality"],["M35","INSS"],
+    ["M40","Mahotas"],["M40","Mutarara"],["M40","Maluti Dinosaurs","Lesoto"],["M40","Mozal"],["M40","Galpão Basketball Team"],["M40","Petromoc"],["M40","Colegas"],["M40","INSS"],
+    ["M50","Chulos do Maxaquene"],["M50","Monstros"],["F30","Amigas de Maputo"],["F40","Amigas de Maputo"],["F40","INSS"],["F50","Amigas de Maputo"]];
+  const cnt = {}; const equipas = eq.map(([cat,clube,pais],i) => ({id:`${cat}-${String(cnt[cat]=(cnt[cat]||0)+1).padStart(2,"0")}`, cat, clube, pais:pais||"Moçambique", estado:i%3?"confirmada":"pendente"}));
+  const id = (cat,c) => equipas.find(e => e.cat===cat && e.clube===c).id, nm = i => equipas.find(e=>e.id===i).clube;
+  const J = [], P = []; let n = 0;
+  const jogo = (cat,a,b,data,hora,campo,estado,pc,pf,grupo,fase) => { const ca=id(cat,a), fo=id(cat,b);
+    const tc = pc.reduce((s,x)=>s+(+x||0),0), tf = pf.reduce((s,x)=>s+(+x||0),0);
+    J.push({id:"J"+String(++n).padStart(2,"0"), cat, fase:fase||"Grupos", grupo:grupo||"", data, hora, campo, casa:ca, fora:fo, casaNome:a, foraNome:b, estado, pc, pf, tc:pc.length?tc:"", tf:pf.length?tf:""});
+    if (pc.length) [[ca,tc],[fo,tf]].forEach(([e,tot]) => { let r = tot; [4,7,9,11,13,5,8].forEach((cam,k) => { const p = k<6 ? Math.min(r, Math.round(tot*[.28,.2,.16,.13,.11,.07][k])) : r; r -= p; if (p>0) P.push({jogo:"J"+String(n).padStart(2,"0"), insc:e, cam:String(cam), nome:`Jogador #${cam}`, pts:p, tl3:Math.floor(p/9), faltas:k%4}); }); });
+  };
+  jogo("M40","Mahotas","Mutarara","2026-12-03","09:00","A","Final",[14,12,10,16,""],[11,13,12,9,""],"A");
+  jogo("M40","Maluti Dinosaurs","Mozal","2026-12-03","09:00","B","Final",[18,10,14,12,""],[12,15,9,16,""],"A");
+  jogo("M40","Galpão Basketball Team","Petromoc","2026-12-03","10:30","A","Final",[9,14,11,13,""],[15,12,13,10,""],"B");
+  jogo("M40","Colegas","INSS","2026-12-03","10:30","B","Ao vivo",[13,11,8],[10,12,12],"B");
+  jogo("M35","Mahotas","Mozal","2026-12-03","12:00","A","Final",[16,13,15,12,""],[14,16,11,13,""]);
+  jogo("M35","CFM Hoopers","Mentality","2026-12-03","12:00","B","Ao vivo",[15,12],[9,14]);
+  jogo("M50","Chulos do Maxaquene","Monstros","2026-12-03","13:30","A","Agendado",[],[]);
+  jogo("F40","Amigas de Maputo","INSS","2026-12-03","15:00","A","Agendado",[],[]);
+  jogo("M40","Mahotas","Mozal","2026-12-04","09:00","A","Agendado",[],[],"A");
+  jogo("M40","Mutarara","Maluti Dinosaurs","2026-12-04","09:00","B","Agendado",[],[],"A");
+  jogo("M35","INSS","Mahotas","2026-12-04","10:30","A","Agendado",[],[]);
+  jogo("M35","Mozal","CFM Hoopers","","","","Agendado",[],[]);
+  return {ok:true, demo:true, gerado:new Date().toISOString(), equipas, jogos:J, pontos:P,
+    categorias:{M35:{curto:"M+35",nome:"Masculino +35"},M40:{curto:"M+40",nome:"Masculino +40"},M50:{curto:"M+50",nome:"Masculino +50"},F30:{curto:"F+30",nome:"Feminino +30"},F40:{curto:"F+40",nome:"Feminino +40"},F50:{curto:"F+50",nome:"Feminino +50"}}};
+}
+
+/* ---------------- carregar ---------------- */
+async function carregar(){
+  if (!ENDPOINT){ DATA = DATA || demo(); falhou = false; return desenhar(); }
+  try {
+    const r = await fetch(ENDPOINT + (ENDPOINT.includes("?") ? "&" : "?") + "acao=publico&_=" + Date.now(), {cache:"no-store"});
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.erro || "erro");
+    DATA = j; falhou = false;
+  } catch(e) { falhou = true; }
+  desenhar();
+}
+let timer = null;
+function agendar(){ clearInterval(timer); timer = setInterval(() => { if (!document.hidden) carregar(); }, REFRESH_S * 1000); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) carregar(); });
+
+/* ---------------- cálculo ---------------- */
+const catNome = c => (DATA && DATA.categorias && DATA.categorias[c] && DATA.categorias[c].curto) || c;
+const ORDEM_CAT = ["M35","M40","M50","F30","F40","F50"];
+const cats = () => ORDEM_CAT.filter(c => DATA.equipas.some(e => e.cat === c) || DATA.jogos.some(g => g.cat === c));
+const jogado = g => g.estado === "Final" && n0(g.tc) !== null && n0(g.tf) !== null;
+function estatisticas(ids, jogos){
+  const S = {}; ids.forEach(i => S[i] = {id:i, j:0, v:0, d:0, pts:0, pm:0, ps:0});
+  jogos.forEach(g => { if (!jogado(g) || !S[g.casa] || !S[g.fora]) return;
+    const a = S[g.casa], b = S[g.fora], tc = +g.tc, tf = +g.tf;
+    a.j++; b.j++; a.pm += tc; a.ps += tf; b.pm += tf; b.ps += tc;
+    if (tc > tf){ a.v++; a.pts += 2; b.d++; b.pts += 1; } else { b.v++; b.pts += 2; a.d++; a.pts += 1; } });
+  return S;
+}
+// FIBA, Secção D: pontos → jogos entre empatados (pontos, diferença, marcados), recomeçando com o subgrupo → diferença e marcados gerais
+function ordenar(ids, jogos, S, nome){
+  const porPts = [...ids].sort((x,y) => S[y].pts - S[x].pts), out = [];
+  for (let i = 0; i < porPts.length;){ let k = i; while (k < porPts.length && S[porPts[k]].pts === S[porPts[i]].pts) k++;
+    const g = porPts.slice(i,k); out.push(...(g.length === 1 ? g : desempatar(g, jogos, S, nome))); i = k; }
+  return out;
+}
+function desempatar(g, jogos, S, nome){
+  const M = estatisticas(g, jogos.filter(j => g.includes(j.casa) && g.includes(j.fora)));
+  const key = i => [M[i].pts, M[i].pm - M[i].ps, M[i].pm];
+  const cmp = (x,y) => { const a = key(x), b = key(y); for (let q = 0; q < 3; q++) if (a[q] !== b[q]) return b[q] - a[q]; return 0; };
+  const s = [...g].sort(cmp), out = [];
+  for (let i = 0; i < s.length;){ let k = i; while (k < s.length && cmp(s[i], s[k]) === 0) k++;
+    const run = s.slice(i,k);
+    if (run.length === 1) out.push(run[0]);
+    else if (run.length < g.length) out.push(...desempatar(run, jogos, S, nome));
+    else out.push(...run.sort((x,y) => ((S[y].pm-S[y].ps)-(S[x].pm-S[x].ps)) || (S[y].pm - S[x].pm) || nome(x).localeCompare(nome(y))));
+    i = k; }
+  return out;
+}
+
+/* ---------------- desenho ---------------- */
+function fmtDia(iso){ if (!iso) return t().porMarcar; const d = new Date(iso + "T12:00:00"); if (isNaN(d)) return iso;
+  return `${t().dias[d.getDay()]} ${d.getDate()} ${t().meses[d.getMonth()]}`; }
+function pillEstado(g){
+  const m = {"Ao vivo":["live",t().aoVivo],"Final":["fin",t().final],"Adiado":["",t().adiado],"Cancelado":["",t().cancelado]}[g.estado];
+  return m ? `<span class="pill ${m[0]}">${m[1]}</span>` : `<span class="pill">${esc(g.hora || "—")}</span>`;
+}
+function cartao(g){
+  const tc = n0(g.tc), tf = n0(g.tf), tem = tc !== null && tf !== null, fim = g.estado === "Final" && tem;
+  const per = (g.pc||[]).map((x,i) => (x === "" && (g.pf||[])[i] === "") ? null : `${t().q[i]} ${x === "" ? "–" : x}-${(g.pf||[])[i] === "" ? "–" : g.pf[i]}`).filter(Boolean);
+  const fase = g.fase && g.fase !== "Grupos" ? (t().fase[g.fase] || g.fase) : (g.grupo ? `${t().grupo} ${esc(g.grupo)}` : "");
+  return `<article class="g ${g.estado === "Ao vivo" ? "live" : ""}">
+    <div class="hd"><span><span class="pill cat">${esc(catNome(g.cat))}</span> ${esc(fase)}</span>
+      <span>${g.hora && g.estado !== "Agendado" ? esc(g.hora) + " · " : ""}${g.campo ? esc(t().campo + " " + g.campo) + " · " : ""}${pillEstado(g)}</span></div>
+    <div class="teams">
+      <div class="t ${fim && tc < tf ? "lose" : ""}"><span class="nm">${esc(g.casaNome)}</span><span class="sc">${tem ? tc : ""}</span></div>
+      <div class="t ${fim && tf < tc ? "lose" : ""}"><span class="nm">${esc(g.foraNome)}</span><span class="sc">${tem ? tf : ""}</span></div>
+    </div>
+    ${per.length ? `<div class="qs">${per.map(esc).join("<span aria-hidden='true'>·</span>")}</div>` : ""}
+    ${g.notas && !/^Ronda \d+$/.test(g.notas) ? `<div class="qs">${esc(g.notas)}</div>` : ""}
+  </article>`;
+}
+function vJogos(){
+  const js = DATA.jogos.filter(g => !CAT || g.cat === CAT);
+  if (!js.length) return `<p class="empty">${t().semJogos}</p>`;
+  const vivos = js.filter(g => g.estado === "Ao vivo"), out = [];
+  if (vivos.length) out.push(`<section class="blk"><h2 class="sec">${t().aoVivo}</h2><div class="games">${vivos.map(cartao).join("")}</div></section>`);
+  const dias = [...new Set(js.map(g => g.data || ""))].sort((a,b) => (a===""?1:b===""?-1:a.localeCompare(b)));
+  dias.forEach(d => { const l = js.filter(g => (g.data||"") === d).sort((a,b) => (a.hora||"99").localeCompare(b.hora||"99") || a.id.localeCompare(b.id));
+    out.push(`<section class="blk"><h2 class="sec">${esc(fmtDia(d))} <small>${l.length}</small></h2><div class="games">${l.map(cartao).join("")}</div></section>`); });
+  return out.join("");
+}
+function vClass(){
+  const out = [];
+  cats().filter(c => !CAT || c === CAT).forEach(c => {
+    const eqs = DATA.equipas.filter(e => e.cat === c), jg = DATA.jogos.filter(g => g.cat === c && (g.fase || "Grupos") === "Grupos");
+    const nomes = {}; eqs.forEach(e => nomes[e.id] = e.clube); jg.forEach(g => { nomes[g.casa] = nomes[g.casa] || g.casaNome; nomes[g.fora] = nomes[g.fora] || g.foraNome; });
+    const grupoDe = {}; jg.forEach(g => { if (g.grupo) { grupoDe[g.casa] = grupoDe[g.casa] || g.grupo; grupoDe[g.fora] = grupoDe[g.fora] || g.grupo; } });
+    const ids = [...new Set(eqs.map(e => e.id).concat(jg.flatMap(g => [g.casa, g.fora])))].filter(Boolean);
+    const grupos = [...new Set(ids.map(i => grupoDe[i] || ""))].sort();
+    grupos.forEach(gr => {
+      const gi = ids.filter(i => (grupoDe[i] || "") === gr), gj = jg.filter(g => gi.includes(g.casa) && gi.includes(g.fora));
+      const S = estatisticas(gi, gj), ord = ordenar(gi, gj, S, i => nomes[i] || i), h = t().cab;
+      out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))}${gr ? ` · ${t().grupo} ${esc(gr)}` : ""}</h2>
+        <div class="tblw"><table><thead><tr><th>${h.pos}</th><th class="l">${h.eq}</th><th>${h.j}</th><th>${h.v}</th><th>${h.d}</th><th>${h.pts}</th><th>${h.pm}</th><th>${h.ps}</th><th>${h.dif}</th></tr></thead>
+        <tbody>${ord.map((i,k) => { const s = S[i], dif = s.pm - s.ps; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(nomes[i] || i)}</td><td>${s.j}</td><td>${s.v}</td><td>${s.d}</td><td class="pts">${s.pts}</td><td>${s.pm}</td><td>${s.ps}</td><td>${dif > 0 ? "+" : ""}${dif}</td></tr>`; }).join("")}</tbody></table></div></section>`);
+    });
+  });
+  return out.length ? out.join("") + `<p class="note">${t().critClass}</p>` : `<p class="empty">${t().semEquipas}</p>`;
+}
+function vLideres(){
+  const jogoDe = {}; DATA.jogos.forEach(g => jogoDe[g.id] = g);
+  const nomeEq = {}; DATA.equipas.forEach(e => nomeEq[e.id] = e.clube); DATA.jogos.forEach(g => { nomeEq[g.casa] = nomeEq[g.casa] || g.casaNome; nomeEq[g.fora] = nomeEq[g.fora] || g.foraNome; });
+  const P = {};
+  DATA.pontos.forEach(p => { const g = jogoDe[p.jogo]; if (!g || !["Final","Ao vivo"].includes(g.estado)) return;
+    const k = p.insc + "|" + p.cam, r = P[k] = P[k] || {cat:g.cat, insc:p.insc, nome:p.nome, cam:p.cam, jogos:new Set(), pts:0, tl3:0, f:0};
+    r.jogos.add(p.jogo); r.pts += +p.pts || 0; r.tl3 += +p.tl3 || 0; r.f += +p.faltas || 0; r.nome = p.nome || r.nome; });
+  const out = [], h = t().lid, f1 = v => v.toLocaleString(LANG === "en" ? "en-GB" : "pt-PT", {minimumFractionDigits:1, maximumFractionDigits:1});
+  cats().filter(c => !CAT || c === CAT).forEach(c => {
+    const l = Object.values(P).filter(r => r.cat === c).sort((a,b) => b.pts - a.pts || (b.pts/b.jogos.size) - (a.pts/a.jogos.size) || a.nome.localeCompare(b.nome)).slice(0, 10);
+    if (!l.length) return;
+    out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))}</h2><div class="tblw"><table>
+      <thead><tr><th>#</th><th class="l">${h.jog}</th><th>${h.j}</th><th>${h.pts}</th><th>${h.ppj}</th><th>${h.t3}</th><th>${h.t3j}</th><th>${h.f}</th></tr></thead>
+      <tbody>${l.map((r,k) => { const j = r.jogos.size; return `<tr><td class="pos">${k+1}</td><td class="l">${esc(r.nome)} <span class="sub">#${esc(r.cam)} · ${esc(nomeEq[r.insc] || r.insc)}</span></td><td>${j}</td><td class="pts">${r.pts}</td><td>${f1(r.pts/j)}</td><td>${r.tl3}</td><td>${f1(r.tl3/j)}</td><td>${r.f}</td></tr>`; }).join("")}</tbody></table></div></section>`);
+  });
+  return out.length ? out.join("") + `<p class="note">${t().critLid}</p>` : `<p class="empty">${t().semPontos}</p>`;
+}
+function vEquipas(){
+  const out = [];
+  cats().filter(c => !CAT || c === CAT).forEach(c => {
+    const l = DATA.equipas.filter(e => e.cat === c).sort((a,b) => a.clube.localeCompare(b.clube));
+    out.push(`<section class="blk"><h2 class="sec">${esc(catNome(c))} <small>${t().equipasN(l.length)}</small></h2>
+      ${l.length ? `<div class="teamlist">${l.map(e => `<div class="tm"><span><b>${esc(e.clube)}</b><small>${esc(e.pais || "")}</small></span><span class="st ${e.estado === "confirmada" ? "ok" : "pend"}">${e.estado === "confirmada" ? t().conf : t().pend}</span></div>`).join("")}</div>` : `<p class="empty">${t().semEquipas}</p>`}</section>`);
+  });
+  return out.join("") || `<p class="empty">${t().semEquipas}</p>`;
+}
+function desenhar(){
+  const x = t();
+  document.documentElement.lang = LANG;
+  document.getElementById("sub").textContent = x.sub;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === LANG));
+  document.getElementById("tabs").innerHTML = Object.entries(x.tabs).map(([k,v]) => `<button type="button" role="tab" id="tab-${k}" aria-selected="${k===TAB}" data-tab="${k}">${v}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { TAB = b.dataset.tab; history.replaceState(null, "", "#" + TAB); desenhar(); });
+  document.getElementById("foot").textContent = x.rodape;
+  const li = document.getElementById("link-insc"); li.textContent = x.insc; li.hidden = new Date() > new Date("2026-11-09T23:59:59+02:00");
+  const pulse = document.getElementById("pulse");
+  if (!DATA){ document.getElementById("upd").textContent = falhou ? x.falha : x.carregando; pulse.classList.toggle("err", falhou); return; }
+  const g = new Date(DATA.gerado || Date.now());
+  document.getElementById("upd").textContent = falhou ? x.falha : x.act(isNaN(g) ? "" : g.toLocaleTimeString(LANG === "en" ? "en-GB" : "pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"}));
+  pulse.classList.toggle("err", falhou);
+  document.getElementById("auto").textContent = ENDPOINT ? x.auto : "";
+  const dm = document.getElementById("demo"); dm.hidden = !DATA.demo; dm.textContent = x.demo;
+  const cs = cats(); if (CAT && !cs.includes(CAT)) CAT = "";
+  document.getElementById("cats").innerHTML = [["",x.todas]].concat(cs.map(c => [c, catNome(c)])).map(([c,v]) => `<button type="button" id="cat-${c||"todas"}" aria-pressed="${c===CAT}" data-cat="${c}">${esc(v)}</button>`).join("");
+  document.querySelectorAll("#cats button").forEach(b => b.onclick = () => { CAT = b.dataset.cat; try { localStorage.setItem("cbist-cat", CAT); } catch(e) {} desenhar(); });
+  document.getElementById("main").innerHTML = {jogos:vJogos, class:vClass, lideres:vLideres, equipas:vEquipas}[TAB]();
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { LANG = b.dataset.lang; try { localStorage.setItem("cbist-lang", LANG); } catch(e) {} desenhar(); }));
+desenhar(); carregar(); agendar();
+</script>
+</body>
+</html>
