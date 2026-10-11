@@ -1,1 +1,612 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CBIST 2026 Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column of numbered form sections under a court-navy masthead; player rows become cards on phones. */
+:root{
+  --bg:#F4F2EF; --surface:#FFFFFF; --surface-2:#FAF8F6; --ink:#1C1A19; --muted:#6A635D; --line:#E2DCD5;
+  --accent:#E2570E; --accent-ink:#B23F00; --accent-soft:#FDE9DC; --court:#1E3354; --court-ink:#F4F2EF;
+  --ok:#1E7A46; --ok-soft:#E3F3E9; --warn:#9A5B00; --warn-soft:#FFF1D6; --bad:#C4283D; --bad-soft:#FBE3E6;
+  --font-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-body:"Barlow","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141416; --surface:#1C1C1F; --surface-2:#222226; --ink:#F2EEEA; --muted:#A8A09A; --line:#323136;
+  --accent:#FF7A30; --accent-ink:#FF9A5C; --accent-soft:#3A2418; --court:#0F1B2E; --court-ink:#F2EEEA;
+  --ok:#4CC27F; --ok-soft:#173326; --warn:#E8A33A; --warn-soft:#3A2B12; --bad:#FF6B7D; --bad-soft:#3B1A20; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font-body)}
+.wrap{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+header.mast{background:var(--court);color:var(--court-ink);padding-top:env(safe-area-inset-top,0px)}
+.mast .wrap{padding-block:20px 22px;display:grid;gap:10px;position:relative}
+.mast .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font:700 15px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.mast h1{font:700 clamp(34px,7vw,52px)/1 var(--font-display);margin:0;letter-spacing:.01em;text-wrap:balance}
+.mast h1 span{color:var(--accent)}
+.kick{font:700 22px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase}
+.mast p{margin:0;opacity:.85;max-width:60ch}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:600 14px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.28)}
+.chip.hot{background:var(--accent);border-color:var(--accent);color:#fff}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
+.lang button{all:unset;cursor:pointer;font:600 14px/1 var(--font-display);letter-spacing:.08em;padding:7px 12px;color:inherit}
+.lang button[aria-pressed="true"]{background:var(--court-ink);color:var(--court)}
+.lang button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+main{display:grid;gap:18px;margin-top:20px}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 18px;display:grid;gap:14px;min-width:0}
+section.card h2{display:flex;align-items:baseline;gap:10px;margin:0;font:700 24px/1.1 var(--font-display);letter-spacing:.02em;text-transform:uppercase}
+section.card h2 .n{color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:14px;margin:0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+label.f{display:grid;gap:4px;font-size:14px;font-weight:600;min-width:0}
+label.f small{font-weight:400;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+input[type=file]{padding:6px;font-size:13px}
+.req::after{content:" *";color:var(--accent-ink)}
+.cats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.cat{position:relative}
+.cat input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:8px;top:8px}
+.cat span{display:grid;gap:2px;border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;cursor:pointer;background:var(--surface-2)}
+.cat b{font:700 22px/1 var(--font-display);letter-spacing:.03em}
+.cat em{font-style:normal;font-size:13px;color:var(--muted)}
+.cat input:checked + span{border-color:var(--accent);background:var(--accent-soft)}
+.cat input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+.info{background:var(--surface-2);border:1px dashed var(--line);border-radius:9px;padding:12px 14px;font-size:14px;display:grid;gap:4px}
+.info b{font-variant-numeric:tabular-nums}
+/* players */
+.roster-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.count{font:600 18px/1 var(--font-display);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.count.ok{color:var(--ok)} .count.bad{color:var(--bad)}
+.players{display:grid;gap:10px}
+.pl{display:grid;gap:8px 10px;grid-template-columns:34px 2.2fr 1.2fr 64px 1.2fr 1fr 1.2fr 70px;align-items:end;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2)}
+.pl .num{font:700 22px/1 var(--font-display);color:var(--muted);align-self:center;text-align:center;font-variant-numeric:tabular-nums}
+.pl label{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.pl .age{font:700 20px/38px var(--font-display);text-align:center;border-radius:7px;background:var(--bg);font-variant-numeric:tabular-nums}
+.pl .age.ok{color:var(--ok);background:var(--ok-soft)} .pl .age.bad{color:var(--bad);background:var(--bad-soft)}
+.pl .files{grid-column:2 / -2;display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.pl .del{all:unset;cursor:pointer;white-space:nowrap;justify-self:center;align-self:center;font-size:13px;color:var(--muted);padding:6px;border-radius:6px}
+.pl .del:hover,.pl .del:focus-visible{color:var(--bad);outline:1px solid var(--bad)}
+.pl.erro{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+.pl.aviso{border-color:var(--warn)}
+@media (max-width:760px){
+  .pl{grid-template-columns:1fr 1fr 72px;grid-template-areas:"num num del" "nome nome nome" "nasc nasc idade" "nac tipo tipo" "ndoc ndoc cam" "files files files"}
+  .pl .num{grid-area:num;text-align:left} .pl .del{grid-area:del;justify-self:end}
+  .pl .nome{grid-area:nome} .pl .nasc{grid-area:nasc} .pl .idade{grid-area:idade} .pl .nac{grid-area:nac}
+  .pl .tipo{grid-area:tipo} .pl .ndoc{grid-area:ndoc} .pl .cam{grid-area:cam}
+  .pl .files{grid-area:files;grid-template-columns:1fr}
+}
+button.btn{font:700 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;border:0;border-radius:8px;padding:14px 20px;cursor:pointer;background:var(--accent);color:#fff}
+button.btn:disabled{opacity:.6;cursor:progress}
+button.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+button.ghost{font:600 15px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--accent);color:var(--accent-ink);background:transparent;border-radius:8px;padding:10px 14px;cursor:pointer}
+.radios{display:flex;gap:10px;flex-wrap:wrap}
+.radios label{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--surface-2);cursor:pointer;font-weight:600}
+.radios label b{font-variant-numeric:tabular-nums}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.check input{width:auto;margin-top:4px;flex:none}
+#frm{display:grid;gap:18px}
+#painel{border-radius:9px;padding:14px 16px;display:grid;gap:6px}
+#painel.err{background:var(--bad-soft);border:1px solid var(--bad)}
+#painel.warn{background:var(--warn-soft);border:1px solid var(--warn)}
+#painel h3{margin:0;font:700 18px/1.2 var(--font-display);text-transform:uppercase;letter-spacing:.04em}
+#painel ul{margin:0;padding-left:20px}
+.submit{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.closed,.cfg{background:var(--warn-soft);border:1px solid var(--warn);border-radius:9px;padding:14px 16px}
+#sucesso{background:var(--surface);border:2px solid var(--ok);border-radius:12px;padding:24px 20px;display:grid;gap:10px}
+#sucesso h2{margin:0;font:700 30px/1.1 var(--font-display);text-transform:uppercase;color:var(--ok)}
+#sucesso .big{font:700 44px/1 var(--font-display);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:13px;margin-top:28px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Craques da Boca · Elephant Bet</div>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" id="lang-pt" data-lang="pt" aria-pressed="true">PT</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <h1>CBIST <span>2026</span></h1>
+    <div class="kick" data-t="h1">Inscrição de equipas</div>
+    <p data-t="sub">Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 de Dezembro de 2026</p>
+    <div class="chips">
+      <span class="chip hot" data-t="prazo">Prazo: 9 Nov 2026</span>
+      <span class="chip" data-t="taxa">30.000 MT · 7.000 ZAR · 450 USD por categoria</span>
+    </div>
+  </div>
+</header>
 
+<div class="wrap">
+  <main>
+    <div class="cfg" id="cfg" hidden data-t="cfg">Formulário em modo de teste: ainda não está ligado ao sistema de registo. Não envie dados reais.</div>
+    <div class="closed" id="fechado" hidden data-t="fechado">As inscrições fecharam a 9 de Novembro de 2026. Contacte a organização: +258 84 787 4692.</div>
+
+    <div id="sucesso" hidden>
+      <h2 data-t="ok-t">Inscrição recebida</h2>
+      <p data-t="ok-id">Número da inscrição:</p>
+      <div class="big" id="ok-id">—</div>
+      <p id="ok-msg"></p>
+      <p data-t="ok-next">A vaga fica garantida quando o pagamento for verificado pela organização. Guarde este número e indique-o em qualquer contacto.</p>
+      <p><button type="button" class="ghost" id="outra" data-t="outra">Inscrever outra categoria</button></p>
+    </div>
+
+    <form id="frm" novalidate>
+      <section class="card">
+        <h2><span class="n">1</span><span data-t="s1">Equipa</span></h2>
+        <div class="grid">
+          <label class="f"><span class="req" data-t="clube">Nome do clube / equipa</span>
+            <input id="clube" name="clube" list="clubes" autocomplete="organization" maxlength="80" required></label>
+          <label class="f"><span class="req" data-t="pais">País</span>
+            <select id="pais" name="pais" required>
+              <option value="" data-t="escolher">Escolher…</option>
+              <option value="Moçambique" data-t="p-moz">Moçambique</option>
+              <option value="Angola">Angola</option>
+              <option value="África do Sul" data-t="p-rsa">África do Sul</option>
+              <option value="Lesoto" data-t="p-les">Lesoto</option>
+              <option value="Malawi">Malawi</option>
+              <option value="Essuatíni" data-t="p-esw">Essuatíni</option>
+              <option value="Namíbia" data-t="p-nam">Namíbia</option>
+              <option value="Outro" data-t="p-out">Outro</option>
+            </select></label>
+          <label class="f"><span data-t="cidade">Cidade</span><input id="cidade" name="cidade" maxlength="60"></label>
+          <label class="f"><span data-t="cores">Cores do equipamento</span><input id="cores" name="cores" maxlength="60" placeholder="ex.: laranja / preto"></label>
+        </div>
+        <datalist id="clubes">
+          <option value="Mahotas"><option value="Mozal"><option value="CFM Hoopers"><option value="Mentality">
+          <option value="INSS"><option value="Mutarara"><option value="Maluti Dinosaurs"><option value="Galpão Basketball Team">
+          <option value="Petromoc"><option value="Colegas"><option value="Chulos do Maxaquene"><option value="Monstros">
+          <option value="Amigas de Maputo"><option value="EDM">
+        </datalist>
+        <div>
+          <p class="f req" style="margin:0 0 8px;font-weight:600;font-size:14px" data-t="cat">Categoria (uma inscrição por categoria)</p>
+          <div class="cats" id="cats" role="radiogroup"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">2</span><span data-t="s2">Contactos</span></h2>
+        <div class="grid">
+          <label class="f"><span class="req" data-t="resp">Responsável da equipa</span><input id="resp_nome" name="resp_nome" autocomplete="name" maxlength="80" required></label>
+          <label class="f"><span class="req" data-t="tel">Telefone / WhatsApp</span><input id="resp_tel" name="resp_tel" type="tel" autocomplete="tel" placeholder="+258 84 000 0000" maxlength="30" required></label>
+          <label class="f"><span data-t="email">E-mail</span><input id="resp_email" name="resp_email" type="email" autocomplete="email" maxlength="80"></label>
+        </div>
+        <div class="grid">
+          <label class="f"><span data-t="treinador">Treinador</span><input id="treinador_nome" name="treinador_nome" maxlength="80"></label>
+          <label class="f"><span data-t="tel">Telefone / WhatsApp</span><input id="treinador_tel" name="treinador_tel" type="tel" maxlength="30"></label>
+          <label class="f"><span data-t="delegado">Delegado / team manager</span><input id="delegado_nome" name="delegado_nome" maxlength="80"></label>
+          <label class="f"><span data-t="tel">Telefone / WhatsApp</span><input id="delegado_tel" name="delegado_tel" type="tel" maxlength="30"></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">3</span><span data-t="s3">Atletas</span></h2>
+        <p class="hint" id="regra-idade"></p>
+        <p class="hint" data-t="s3-hint">Para cada atleta: documento de identificação (BI ou passaporte, foto ou PDF) e uma fotografia tipo passe. As fotografias são reduzidas automaticamente antes do envio.</p>
+        <div class="roster-head">
+          <span class="count" id="conta">0 / 15</span>
+          <button type="button" class="ghost" id="add" data-t="add">+ Adicionar atleta</button>
+        </div>
+        <div class="players" id="players"></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">4</span><span data-t="s4">Pagamento</span></h2>
+        <div class="radios" id="moedas">
+          <label><input type="radio" name="moeda" id="m-mzn" value="MZN" checked> <b>30.000 MT</b></label>
+          <label><input type="radio" name="moeda" id="m-zar" value="ZAR"> <b>7.000 ZAR</b></label>
+          <label><input type="radio" name="moeda" id="m-usd" value="USD"> <b>450 USD</b></label>
+        </div>
+        <div class="info" id="pag-info">
+          <span data-t="pag-mpesa">M-Pesa: <b>84 787 4692</b> (Sérgio Hitié)</span>
+          <span data-t="pag-bim">Millennium BIM · NIB <b>0001 0000 0112 6308 9055 7</b> (Associação Craques da Boca)</span>
+          <span data-t="pag-ref">Na referência da transferência escreva o nome do clube e a categoria.</span>
+        </div>
+        <div class="grid">
+          <label class="f"><span data-t="metodo">Método</span>
+            <select id="metodo" name="metodo">
+              <option value="" data-t="escolher">Escolher…</option>
+              <option value="M-Pesa">M-Pesa</option>
+              <option value="Transferência BIM" data-t="m-trf">Transferência bancária (BIM)</option>
+              <option value="Cartão" data-t="m-card">Cartão</option>
+              <option value="Numerário" data-t="m-cash">Numerário</option>
+            </select></label>
+          <label class="f"><span data-t="ref">Referência / n.º da transacção</span><input id="referencia" name="referencia" maxlength="60"></label>
+          <label class="f"><span data-t="comprov">Comprovativo (imagem ou PDF, máx. 5 MB)</span><input id="comprovativo" name="comprovativo" type="file" accept="image/*,application/pdf"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="pagar_depois" name="pagar_depois"> <span data-t="depois">Ainda não paguei: envio o comprovativo à organização antes do prazo.</span></label>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">5</span><span data-t="s5">Logótipo e observações</span></h2>
+        <div class="grid">
+          <label class="f"><span data-t="logo">Logótipo do clube (PNG ou JPG, para o cartaz; facultativo)</span><input id="logotipo" name="logotipo" type="file" accept="image/png,image/jpeg,image/svg+xml"></label>
+          <label class="f"><span data-t="obs">Observações</span><textarea id="obs" name="obs" rows="2" maxlength="200"></textarea></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="n">6</span><span data-t="s6">Declarações</span></h2>
+        <label class="check"><input type="checkbox" id="decl1" required> <span data-t="decl1">Declaro que os dados e documentos enviados são verdadeiros e que todos os atletas cumprem a idade mínima da categoria.</span></label>
+        <label class="check"><input type="checkbox" id="decl2" required> <span data-t="decl2">Autorizo a organização a usar estes dados apenas para verificar a idade, emitir credenciais e publicar nomes e estatísticas do torneio. Contactos e documentos não são publicados.</span></label>
+      </section>
+
+      <div id="painel" hidden></div>
+      <div class="submit">
+        <button class="btn" id="btn" type="submit" data-t="enviar">Submeter inscrição</button>
+        <span class="hint" id="estado-envio"></span>
+      </div>
+    </form>
+    <footer data-t="rodape">Associação Craques da Boca · Dúvidas: WhatsApp +258 84 787 4692</footer>
+  </main>
+</div>
+
+<script>
+/* ========================= CONFIGURAÇÃO =========================
+   API = URL /exec da Web App do Apps Script (o mesmo nas três páginas).
+   Depois de cada alteração: carregar o ficheiro para o GitHub e abrir com Ctrl+F5. */
+const API = "https://script.google.com/macros/s/AKfycbxR28668y76usK0EXG9Xmalj7M1e0Ho_QBLB7WQ9PC4PDaFyDizS54uoEG7Qd5712j_/exec";   // Web App CBIST 2026 (implementação v1, 11/10/2026)
+const EVENTO = { dataRef: "2026-12-03", prazo: "2026-11-09T23:59:59+02:00" };
+const CATEGORIAS = [
+  {cod:"M35", curto:"M+35", min:35, pt:"Masculino", en:"Men"},
+  {cod:"M40", curto:"M+40", min:40, pt:"Masculino", en:"Men"},
+  {cod:"M50", curto:"M+50", min:50, pt:"Masculino", en:"Men"},
+  {cod:"F30", curto:"F+30", min:30, pt:"Feminino",  en:"Women"},
+  {cod:"F40", curto:"F+40", min:40, pt:"Feminino",  en:"Women"},
+  {cod:"F50", curto:"F+50", min:50, pt:"Feminino",  en:"Women"}
+];
+const MIN_ATLETAS = 7, MAX_ATLETAS = 15, LINHAS_INICIAIS = 10;
+const ABAIXO_TOLERADOS = 0;          // igual a ATLETAS_ABAIXO_DA_IDADE no Code.gs
+const EXIGIR_DOC = true, EXIGIR_FOTO = true;
+/* ================================================================ */
+
+const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const ENDPOINT = (LOCAL && new URLSearchParams(location.search).get("api")) || API;
+
+const T = {
+  pt: {},
+  en: {
+    h1:"Team registration", sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 December 2026",
+    prazo:"Deadline: 9 Nov 2026", taxa:"30,000 MT · 7,000 ZAR · 450 USD per category",
+    cfg:"Test mode: this form is not yet connected to the registration system. Do not send real data.",
+    fechado:"Registration closed on 9 November 2026. Contact the organisers: +258 84 787 4692.",
+    "ok-t":"Registration received", "ok-id":"Registration number:", "ok-next":"Your place is secured once the organisers verify the payment. Keep this number and quote it in any contact.",
+    outra:"Register another category",
+    s1:"Team", clube:"Club / team name", pais:"Country", escolher:"Choose…", "p-moz":"Mozambique", "p-rsa":"South Africa", "p-les":"Lesotho", "p-esw":"Eswatini", "p-nam":"Namibia", "p-out":"Other",
+    cidade:"City", cores:"Kit colours", cat:"Category (one registration per category)",
+    s2:"Contacts", resp:"Team contact person", tel:"Phone / WhatsApp", email:"E-mail", treinador:"Coach", delegado:"Team manager",
+    s3:"Players", "s3-hint":"For each player: an ID document (ID card or passport, photo or PDF) and a passport-style photo. Photos are shrunk automatically before sending.",
+    add:"+ Add player", s4:"Payment", "pag-mpesa":"M-Pesa: <b>84 787 4692</b> (Sérgio Hitié)", "pag-bim":"Millennium BIM · NIB <b>0001 0000 0112 6308 9055 7</b> (Associação Craques da Boca)",
+    "pag-ref":"In the transfer reference write your club name and category.", metodo:"Method", "m-trf":"Bank transfer (BIM)", "m-card":"Card", "m-cash":"Cash",
+    ref:"Reference / transaction no.", comprov:"Proof of payment (image or PDF, max 5 MB)", depois:"I have not paid yet: I will send the proof to the organisers before the deadline.",
+    s5:"Logo and notes", logo:"Club logo (PNG or JPG, for the poster; optional)", obs:"Notes",
+    s6:"Declarations", decl1:"I declare that the data and documents sent are true and that every player meets the minimum age of the category.",
+    decl2:"I authorise the organisers to use this data only to check ages, issue accreditation and publish tournament names and statistics. Contacts and documents are never published.",
+    enviar:"Submit registration", rodape:"Associação Craques da Boca · Questions: WhatsApp +258 84 787 4692"
+  }
+};
+const M = {
+  pt: {
+    nome:"Nome completo", nasc:"Data de nasc.", idade:"Idade", nac:"Nacionalidade", tipo:"Documento", ndoc:"N.º do documento", cam:"Camisola",
+    fdoc:"Documento (foto ou PDF)", ffoto:"Fotografia tipo passe", remover:"Remover",
+    nascAte:(d)=>`nascidos até ${d}`, regra:(d)=>`Idade calculada a ${d} (primeiro dia do torneio). Entre ${MIN_ATLETAS} e ${MAX_ATLETAS} atletas.`,
+    conta:(n)=>`${n} / ${MAX_ATLETAS} atletas`, preparar:(a,b)=>`A preparar anexos… ${a}/${b}`, enviando:"A enviar…",
+    errosT:"Corrija antes de submeter", avisosT:"Confirme antes de submeter", confirmar:"Confirmar e submeter",
+    eClube:"Falta o nome do clube.", ePais:"Escolha o país.", eCat:"Escolha a categoria.", eResp:"Falta o responsável da equipa.", eTel:"Falta o telefone do responsável.",
+    eEmail:"O e-mail não parece válido.", eNum:(n)=>`A lista tem ${n} atletas; são precisos entre ${MIN_ATLETAS} e ${MAX_ATLETAS}.`,
+    eNasc:(i)=>`Linha ${i}: data de nascimento em falta ou inválida.`, eIdade:(i,n,a,m)=>`Linha ${i}: ${n} tem ${a} anos; a categoria exige ${m} ou mais.`,
+    eTipo:(i)=>`Linha ${i}: escolha o tipo de documento.`, eDoc:(i)=>`Linha ${i}: falta o número do documento.`, eCam:(i)=>`Linha ${i}: falta o número da camisola.`,
+    eCamRep:(i,c)=>`Linha ${i}: a camisola ${c} já está noutro atleta.`, eDocRep:(i)=>`Linha ${i}: o documento já está noutro atleta.`,
+    eFdoc:(i)=>`Linha ${i}: anexe o documento de identificação.`, eFfoto:(i)=>`Linha ${i}: anexe a fotografia.`,
+    ePag:"Anexe o comprovativo ou marque «Ainda não paguei».", eDecl:"Aceite as duas declarações.",
+    eGrande:(f,mb)=>`O ficheiro «${f}» tem mais de ${mb} MB.`, eTotal:(mb)=>`Os anexos somam ${mb} MB, acima do limite de 20 MB. Use digitalizações mais leves.`,
+    eLer:(f,i)=>`Não foi possível ler «${f}»${i?` (linha ${i})`:""}. Copie o ficheiro para uma pasta do computador e volte a escolhê-lo.`,
+    wVelho:(i,n,a)=>`Linha ${i}: ${n} tem ${a} anos. Confirme a data de nascimento.`, wCam:(i,c)=>`Linha ${i}: a camisola «${c}» não é um número de 0 a 99 (ou 00).`,
+    wTreinador:"Não indicou treinador.",
+    falhou:"Não foi possível submeter a inscrição.", motivo:"Motivo:", tentar:"Corrija e tente de novo. Se persistir, contacte +258 84 787 4692.",
+    teste:"Modo de teste: a inscrição não foi enviada (falta o URL do sistema). Os dados passaram todas as verificações.",
+    pagar:(v)=>`Valor a pagar: ${v}.`, pagoComp:"Comprovativo recebido.",
+    tipos:["BI","Passaporte","DIRE","Outro"], nacs:["Moçambicana","Angolana","Sul-africana","Lesota","Malawiana","Essuatiniana","Namibiana","Outra"]
+  },
+  en: {
+    nome:"Full name", nasc:"Date of birth", idade:"Age", nac:"Nationality", tipo:"Document", ndoc:"Document no.", cam:"Jersey",
+    fdoc:"ID document (photo or PDF)", ffoto:"Passport-style photo", remover:"Remove",
+    nascAte:(d)=>`born on or before ${d}`, regra:(d)=>`Age is counted on ${d} (first day of the tournament). ${MIN_ATLETAS} to ${MAX_ATLETAS} players.`,
+    conta:(n)=>`${n} / ${MAX_ATLETAS} players`, preparar:(a,b)=>`Preparing files… ${a}/${b}`, enviando:"Sending…",
+    errosT:"Fix before submitting", avisosT:"Check before submitting", confirmar:"Confirm and submit",
+    eClube:"Club name is missing.", ePais:"Choose the country.", eCat:"Choose the category.", eResp:"Team contact person is missing.", eTel:"Contact phone is missing.",
+    eEmail:"The e-mail does not look valid.", eNum:(n)=>`The roster has ${n} players; ${MIN_ATLETAS} to ${MAX_ATLETAS} are needed.`,
+    eNasc:(i)=>`Row ${i}: date of birth missing or invalid.`, eIdade:(i,n,a,m)=>`Row ${i}: ${n} is ${a}; this category requires ${m} or older.`,
+    eTipo:(i)=>`Row ${i}: choose the document type.`, eDoc:(i)=>`Row ${i}: document number is missing.`, eCam:(i)=>`Row ${i}: jersey number is missing.`,
+    eCamRep:(i,c)=>`Row ${i}: jersey ${c} is already used by another player.`, eDocRep:(i)=>`Row ${i}: this document is already used by another player.`,
+    eFdoc:(i)=>`Row ${i}: attach the ID document.`, eFfoto:(i)=>`Row ${i}: attach the photo.`,
+    ePag:"Attach the proof of payment or tick “I have not paid yet”.", eDecl:"Accept both declarations.",
+    eGrande:(f,mb)=>`The file “${f}” is larger than ${mb} MB.`, eTotal:(mb)=>`Attachments add up to ${mb} MB, above the 20 MB limit. Use lighter scans.`,
+    eLer:(f,i)=>`Could not read “${f}”${i?` (row ${i})`:""}. Copy the file to a local folder and choose it again.`,
+    wVelho:(i,n,a)=>`Row ${i}: ${n} is ${a}. Check the date of birth.`, wCam:(i,c)=>`Row ${i}: jersey “${c}” is not a number from 0 to 99 (or 00).`,
+    wTreinador:"No coach given.",
+    falhou:"The registration could not be submitted.", motivo:"Reason:", tentar:"Fix it and try again. If it persists, contact +258 84 787 4692.",
+    teste:"Test mode: nothing was sent (the system URL is not set). The data passed every check.",
+    pagar:(v)=>`Amount due: ${v}.`, pagoComp:"Proof of payment received.",
+    tipos:["ID card","Passport","DIRE","Other"], nacs:["Mozambican","Angolan","South African","Basotho","Malawian","Swazi","Namibian","Other"]
+  }
+};
+const VAL_TIPOS = ["BI","Passaporte","DIRE","Outro"];
+const VAL_NACS = ["Moçambicana","Angolana","Sul-africana","Lesota","Malawiana","Essuatiniana","Namibiana","Outra"];
+let LANG = "pt";
+try { LANG = localStorage.getItem("cbist-lang") || (/^pt/i.test(navigator.language) ? "pt" : "en"); } catch(e) { LANG = /^pt/i.test(navigator.language) ? "pt" : "en"; }
+const m = () => M[LANG];
+
+/* ---------- datas ---------- */
+const fmtD = iso => { const [y,mo,d] = iso.split("-"); return `${d}/${mo}/${y}`; };
+function nascidoAte(min){ const [y,mo,d] = EVENTO.dataRef.split("-"); return `${d}/${mo}/${+y - min}`; }
+function idadeEm(nasc, ref){
+  const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(nasc||""), r = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ref);
+  if (!a) return null;
+  let i = +r[1] - +a[1]; if (+r[2] < +a[2] || (+r[2] === +a[2] && +r[3] < +a[3])) i--;
+  return (i < 10 || i > 100) ? null : i;
+}
+const catSel = () => CATEGORIAS.find(c => c.cod === (document.querySelector('input[name="categoria"]:checked')||{}).value);
+
+/* ---------- categorias ---------- */
+function desenharCats(){
+  const sel = (catSel()||{}).cod;
+  document.getElementById("cats").innerHTML = CATEGORIAS.map(c => `
+    <label class="cat"><input type="radio" name="categoria" id="cat-${c.cod}" value="${c.cod}" ${sel===c.cod?"checked":""}>
+      <span><b>${c.curto}</b><em>${c[LANG]} · ${m().nascAte(nascidoAte(c.min))}</em></span></label>`).join("");
+  document.querySelectorAll('input[name="categoria"]').forEach(r => r.addEventListener("change", actualizarIdades));
+}
+
+/* ---------- atletas ---------- */
+let seq = 0;
+function opcoes(vals, rot, sel){ return `<option value="">—</option>` + vals.map((v,i)=>`<option value="${v}" ${v===sel?"selected":""}>${rot[i]}</option>`).join(""); }
+function novaLinha(){
+  const k = ++seq, t = m();
+  const d = document.createElement("div");
+  d.className = "pl"; d.dataset.k = k;
+  d.innerHTML = `
+    <span class="num"></span>
+    <label class="nome">${t.nome}<input id="a${k}_nome" data-c="nome" maxlength="80" autocomplete="off"></label>
+    <label class="nasc">${t.nasc}<input id="a${k}_nasc" data-c="nasc" type="date" min="1925-01-01" max="2000-12-31"></label>
+    <label class="idade">${t.idade}<span class="age" id="a${k}_idade">–</span></label>
+    <label class="nac">${t.nac}<select id="a${k}_nac" data-c="nac">${opcoes(VAL_NACS, t.nacs, "")}</select></label>
+    <label class="tipo">${t.tipo}<select id="a${k}_tipo" data-c="doc_tipo">${opcoes(VAL_TIPOS, t.tipos, "")}</select></label>
+    <label class="ndoc">${t.ndoc}<input id="a${k}_doc" data-c="doc_num" maxlength="30" autocomplete="off"></label>
+    <label class="cam">${t.cam}<input id="a${k}_cam" data-c="camisola" maxlength="2" inputmode="numeric" autocomplete="off"></label>
+    <div class="files">
+      <label>${t.fdoc}<input id="a${k}_fdoc" type="file" data-f="doc" accept="image/*,application/pdf"></label>
+      <label>${t.ffoto}<input id="a${k}_ffoto" type="file" data-f="foto" accept="image/*"></label>
+    </div>
+    <button type="button" class="del" aria-label="${t.remover}">✕ ${t.remover}</button>`;
+  d.querySelector('[data-c="nasc"]').addEventListener("change", () => actualizarIdade(d));
+  d.querySelector('[data-c="nome"]').addEventListener("input", contar);
+  d.querySelector(".del").addEventListener("click", () => { d.remove(); renumerar(); contar(); });
+  document.getElementById("players").appendChild(d);
+  renumerar(); contar();
+  return d;
+}
+function linhas(){ return [...document.querySelectorAll("#players .pl")]; }
+function renumerar(){ linhas().forEach((d,i) => d.querySelector(".num").textContent = i + 1);
+  document.getElementById("add").disabled = linhas().length >= MAX_ATLETAS; }
+const preenchida = d => d.querySelector('[data-c="nome"]').value.trim() !== "";
+function contar(){
+  const n = linhas().filter(preenchida).length, el = document.getElementById("conta");
+  el.textContent = m().conta(n);
+  el.className = "count " + (n >= MIN_ATLETAS && n <= MAX_ATLETAS ? "ok" : (n ? "bad" : ""));
+}
+function actualizarIdade(d){
+  const v = d.querySelector('[data-c="nasc"]').value, el = d.querySelector(".age"), c = catSel();
+  const i = idadeEm(v, EVENTO.dataRef);
+  el.textContent = i === null ? "–" : i;
+  el.className = "age" + (i === null || !c ? "" : (i >= c.min ? " ok" : " bad"));
+}
+function actualizarIdades(){ linhas().forEach(actualizarIdade); }
+
+/* ---------- idioma ---------- */
+function aplicarIdioma(lang){
+  // guardar o que já foi escrito nas linhas antes de redesenhar os rótulos
+  LANG = lang; try { localStorage.setItem("cbist-lang", lang); } catch(e) {}
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => {
+    if (!el.dataset.pt) el.dataset.pt = el.innerHTML;
+    const v = lang === "en" ? T.en[el.dataset.t] : el.dataset.pt;
+    if (v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  document.getElementById("regra-idade").textContent = m().regra(fmtD(EVENTO.dataRef));
+  desenharCats();
+  linhas().forEach(d => {
+    const t = m(), lab = d.querySelectorAll("label");
+    const rot = [t.nome,t.nasc,t.idade,t.nac,t.tipo,t.ndoc,t.cam,t.fdoc,t.ffoto];
+    lab.forEach((l,i) => { if (l.firstChild && l.firstChild.nodeType === 3) l.firstChild.nodeValue = rot[i]; });
+    const sn = d.querySelector('[data-c="nac"]'), st = d.querySelector('[data-c="doc_tipo"]');
+    [...sn.options].slice(1).forEach((o,i) => o.textContent = t.nacs[i]);
+    [...st.options].slice(1).forEach((o,i) => o.textContent = t.tipos[i]);
+    d.querySelector(".del").textContent = "✕ " + t.remover;
+  });
+  contar(); actualizarIdades();
+  if (avisosAceites) document.getElementById("btn").textContent = m().confirmar;
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => aplicarIdioma(b.dataset.lang)));
+
+/* ---------- validação ---------- */
+let avisosAceites = "";
+const val = id => document.getElementById(id).value.trim();
+function validar(){
+  const t = m(), erros = [], avisos = [], c = catSel();
+  if (!val("clube")) erros.push({msg:t.eClube, el:"clube"});
+  if (!val("pais")) erros.push({msg:t.ePais, el:"pais"});
+  if (!c) erros.push({msg:t.eCat, el:"cats"});
+  if (!val("resp_nome")) erros.push({msg:t.eResp, el:"resp_nome"});
+  if (!val("resp_tel")) erros.push({msg:t.eTel, el:"resp_tel"});
+  if (val("resp_email") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val("resp_email"))) erros.push({msg:t.eEmail, el:"resp_email"});
+  if (!val("treinador_nome")) avisos.push({msg:t.wTreinador});
+  const cheias = linhas().filter(preenchida);
+  if (cheias.length < MIN_ATLETAS || cheias.length > MAX_ATLETAS) erros.push({msg:t.eNum(cheias.length), el:"players"});
+  const cams = {}, docs = {}; let abaixo = 0;
+  linhas().forEach((d,ix) => {
+    d.classList.remove("erro","aviso");
+    if (!preenchida(d)) return;
+    const i = ix + 1, g = s => d.querySelector(`[data-c="${s}"]`).value.trim(), nome = g("nome");
+    const marca = (msg, aviso) => { (aviso ? avisos : erros).push({msg, row:d}); d.classList.add(aviso ? "aviso" : "erro"); };
+    const idade = idadeEm(g("nasc"), EVENTO.dataRef);
+    if (idade === null) marca(t.eNasc(i));
+    else if (c && idade < c.min) { abaixo++; if (abaixo > ABAIXO_TOLERADOS) marca(t.eIdade(i, nome, idade, c.min)); }
+    else if (idade > 75) marca(t.wVelho(i, nome, idade), true);
+    if (!g("doc_tipo")) marca(t.eTipo(i));
+    const doc = g("doc_num").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!doc) marca(t.eDoc(i)); else if (docs[doc]) marca(t.eDocRep(i)); else docs[doc] = 1;
+    const cam = g("camisola");
+    if (!cam) marca(t.eCam(i)); else if (cams[cam]) marca(t.eCamRep(i, cam)); else cams[cam] = 1;
+    if (cam && !/^(00|[0-9]|[1-9][0-9])$/.test(cam)) marca(t.wCam(i, cam), true);
+    if (EXIGIR_DOC && !d.querySelector('[data-f="doc"]').files[0]) marca(t.eFdoc(i));
+    if (EXIGIR_FOTO && !d.querySelector('[data-f="foto"]').files[0]) marca(t.eFfoto(i));
+  });
+  if (!document.getElementById("comprovativo").files[0] && !document.getElementById("pagar_depois").checked) erros.push({msg:t.ePag, el:"comprovativo"});
+  if (!document.getElementById("decl1").checked || !document.getElementById("decl2").checked) erros.push({msg:t.eDecl, el:"decl1"});
+  return {erros, avisos};
+}
+function painel(tipo, itens){
+  const p = document.getElementById("painel"), t = m();
+  p.className = tipo; p.hidden = false;
+  p.innerHTML = `<h3>${tipo === "err" ? t.errosT : t.avisosT}</h3><ul>${itens.map(x => `<li>${esc(x.msg)}</li>`).join("")}</ul>`;
+  const alvo = itens[0] && (itens[0].row || (itens[0].el && document.getElementById(itens[0].el)));
+  p.scrollIntoView({block:"center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  if (alvo && alvo.querySelector) { const inp = alvo.matches("input,select") ? alvo : alvo.querySelector("input,select"); if (inp) setTimeout(() => inp.focus({preventScroll:true}), 300); }
+}
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+/* ---------- ficheiros (como no formulário da LMB v5) ---------- */
+const MAX_LADO_FOTO = 800, MAX_LADO_DOC = 1600, QUALIDADE = 0.82, MAX_TOTAL = 20 * 1024 * 1024;
+const LIM = {foto: 12, doc: 12, pdf: 2, comprovativo: 5, logotipo: 2};   // MB, antes da compressão
+function lerFicheiro(f){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res({nome:f.name, tipo:f.type, b64:String(fr.result).split(",")[1]});
+    fr.onerror = fr.onabort = () => rej(new Error("leitura"));
+    fr.readAsDataURL(f);
+  });
+}
+function comprimir(f, lado){
+  return new Promise(res => {
+    if (!/^image\/(jpeg|jpg|png|webp|heic|heif)$/i.test(f.type || "")) return res(null);
+    const url = URL.createObjectURL(f), img = new Image();
+    img.onload = () => { try {
+      const e = Math.min(1, lado / Math.max(img.width, img.height)), w = Math.max(1, Math.round(img.width*e)), h = Math.max(1, Math.round(img.height*e));
+      const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+      const b64 = cv.toDataURL("image/jpeg", QUALIDADE).split(",")[1]; URL.revokeObjectURL(url);
+      if (!b64 || b64.length * .75 >= f.size) return res(null);
+      res({nome:f.name.replace(/\.[^.]+$/, "") + ".jpg", tipo:"image/jpeg", b64});
+    } catch(err) { URL.revokeObjectURL(url); res(null); } };
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
+async function preparar(f, tipo){
+  if (tipo === "logotipo") return lerFicheiro(f);                      // logótipo intacto (transparência)
+  const lado = tipo === "foto" ? MAX_LADO_FOTO : MAX_LADO_DOC;
+  return (await comprimir(f, lado)) || lerFicheiro(f);
+}
+function limiteMB(f, tipo){ return f.type === "application/pdf" && (tipo === "doc") ? LIM.pdf : LIM[tipo]; }
+
+/* ---------- submissão ---------- */
+document.getElementById("frm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const t = m(), btn = document.getElementById("btn"), st = document.getElementById("estado-envio");
+  document.getElementById("painel").hidden = true;
+  const {erros, avisos} = validar();
+  if (erros.length){ avisosAceites = ""; btn.textContent = t.enviar || T.en.enviar; aplicarTextoBtn(); return painel("err", erros); }
+  const assin = avisos.map(a => a.msg).join("|");
+  if (avisos.length && avisosAceites !== assin){ avisosAceites = assin; btn.textContent = t.confirmar; return painel("warn", avisos); }
+
+  // anexos
+  const anexos = [];
+  linhas().filter(preenchida).forEach((d) => {
+    const k = d.dataset.k;
+    d.querySelectorAll("input[type=file]").forEach(inp => { if (inp.files[0]) anexos.push({inp, campo:`a${k}_${inp.dataset.f}`, tipo:inp.dataset.f, row:d}); });
+  });
+  ["comprovativo","logotipo"].forEach(id => { const inp = document.getElementById(id); if (inp.files[0]) anexos.push({inp, campo:id, tipo:id}); });
+  for (const a of anexos){
+    const f = a.inp.files[0], lim = limiteMB(f, a.tipo);
+    if (f.size > lim * 1048576) { if (a.row) a.row.classList.add("erro"); return painel("err", [{msg:t.eGrande(f.name, lim), row:a.row, el:a.inp.id}]); }
+  }
+  btn.disabled = true;
+  try {
+    const dados = {acao:"inscricao", campos:{}, atletas:[], ficheiros:[]};
+    ["clube","pais","cidade","cores","resp_nome","resp_tel","resp_email","treinador_nome","treinador_tel","delegado_nome","delegado_tel","metodo","referencia","obs"].forEach(id => dados.campos[id] = val(id));
+    dados.campos.categoria = catSel().cod;
+    dados.campos.moeda = document.querySelector('input[name="moeda"]:checked').value;
+    dados.campos.pagar_depois = document.getElementById("pagar_depois").checked;
+    dados.campos.idioma = LANG;
+    linhas().filter(preenchida).forEach(d => {
+      const g = s => d.querySelector(`[data-c="${s}"]`).value.trim();
+      dados.atletas.push({linha:+d.dataset.k, nome:g("nome"), nasc:g("nasc"), nac:g("nac"), doc_tipo:g("doc_tipo"), doc_num:g("doc_num"), camisola:g("camisola")});
+    });
+    let feitos = 0;
+    for (const a of anexos){
+      btn.textContent = t.preparar(++feitos, anexos.length);
+      try { dados.ficheiros.push({campo:a.campo, ...(await preparar(a.inp.files[0], a.tipo))}); }
+      catch(e) { if (a.row) a.row.classList.add("erro"); throw new Error(t.eLer(a.inp.files[0].name, a.row ? linhas().indexOf(a.row) + 1 : 0)); }
+    }
+    const corpo = JSON.stringify(dados);
+    if (corpo.length > MAX_TOTAL) throw new Error(t.eTotal((corpo.length / 1048576).toFixed(1)));
+    btn.textContent = t.enviando;
+    if (!ENDPOINT){ sucesso({ok:true, id:"TESTE", moeda:dados.campos.moeda, valor:{MZN:30000,ZAR:7000,USD:450}[dados.campos.moeda]}, true); return; }
+    const resp = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:corpo});
+    const out = await resp.json().catch(() => ({ok:resp.ok}));
+    if (!resp.ok || out.ok === false) throw new Error(out.erro || ("HTTP " + resp.status));
+    sucesso(out, false);
+  } catch(e) {
+    painel("err", [{msg:`${t.falhou} ${t.motivo} ${e && e.message ? e.message : "?"} — ${t.tentar}`}]);
+    btn.disabled = false; aplicarTextoBtn();
+  }
+});
+function aplicarTextoBtn(){ document.getElementById("btn").textContent = LANG === "en" ? T.en.enviar : "Submeter inscrição"; }
+function sucesso(out, teste){
+  const t = m();
+  document.getElementById("frm").hidden = true;
+  document.getElementById("painel").hidden = true;
+  document.getElementById("ok-id").textContent = out.id;
+  const valor = out.valor ? new Intl.NumberFormat(LANG === "en" ? "en-GB" : "pt-PT").format(out.valor) + " " + (out.moeda === "MZN" ? "MT" : out.moeda) : "";
+  document.getElementById("ok-msg").textContent = (teste ? t.teste + " " : "") +
+    (document.getElementById("comprovativo").files[0] ? t.pagoComp : t.pagar(valor));
+  document.getElementById("sucesso").hidden = false;
+  window.scrollTo({top:0});
+}
+document.getElementById("outra").addEventListener("click", () => {
+  // mantém equipa e contactos; limpa categoria, atletas e pagamento
+  document.querySelectorAll('input[name="categoria"]').forEach(r => r.checked = false);
+  document.getElementById("players").innerHTML = ""; for (let i = 0; i < LINHAS_INICIAIS; i++) novaLinha();
+  ["comprovativo","referencia"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("pagar_depois").checked = false;
+  document.getElementById("sucesso").hidden = true; document.getElementById("frm").hidden = false;
+  document.getElementById("btn").disabled = false; aplicarTextoBtn(); avisosAceites = "";
+  window.scrollTo({top:0});
+});
+
+/* ---------- arranque ---------- */
+document.getElementById("add").addEventListener("click", () => { const d = novaLinha(); d.querySelector("input").focus(); });
+for (let i = 0; i < LINHAS_INICIAIS; i++) novaLinha();
+aplicarIdioma(LANG);
+if (!ENDPOINT) document.getElementById("cfg").hidden = false;
+if (new Date() > new Date(EVENTO.prazo)) { document.getElementById("fechado").hidden = false; document.getElementById("frm").hidden = true; }
+</script>
+</body>
+</html>
