@@ -1,0 +1,128 @@
+/* =====================================================================
+   CBIST — fundos fotográficos e «A nossa história»
+   Partilhado pela Central (index.html) e pela Inscrição (inscricao/).
+   Usa as variáveis de cor de cada página (--court, --gold, --fire, …).
+   ===================================================================== */
+
+/* ---------- cabeçalho com fotografia ---------- */
+header.mast{position:relative;overflow:hidden;isolation:isolate}
+header.mast > .wrap{position:relative;z-index:2}
+.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;background:transparent}
+.hero-bg .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.hero-bg .sl.on{opacity:1}
+.hero-bg img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02)}
+.hero-bg .sl.on img{animation:kb 9s ease-out both}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.1)}}
+@media (prefers-reduced-motion: reduce){.hero-bg .sl{transition:none}.hero-bg .sl.on img{animation:none}}
+/* véu azul-marinho: o texto fica sempre legível, com ou sem foto */
+.hero-bg::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(85% 130% at 100% 0%,rgba(239,96,16,.32) 0%,rgba(200,23,15,.10) 42%,transparent 72%),
+    linear-gradient(90deg,rgba(10,13,92,.94) 0%,rgba(10,13,92,.80) 42%,rgba(10,13,92,.42) 100%),
+    linear-gradient(0deg,rgba(10,13,92,.85) 0%,rgba(10,13,92,0) 45%)}
+@media (max-width:640px){
+  .hero-bg::after{background:
+    radial-gradient(85% 130% at 100% 0%,rgba(239,96,16,.30) 0%,transparent 70%),
+    linear-gradient(180deg,rgba(10,13,92,.70) 0%,rgba(10,13,92,.86) 60%,rgba(10,13,92,.94) 100%)}
+}
+/* sem fotografias: linhas de um campo de basquetebol, em vez de um vazio */
+.hero-bg.vazio{background:var(--court-art) no-repeat right -40px center / auto 135%}
+@media (max-width:640px){.hero-bg.vazio{background-position:right -140px center}}
+:root{--court-art:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' fill='none' stroke='%23ffffff' stroke-opacity='.13' stroke-width='3'%3E%3Crect x='20' y='20' width='560' height='360' rx='4'/%3E%3Cline x1='300' y1='20' x2='300' y2='380'/%3E%3Ccircle cx='300' cy='200' r='54'/%3E%3Ccircle cx='300' cy='200' r='16'/%3E%3Crect x='20' y='136' width='118' height='128'/%3E%3Ccircle cx='138' cy='200' r='54'/%3E%3Cpath d='M20 46 H72 A160 160 0 0 1 72 354 H20'/%3E%3Crect x='462' y='136' width='118' height='128'/%3E%3Ccircle cx='462' cy='200' r='54'/%3E%3Cpath d='M580 46 H528 A160 160 0 0 0 528 354 H580'/%3E%3Ccircle cx='46' cy='200' r='9'/%3E%3Ccircle cx='554' cy='200' r='9'/%3E%3C/svg%3E")}
+
+/* legenda da fotografia (conta a história) + controlos */
+.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;min-height:30px}
+.hero-cap:empty{display:none}
+.hero-cap{margin:0;font-size:13.5px;line-height:1.35;opacity:.95;display:flex;gap:8px;align-items:baseline;min-width:0;max-width:62ch}
+.hero-cap b{font:700 13px/1 var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.hero-ctl{display:flex;align-items:center;gap:6px;margin-left:auto}
+.hero-ctl .dots{display:flex;gap:5px}
+.hero-ctl .dots button{all:unset;cursor:pointer;width:18px;height:4px;border-radius:2px;background:rgba(255,255,255,.35)}
+.hero-ctl .dots button[aria-current="true"]{background:var(--gold)}
+.hero-ctl .pp{all:unset;cursor:pointer;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.4);font-size:11px;line-height:1}
+.hero-ctl button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.hero-link{color:var(--gold);font:600 14px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.hero-link:hover{text-decoration:underline}
+
+/* ---------- fundo da página: textura muito leve ---------- */
+body.craques{position:relative}
+body.craques::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:var(--textura,none) center/cover no-repeat,var(--court-art) no-repeat right -260px bottom -120px / 980px auto;
+  opacity:.06;filter:grayscale(1)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body.craques::before{opacity:.10}}
+:root[data-theme="dark"] body.craques::before{opacity:.10}
+
+/* ---------- molduras de fotografia em falta (modo guia ?guia=1) ---------- */
+.guia-banner{background:#FFF1D6;color:#3A2600;border:1px solid #9A5B00;border-radius:8px;padding:10px 12px;font-size:14px}
+.vaga{position:relative;display:grid;place-content:center;gap:4px;text-align:center;padding:14px;
+  background:var(--court-art) center/cover no-repeat,linear-gradient(160deg,var(--court) 0%,var(--court-2) 100%);color:#fff;
+  border:2px dashed var(--gold);border-radius:10px;min-height:120px}
+.vaga b{font:700 14px/1.1 var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.vaga span{font-size:13px;line-height:1.35;opacity:.95;max-width:42ch}
+
+/* ---------- Inscrição: «Porquê jogar o CBIST» ---------- */
+.porque{display:grid;gap:12px}
+.porque-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+section.card.porque h2,.porque h2{margin:0;font:700 clamp(19px,4.6vw,24px)/1.1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;display:block}
+.nums{display:flex;gap:8px 18px;flex-wrap:wrap}
+.nums div{display:grid;line-height:1}
+.nums b{font:700 30px/1 var(--font-display);color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.nums span{font-size:13px;color:var(--muted)}
+.tiles{display:grid;gap:10px;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:2px}
+.tiles::-webkit-scrollbar{display:none}
+.tile{position:relative;scroll-snap-align:start;border-radius:10px;overflow:hidden;aspect-ratio:4/5;min-height:170px;margin:0;
+  background:var(--court-art) center/240% auto no-repeat,linear-gradient(160deg,var(--court) 0%,var(--court-2) 100%)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile figcaption{position:absolute;inset:auto 0 0 0;padding:28px 10px 10px;color:#fff;
+  background:linear-gradient(0deg,rgba(10,13,92,.92) 0%,rgba(10,13,92,0) 100%);display:grid;gap:2px}
+.tile figcaption b{font:700 18px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase}
+.tile figcaption span{font-size:12.5px;line-height:1.3;opacity:.92}
+.tile.vaga{aspect-ratio:4/5;min-height:170px;padding:10px}
+@media (min-width:760px){.tiles{grid-auto-flow:row;grid-template-columns:repeat(4,1fr)}.tile{aspect-ratio:1}}
+
+/* ---------- Central: separador «História» ---------- */
+.hist{display:grid;gap:22px}
+.hist-intro{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.hist-intro p{margin:0;max-width:68ch}
+.linha{list-style:none;margin:0;padding:0 0 0 22px;display:grid;gap:14px;position:relative}
+.linha::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--fire)}
+.ed{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:grid;grid-template-columns:minmax(0,1fr)}
+.ed::before{content:"";position:absolute;left:-22px;top:18px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:3px solid var(--accent)}
+.ed.agora::before{background:var(--gold);border-color:var(--gold)}
+@media (min-width:700px){.ed{grid-template-columns:260px minmax(0,1fr)}.ed .ph{border-radius:11px 0 0 11px}}
+.ed .ph{position:relative;margin:0;min-height:150px;overflow:hidden;border-radius:11px 11px 0 0;background:var(--court-art) center/220% auto no-repeat,linear-gradient(160deg,var(--court) 0%,var(--court-2) 100%)}
+.ed .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.ed .ph .num{position:absolute;left:14px;bottom:10px;font:700 54px/1 var(--font-display);color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+.ed .ph .num sup{font-size:.4em;vertical-align:top;position:relative;top:.35em;color:var(--gold)}
+.ed .bd{padding:14px 16px;display:grid;gap:8px;align-content:start}
+.ed .yr{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ed .yr b{font:700 26px/1 var(--font-display);letter-spacing:.02em}
+.ed .yr span{color:var(--muted);font-size:14px}
+.ed p{margin:0}
+.camp{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.camp li{font-size:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:4px 7px}
+.camp li b{font:700 13px/1 var(--font-display);letter-spacing:.05em;color:var(--accent-ink);margin-right:4px}
+.ed .acts{display:flex;gap:10px;flex-wrap:wrap}
+.btnl{display:inline-flex;align-items:center;gap:6px;font:700 15px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;
+  padding:10px 14px;border-radius:8px;background:var(--accent);color:var(--on-accent);border:0;cursor:pointer}
+.btnl.ghost{background:transparent;color:var(--accent-ink);border:1.5px solid var(--accent)}
+.btnl:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.galeria{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.galeria figure{margin:0;position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--surface-2)}
+.galeria img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;display:block}
+.galeria figcaption{position:absolute;inset:auto 0 0 0;padding:16px 8px 6px;font-size:12px;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.65),transparent)}
+.ajuda{display:grid;gap:10px;background:var(--accent-soft);border:1px solid transparent;border-radius:12px;padding:16px}
+.ajuda h3{margin:0;font:700 20px/1.1 var(--font-display);text-transform:uppercase;letter-spacing:.04em}
+.ajuda p{margin:0}
+/* ampliar fotografia */
+dialog.zoom{border:0;padding:0;background:transparent;max-width:min(96vw,1400px);max-height:92vh}
+dialog.zoom::backdrop{background:rgba(5,6,30,.88)}
+dialog.zoom img{display:block;max-width:100%;max-height:84vh;border-radius:8px}
+dialog.zoom p{color:#fff;margin:8px 2px 0;font-size:14px}
+dialog.zoom button{all:unset;position:absolute;top:8px;right:8px;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:36px;height:36px;display:grid;place-items:center;font-size:18px}
+
+/* ---------- partilhar / copiar / contagem ---------- */
+.share{all:unset;cursor:pointer;font:600 12.5px/1 var(--font-display);letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding:4px 2px}
+.share:hover{text-decoration:underline}
+.share:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.chip.gold{background:var(--gold);border-color:var(--gold);color:#1B1F4B}

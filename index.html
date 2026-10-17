@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="craques.css">
 <style>
 /* Layout: navy masthead, sticky category chips + tab bar, then one section per category (games by day, standings, scorers, teams). */
 :root{
@@ -120,6 +121,10 @@ header.top .logo{width:46px;height:46px}
 .mast h1 span,header.top h1 span{color:var(--gold)}
 .brand b{color:var(--gold);font-weight:700}
 .lang button[aria-pressed="true"]{background:var(--gold);color:#1B1F4B}
+@media (min-width:700px){.mast .wrap{min-height:250px;align-content:space-between}}
+#conta:empty{display:none}
+#conta{font:600 13px/1 var(--font-display);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--gold);color:#1B1F4B}
+.g .ft{display:flex;justify-content:flex-end;margin-top:-2px}
 @media (max-width:420px){.logo{width:70px;height:70px}.brand{font-size:12.5px;letter-spacing:.1em}.chip{letter-spacing:.03em}}
 </style>
 </head>
@@ -140,7 +145,8 @@ header.top .logo{width:46px;height:46px}
       <p id="sub">Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 Dez 2026</p>
       </div>
     </div>
-    <div class="meta"><span class="pulse" id="pulse"><i></i><span id="upd">A carregar…</span></span><span id="auto"></span></div>
+    <div class="meta"><span class="pulse" id="pulse"><i></i><span id="upd">A carregar…</span></span><span id="auto"></span><span id="conta"></span></div>
+    <div class="hero-foot"><p class="hero-cap" id="hero-cap"></p><span class="hero-ctl" id="hero-ctl"></span><a class="hero-link" id="link-hist" href="#historia">A nossa história →</a></div>
     <div class="demo" id="demo" hidden></div>
   </div>
 </header>
@@ -153,6 +159,7 @@ header.top .logo{width:46px;height:46px}
 <div class="wrap"><main id="main"></main></div>
 <div class="wrap"><footer><span id="foot"></span> <a id="link-insc" href="inscricao/index.html" hidden></a></footer></div>
 
+<script src="historia.js"></script>
 <script>
 /* ========================= CONFIGURAÇÃO =========================
    API = URL /exec da Web App do Apps Script (o mesmo nas três páginas).
@@ -165,7 +172,9 @@ const ENDPOINT = (LOCAL && new URLSearchParams(location.search).get("api")) || A
 
 const L = {
   pt: { sub:"Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 Dez 2026",
-    tabs:{jogos:"Jogos", class:"Classificação", lideres:"Marcadores", equipas:"Equipas"}, todas:"Todas",
+    tabs:{jogos:"Jogos", class:"Classificação", lideres:"Marcadores", equipas:"Equipas", historia:"História"}, todas:"Todas",
+    hist:"A nossa história →", partilhar:"Partilhar", copiado:"Copiado — cole no WhatsApp",
+    faltam:(n)=>n === 1 ? "Falta 1 dia" : `Faltam ${n} dias`, diaN:(n)=>`Dia ${n} de 3`, vs:"vs", per:(n)=>`${n}.º período`,
     carregando:"A carregar…", act:(h)=>`Actualizado às ${h}`, auto:`Actualiza sozinho a cada ${REFRESH_S} s`, falha:"Sem ligação — a mostrar os últimos dados",
     demo:"Demonstração com dados de exemplo: jogos, resultados e jogadores são fictícios. As equipas são as da lista de confirmações de 6 Out.",
     aoVivo:"Ao vivo", final:"Final", agendado:"Agendado", adiado:"Adiado", cancelado:"Cancelado", porMarcar:"Data por marcar",
@@ -186,7 +195,9 @@ const L = {
     rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:"Inscrever uma equipa (até 9 Nov) →",
     dias:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"], meses:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]},
   en: { sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 Dec 2026",
-    tabs:{jogos:"Games", class:"Standings", lideres:"Scorers", equipas:"Teams"}, todas:"All",
+    tabs:{jogos:"Games", class:"Standings", lideres:"Scorers", equipas:"Teams", historia:"History"}, todas:"All",
+    hist:"Our story →", partilhar:"Share", copiado:"Copied — paste it in WhatsApp",
+    faltam:(n)=>n === 1 ? "1 day to go" : `${n} days to go`, diaN:(n)=>`Day ${n} of 3`, vs:"vs", per:(n)=>`Q${n}`,
     carregando:"Loading…", act:(h)=>`Updated at ${h}`, auto:`Refreshes every ${REFRESH_S} s`, falha:"No connection — showing the last data",
     demo:"Demo with sample data: games, scores and players are fictional. Teams are those on the 6 Oct confirmation list.",
     aoVivo:"Live", final:"Final", agendado:"Scheduled", adiado:"Postponed", cancelado:"Cancelled", porMarcar:"Date to be set",
@@ -209,7 +220,11 @@ const L = {
 };
 let LANG = "pt", TAB = "jogos", CAT = "", DATA = null, falhou = false;
 try { LANG = localStorage.getItem("cbist-lang") || (/^pt/i.test(navigator.language) ? "pt" : "en"); CAT = localStorage.getItem("cbist-cat") || ""; } catch(e) {}
-if (["jogos","class","lideres","equipas"].includes(location.hash.slice(1))) TAB = location.hash.slice(1);
+const TABS = ["jogos","class","lideres","equipas","historia"];
+if (TABS.includes(location.hash.slice(1))) TAB = location.hash.slice(1);
+const HIST = window.CBIST_HISTORIA || null;
+const PAGINA = location.href.split("#")[0].split("?")[0];
+const INICIO = new Date("2026-12-03T00:00:00+02:00"), PRAZO = new Date("2026-11-09T23:59:59+02:00");
 const t = () => L[LANG];
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const n0 = v => (v === "" || v === null || v === undefined) ? null : Number(v);
@@ -315,6 +330,7 @@ function cartao(g, semCat){
     </div>
     ${per.length ? `<div class="qs">${per.map(esc).join("<span aria-hidden='true'>·</span>")}</div>` : ""}
     ${g.notas && !/^Ronda \d+$/.test(g.notas) ? `<div class="qs">${esc(g.notas)}</div>` : ""}
+    ${g.casaNome && g.foraNome ? `<div class="ft"><button type="button" class="share" data-share="${esc(g.id)}">${t().partilhar} ↗</button></div>` : ""}
   </article>`;
 }
 function vJogos(){
@@ -379,8 +395,40 @@ function vEquipas(){
   });
   return out.join("") || `<p class="empty">${t().semEquipas}</p>`;
 }
+function vHistoria(){
+  if (!HIST) return `<p class="empty">—</p>`;
+  return HIST.vistaHistoria(LANG, {inscricaoAberta: new Date() <= PRAZO, linkInscricao: "inscricao/"});
+}
+function textoJogo(g){
+  const x = t(), tc = n0(g.tc), tf = n0(g.tf), tem = tc !== null && tf !== null;
+  const fase = g.fase && g.fase !== "Grupos" ? (x.fase[g.fase] || g.fase) : (g.grupo ? `${x.grupo} ${g.grupo}` : "");
+  const cab = [catNome(g.cat), fase].filter(Boolean).join(" · ");
+  let est = "";
+  if (g.estado === "Final") est = x.final;
+  else if (g.estado === "Ao vivo") { const q = (g.pc||[]).filter((v,i) => v !== "" || (g.pf||[])[i] !== "").length; est = `🔴 ${x.aoVivo}${q ? " · " + x.per(q) : ""}`; }
+  else est = [fmtDia(g.data), g.hora, g.campo ? `${x.campo} ${g.campo}` : ""].filter(Boolean).join(" · ");
+  const linha = tem && g.estado !== "Agendado" ? `${g.casaNome} ${tc}–${tf} ${g.foraNome}` : `${g.casaNome} ${x.vs} ${g.foraNome}`;
+  return `🏀 CBIST 2026 · ${cab}\n${est}\n*${linha}*\n${PAGINA}#jogos`;
+}
+async function partilhar(texto){
+  try { if (navigator.share) { await navigator.share({text: texto}); return; } } catch(e) { if (e && e.name === "AbortError") return; }
+  const w = window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
+  if (!w) { try { await navigator.clipboard.writeText(texto); alertaCurto(t().copiado); } catch(e) {} }
+}
+function alertaCurto(msg){ const el = document.getElementById("upd"); const v = el.textContent; el.textContent = msg; setTimeout(() => el.textContent = v, 2500); }
+function contagem(){
+  const x = t(), agora = new Date(), dia = 864e5;
+  if (agora < INICIO) return x.faltam(Math.ceil((INICIO - agora) / dia));
+  const n = Math.floor((agora - INICIO) / dia) + 1;
+  return n <= 3 ? x.diaN(n) : "";
+}
+let HERO = null;
 function desenhar(){
   const x = t();
+  document.getElementById("conta").textContent = contagem();
+  document.getElementById("link-hist").textContent = x.hist;
+  document.getElementById("link-hist").hidden = TAB === "historia";
+  document.getElementById("cats").hidden = TAB === "historia";
   document.documentElement.lang = LANG;
   document.getElementById("sub").textContent = x.sub;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === LANG));
@@ -389,7 +437,9 @@ function desenhar(){
   document.getElementById("foot").textContent = x.rodape;
   const li = document.getElementById("link-insc"); li.textContent = x.insc; li.hidden = new Date() > new Date("2026-11-09T23:59:59+02:00");
   const pulse = document.getElementById("pulse");
-  if (!DATA){ document.getElementById("upd").textContent = falhou ? x.falha : x.carregando; pulse.classList.toggle("err", falhou); return; }
+  if (TAB === "historia") pintar();
+  if (!DATA){ const mn = document.getElementById("main"); if (TAB !== "historia" && mn.dataset.k) { mn.innerHTML = ""; mn.dataset.k = ""; }
+    document.getElementById("upd").textContent = falhou ? x.falha : x.carregando; pulse.classList.toggle("err", falhou); return; }
   const g = new Date(DATA.gerado || Date.now());
   document.getElementById("upd").textContent = falhou ? x.falha : x.act(isNaN(g) ? "" : g.toLocaleTimeString(LANG === "en" ? "en-GB" : "pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"}));
   pulse.classList.toggle("err", falhou);
@@ -398,9 +448,25 @@ function desenhar(){
   const cs = cats(); if (CAT && !cs.includes(CAT)) CAT = "";
   document.getElementById("cats").innerHTML = [["",x.todas]].concat(cs.map(c => [c, catNome(c)])).map(([c,v]) => `<button type="button" id="cat-${c||"todas"}" aria-pressed="${c===CAT}" data-cat="${c}">${esc(v)}${DATA.jogos.some(g => g.estado === "Ao vivo" && (!c || g.cat === c)) ? `<span class="dot" title="${x.aoVivo}"></span>` : ""}</button>`).join("");
   document.querySelectorAll("#cats button").forEach(b => b.onclick = () => { CAT = b.dataset.cat; try { localStorage.setItem("cbist-cat", CAT); } catch(e) {} desenhar(); });
-  document.getElementById("main").innerHTML = {jogos:vJogos, class:vClass, lideres:vLideres, equipas:vEquipas}[TAB]();
+  pintar();
 }
-document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { LANG = b.dataset.lang; try { localStorage.setItem("cbist-lang", LANG); } catch(e) {} desenhar(); }));
+// A História não depende dos resultados: só se volta a desenhar quando muda o idioma (as fotos não piscam a cada 30 s).
+function pintar(){
+  const main = document.getElementById("main");
+  if (TAB === "historia") { const k = "historia|" + LANG; if (main.dataset.k !== k) { main.innerHTML = vHistoria(); main.dataset.k = k; } return; }
+  main.dataset.k = "";
+  main.innerHTML = {jogos:vJogos, class:vClass, lideres:vLideres, equipas:vEquipas}[TAB]();
+}
+function irPara(tab){ if (!TABS.includes(tab)) return; TAB = tab; history.replaceState(null, "", "#" + TAB); desenhar();
+  const h = document.querySelector("header.mast").offsetHeight; if (window.scrollY > h) window.scrollTo({top: h}); }
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { LANG = b.dataset.lang; try { localStorage.setItem("cbist-lang", LANG); } catch(e) {} desenhar(); if (HERO) HERO.refresh(); }));
+document.getElementById("link-hist").addEventListener("click", e => { e.preventDefault(); irPara("historia"); });
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (TABS.includes(h) && h !== TAB) { TAB = h; desenhar(); } });
+document.getElementById("main").addEventListener("click", e => {
+  const s = e.target.closest(".share"); if (s && DATA) { const g = DATA.jogos.find(j => j.id === s.dataset.share); if (g) partilhar(textoJogo(g)); return; }
+  const a = e.target.closest("a[data-tab]"); if (a) { e.preventDefault(); irPara(a.dataset.tab); }
+});
+if (HIST) { HIST.textura(); HERO = HIST.capa(document.querySelector("header.mast"), HIST.dados.capa, () => LANG); HIST.ligarZoom(document.getElementById("main"), () => LANG); }
 desenhar(); carregar(); agendar();
 </script>
 </body>
