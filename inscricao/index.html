@@ -420,7 +420,7 @@ function desenharCats(){
   const sel = (catSel()||{}).cod;
   document.getElementById("cats").innerHTML = CATEGORIAS.map(c => `
     <label class="cat"><input type="radio" name="categoria" id="cat-${c.cod}" value="${c.cod}" ${sel===c.cod?"checked":""}>
-      <span><b>${c.curto}</b><em>${c[LANG]} · ${m().nascAte(nascidoAte(c.min))}</em>${INSCRITAS ? `<i class="n">${m().inscritas(INSCRITAS[c.cod] || 0)}</i>` : ""}</span></label>`).join("");
+      <span><b>${c.curto}</b><em>${c[LANG]} · ${m().nascAte(nascidoAte(c.min))}</em>${INSCRITAS && INSCRITAS[c.cod] ? `<i class="n">${m().inscritas(INSCRITAS[c.cod])}</i>` : ""}</span></label>`).join("");
   document.querySelectorAll('input[name="categoria"]').forEach(r => r.addEventListener("change", actualizarIdades));
 }
 
