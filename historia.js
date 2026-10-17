@@ -82,6 +82,22 @@ const DADOS = {
   // Textura muito leve no fundo das duas páginas (opcional): bola, rede ou piso, sem pessoas
   textura: "",
 
+  // ILUSTRAÇÕES (IA) — imagens fictícias geradas por inteligência artificial, usadas só enquanto
+  // não houver fotografias reais. Mostram sempre a etiqueta «Imagem ilustrativa (IA)» e nunca
+  // aparecem na linha do tempo da História. Para as retirar de todo: usar: false.
+  ilustracoes: {
+    usar: true,
+    central: [
+      {foto: "ia-jogo",     foco: "66% 40%", pt: "Basquetebol de veteranos",   en: "Veterans' basketball"},
+      {foto: "ia-feminino", foco: "74% 50%", pt: "As categorias femininas",    en: "The women's categories"},
+      {foto: "ia-trofeu",   foco: "70% 30%", pt: "A conquista do título",      en: "Winning the title"}
+    ],
+    inscricao: [
+      {foto: "ia-abertura", foco: "50% 60%", pt: "A abertura do torneio",      en: "Opening day"}
+    ],
+    faixa: {f1: "ia-competicao", f2: "ia-amizade", f3: "ia-internacional", f4: "ia-gloria"}
+  },
+
   // Uma linha por edição. Só aparecem ao público as edições com «ano» preenchido.
   // equipas / paises: quantas equipas e quantos países participaram (números)
   // campeoes: {M35:"Clube", M40:"", M50:"", F30:"", F40:"", F50:""}
@@ -130,7 +146,8 @@ const L = {
        vagaEd: n => `Equipa campeã, cartaz ou fotografia de grupo da ${n}.ª edição.`, vagaGal: "Mais fotos de qualquer edição (jogos, bancada, convívio).",
        categoria: "Categoria", fechar: "Fechar", titulos: "Títulos por clube", lendas: "Lendas do torneio",
        eqN: n => `${n} equipas`, paN: n => `${n} ${n == 1 ? "país" : "países"}`,
-       vagaLenda: "Retrato de um fundador ou de quem jogou todas as edições (vertical), com o nome e o clube."},
+       vagaLenda: "Retrato de um fundador ou de quem jogou todas as edições (vertical), com o nome e o clube.",
+       ia: "Imagem ilustrativa (IA)", iaCurta: "Ilustração IA"},
   en: {ed: n => `${ord(n, "en")} edition`, pausa: "Pause photos", tocar: "Play photos", foto: n => `Photo ${n}`,
        vaga: "Missing photo", guia: "Guide mode: each dashed frame says which photo belongs there. To go back to normal, remove “?guia=1” from the address.",
        historia: "Our story", edAEd: "Edition by edition", honra: "Roll of honour", galeria: "Gallery", mvp: "MVP",
@@ -142,7 +159,8 @@ const L = {
        vagaEd: n => `Champion team, poster or group photo of the ${ord(n, "en")} edition.`, vagaGal: "More photos from any edition (games, crowd, socials).",
        categoria: "Category", fechar: "Close", titulos: "Titles by club", lendas: "Tournament legends",
        eqN: n => `${n} teams`, paN: n => `${n} ${n == 1 ? "country" : "countries"}`,
-       vagaLenda: "Portrait of a founder or of someone who played every edition (portrait), with name and club."}
+       vagaLenda: "Portrait of a founder or of someone who played every edition (portrait), with name and club.",
+       ia: "Illustrative image (AI)", iaCurta: "AI illustration"}
 };
 const T = lang => L[lang] || L.pt;
 const txt = (o, lang) => (o && (o[lang] || o.pt)) || "";
@@ -163,7 +181,11 @@ function capa(header, lista, getLang) {
   bg.className = "hero-bg"; bg.setAttribute("aria-hidden", "true");
   header.insertBefore(bg, header.firstChild);
   const cap = header.querySelector(".hero-cap"), ctl = header.querySelector(".hero-ctl");
-  const itens = GUIA ? lista.slice() : lista.filter(s => s.foto);
+  // Fotos reais primeiro; enquanto houver menos de 3, completam-se com as ilustrações (IA).
+  const I = DADOS.ilustracoes || {}, ilu = !I.usar ? [] :
+    (lista === DADOS.capa ? I.central : lista === DADOS.inscricao.capa ? I.inscricao : []) || [];
+  const reais = lista.filter(s => s.foto);
+  const itens = GUIA ? lista.slice() : (reais.length >= 3 ? reais : reais.concat(ilu.map(x => Object.assign({ia: true}, x))));
   if (!itens.length) { bg.classList.add("vazio"); return {refresh() {}}; }
   if (!itens.some(s => s.foto)) bg.classList.add("vazio");
   const slides = itens.map(() => { const d = document.createElement("div"); d.className = "sl"; bg.appendChild(d); return d; });
@@ -186,6 +208,7 @@ function capa(header, lista, getLang) {
     if (!cap) return;
     const s = itens[i], lang = getLang(), quando = [s.ano, s.ed ? T(lang).ed(+s.ed) : ""].filter(Boolean).join(" · ");
     if (!s.foto) { cap.innerHTML = `<b>📷 ${esc(T(lang).vaga)} ${i + 1}/${itens.length}</b><span>${esc(txt(s, lang))} — ${esc(txt(s.vaga, lang))}</span>`; return; }
+    if (s.ia) { cap.innerHTML = `<b>${esc(T(lang).ia)}</b><span>${esc(txt(s, lang))}</span>`; return; }
     cap.innerHTML = `${quando ? `<b>${esc(quando)}</b>` : ""}<span>${esc(txt(s, lang))}</span>`;
   }
   function controlos() {
@@ -224,7 +247,9 @@ function faixa(lang, linkHistoria) {
   const tiles = DADOS.inscricao.faixa.map(f => {
     const tit = txt(f.titulo, lang), tx = txt(f.texto, lang);
     if (!f.foto && GUIA) return `<div class="tile vaga"><b>📷 ${esc(tit)}</b><span>${esc(txt(f.vaga, lang))}</span></div>`;
-    return `<figure class="tile">${f.foto ? imgHTML(f.foto, f.foco, `${tit} — ${tx}`) : ""}<figcaption><b>${esc(tit)}</b><span>${esc(tx)}</span></figcaption></figure>`;
+    const I = DADOS.ilustracoes || {}, ia = !f.foto && I.usar && I.faixa && I.faixa[f.id];
+    const img = f.foto ? imgHTML(f.foto, f.foco, `${tit} — ${tx}`) : ia ? imgHTML(ia, "50% 35%", `${t.iaCurta}: ${tit}`) : "";
+    return `<figure class="tile">${img}${ia ? `<span class="ia-tag">${esc(t.iaCurta)}</span>` : ""}<figcaption><b>${esc(tit)}</b><span>${esc(tx)}</span></figcaption></figure>`;
   }).join("");
   return `<div class="porque-top"><h2>${esc(t.porque)}</h2>${linkHistoria ? `<a class="hero-link" style="color:var(--accent-ink)" href="${esc(linkHistoria)}">${esc(t.verHist)}</a>` : ""}</div>
     ${numerosHTML(lang)}<div class="tiles">${tiles}</div>`;
