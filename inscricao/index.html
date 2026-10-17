@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../craques.css">
 <style>
 /* Layout: one narrow column of numbered form sections under a court-navy masthead; player rows become cards on phones. */
 :root{
@@ -125,6 +126,13 @@ header.top .logo{width:46px;height:46px}
 .mast h1 span,header.top h1 span{color:var(--gold)}
 .brand b{color:var(--gold);font-weight:700}
 .lang button[aria-pressed="true"]{background:var(--gold);color:#1B1F4B}
+@media (min-width:700px){.mast .wrap{min-height:270px;align-content:space-between}}
+.cat i.n{font-style:normal;font-size:12.5px;font-weight:600;color:var(--accent-ink)}
+.copias{display:flex;gap:8px;flex-wrap:wrap}
+button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
+#rascunho{background:var(--ok-soft);border:1px solid var(--ok);border-radius:9px;padding:12px 14px;display:grid;gap:8px;font-size:14.5px}
+#rascunho p{margin:0}
+.porque{background:color-mix(in srgb,var(--surface) 92%,transparent)}
 @media (max-width:420px){.logo{width:70px;height:70px}.brand{font-size:12.5px;letter-spacing:.1em}.chip{letter-spacing:.03em}}
 </style>
 </head>
@@ -148,13 +156,16 @@ header.top .logo{width:46px;height:46px}
     </div>
     <div class="chips">
       <span class="chip hot" data-t="prazo">Prazo: 9 Nov 2026</span>
+      <span class="chip gold" id="faltam" hidden></span>
       <span class="chip" data-t="taxa">30.000 MT · 7.000 ZAR · 450 USD por categoria</span>
     </div>
+    <div class="hero-foot"><p class="hero-cap" id="hero-cap"></p><span class="hero-ctl" id="hero-ctl"></span><a class="hero-link" href="../#historia" data-t="hist">A nossa história →</a></div>
   </div>
 </header>
 
 <div class="wrap">
   <main>
+    <section class="card porque" id="porque" hidden></section>
     <div class="cfg" id="cfg" hidden data-t="cfg">Formulário em modo de teste: ainda não está ligado ao sistema de registo. Não envie dados reais.</div>
     <div class="closed" id="fechado" hidden data-t="fechado">As inscrições fecharam a 9 de Novembro de 2026. Contacte a organização: +258 84 787 4692.</div>
 
@@ -168,6 +179,7 @@ header.top .logo{width:46px;height:46px}
     </div>
 
     <form id="frm" novalidate>
+      <div id="rascunho" hidden><p id="rasc-txt"></p><p><button type="button" class="ghost mini" id="rasc-apagar" data-t="rasc-apagar">Apagar rascunho e recomeçar</button></p></div>
       <section class="card">
         <h2><span class="n">1</span><span data-t="s1">Equipa</span></h2>
         <div class="grid">
@@ -237,6 +249,7 @@ header.top .logo{width:46px;height:46px}
           <span data-t="pag-mpesa">M-Pesa: <b>84 787 4692</b> (Sérgio Hitié)</span>
           <span data-t="pag-bim">Millennium BIM · NIB <b>0001 0000 0112 6308 9055 7</b> (Associação Craques da Boca)</span>
           <span data-t="pag-ref">Na referência da transferência escreva o nome do clube e a categoria.</span>
+          <span class="copias"><button type="button" class="ghost mini" data-copy="847874692" data-t="cp-mpesa">Copiar n.º M-Pesa</button><button type="button" class="ghost mini" data-copy="000100000112630890557" data-t="cp-nib">Copiar NIB</button></span>
         </div>
         <div class="grid">
           <label class="f"><span data-t="metodo">Método</span>
@@ -272,11 +285,13 @@ header.top .logo{width:46px;height:46px}
         <button class="btn" id="btn" type="submit" data-t="enviar">Submeter inscrição</button>
         <span class="hint" id="estado-envio"></span>
       </div>
+      <p class="hint" data-t="rasc-hint">O que escrever fica guardado só neste aparelho até submeter (as fotos e os documentos não). Num computador partilhado, apague o rascunho no fim.</p>
     </form>
     <footer data-t="rodape">Associação Craques da Boca · Dúvidas: WhatsApp +258 84 787 4692</footer>
   </main>
 </div>
 
+<script src="../historia.js"></script>
 <script>
 /* ========================= CONFIGURAÇÃO =========================
    API = URL /exec da Web App do Apps Script (o mesmo nas três páginas).
@@ -318,7 +333,9 @@ const T = {
     s5:"Logo and notes", logo:"Club logo (PNG or JPG, for the poster; optional)", obs:"Notes",
     s6:"Declarations", decl1:"I declare that the data and documents sent are true and that every player meets the minimum age of the category.",
     decl2:"I authorise the organisers to use this data only to check ages, issue accreditation and publish tournament names and statistics. Contacts and documents are never published.",
-    enviar:"Submit registration", rodape:"Associação Craques da Boca · Questions: WhatsApp +258 84 787 4692"
+    enviar:"Submit registration", rodape:"Associação Craques da Boca · Questions: WhatsApp +258 84 787 4692",
+    hist:"Our story →", "cp-mpesa":"Copy M-Pesa no.", "cp-nib":"Copy NIB", "rasc-apagar":"Delete draft and start again",
+    "rasc-hint":"What you type is saved only on this device until you submit (photos and documents are not). On a shared computer, delete the draft when you finish."
   }
 };
 const M = {
@@ -342,7 +359,9 @@ const M = {
     falhou:"Não foi possível submeter a inscrição.", motivo:"Motivo:", tentar:"Corrija e tente de novo. Se persistir, contacte +258 84 787 4692.",
     teste:"Modo de teste: a inscrição não foi enviada (falta o URL do sistema). Os dados passaram todas as verificações.",
     pagar:(v)=>`Valor a pagar: ${v}.`, pagoComp:"Comprovativo recebido.",
-    tipos:["BI","Passaporte","DIRE","Outro"], nacs:["Moçambicana","Angolana","Sul-africana","Lesota","Malawiana","Essuatiniana","Namibiana","Outra"]
+    tipos:["BI","Passaporte","DIRE","Outro"], nacs:["Moçambicana","Angolana","Sul-africana","Lesota","Malawiana","Essuatiniana","Namibiana","Outra"],
+    inscritas:(n)=>n === 1 ? "1 equipa inscrita" : `${n} equipas inscritas`, faltam:(n)=>n === 1 ? "Falta 1 dia" : `Faltam ${n} dias`,
+    copiado:"Copiado ✓", rasc:(q)=>`Recuperámos o rascunho guardado neste aparelho (${q}). Os ficheiros — fotos, documentos e comprovativo — têm de ser escolhidos de novo.`
   },
   en: {
     nome:"Full name", nasc:"Date of birth", idade:"Age", nac:"Nationality", tipo:"Document", ndoc:"Document no.", cam:"Jersey",
@@ -364,7 +383,9 @@ const M = {
     falhou:"The registration could not be submitted.", motivo:"Reason:", tentar:"Fix it and try again. If it persists, contact +258 84 787 4692.",
     teste:"Test mode: nothing was sent (the system URL is not set). The data passed every check.",
     pagar:(v)=>`Amount due: ${v}.`, pagoComp:"Proof of payment received.",
-    tipos:["ID card","Passport","DIRE","Other"], nacs:["Mozambican","Angolan","South African","Basotho","Malawian","Swazi","Namibian","Other"]
+    tipos:["ID card","Passport","DIRE","Other"], nacs:["Mozambican","Angolan","South African","Basotho","Malawian","Swazi","Namibian","Other"],
+    inscritas:(n)=>n === 1 ? "1 team registered" : `${n} teams registered`, faltam:(n)=>n === 1 ? "1 day left" : `${n} days left`,
+    copiado:"Copied ✓", rasc:(q)=>`We restored the draft saved on this device (${q}). Files — photos, documents and proof of payment — must be chosen again.`
   }
 };
 const VAL_TIPOS = ["BI","Passaporte","DIRE","Outro"];
@@ -384,12 +405,22 @@ function idadeEm(nasc, ref){
 }
 const catSel = () => CATEGORIAS.find(c => c.cod === (document.querySelector('input[name="categoria"]:checked')||{}).value);
 
-/* ---------- categorias ---------- */
+/* ---------- categorias (com o número de equipas já inscritas) ---------- */
+let INSCRITAS = null;
+async function contarInscritas(){
+  if (!ENDPOINT) return;
+  try {
+    const r = await fetch(ENDPOINT + (ENDPOINT.includes("?") ? "&" : "?") + "acao=publico&_=" + Date.now(), {cache:"no-store"});
+    const j = await r.json(); if (!j.ok) return;
+    INSCRITAS = {}; (j.equipas || []).forEach(e => INSCRITAS[e.cat] = (INSCRITAS[e.cat] || 0) + 1);
+    desenharCats();
+  } catch(e) {}
+}
 function desenharCats(){
   const sel = (catSel()||{}).cod;
   document.getElementById("cats").innerHTML = CATEGORIAS.map(c => `
     <label class="cat"><input type="radio" name="categoria" id="cat-${c.cod}" value="${c.cod}" ${sel===c.cod?"checked":""}>
-      <span><b>${c.curto}</b><em>${c[LANG]} · ${m().nascAte(nascidoAte(c.min))}</em></span></label>`).join("");
+      <span><b>${c.curto}</b><em>${c[LANG]} · ${m().nascAte(nascidoAte(c.min))}</em>${INSCRITAS ? `<i class="n">${m().inscritas(INSCRITAS[c.cod] || 0)}</i>` : ""}</span></label>`).join("");
   document.querySelectorAll('input[name="categoria"]').forEach(r => r.addEventListener("change", actualizarIdades));
 }
 
@@ -416,7 +447,7 @@ function novaLinha(){
     <button type="button" class="del" aria-label="${t.remover}">✕ ${t.remover}</button>`;
   d.querySelector('[data-c="nasc"]').addEventListener("change", () => actualizarIdade(d));
   d.querySelector('[data-c="nome"]').addEventListener("input", contar);
-  d.querySelector(".del").addEventListener("click", () => { d.remove(); renumerar(); contar(); });
+  d.querySelector(".del").addEventListener("click", () => { d.remove(); renumerar(); contar(); guardarRascunho(); });
   document.getElementById("players").appendChild(d);
   renumerar(); contar();
   return d;
@@ -462,6 +493,7 @@ function aplicarIdioma(lang){
   });
   contar(); actualizarIdades();
   if (avisosAceites) document.getElementById("btn").textContent = m().confirmar;
+  desenharHistoria();
 }
 document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => aplicarIdioma(b.dataset.lang)));
 
@@ -601,6 +633,7 @@ document.getElementById("frm").addEventListener("submit", async ev => {
 function aplicarTextoBtn(){ document.getElementById("btn").textContent = LANG === "en" ? T.en.enviar : "Submeter inscrição"; }
 function sucesso(out, teste){
   const t = m();
+  if (!teste) apagarRascunho();
   document.getElementById("frm").hidden = true;
   document.getElementById("painel").hidden = true;
   document.getElementById("ok-id").textContent = out.id;
@@ -621,10 +654,74 @@ document.getElementById("outra").addEventListener("click", () => {
   window.scrollTo({top:0});
 });
 
+/* ---------- fotografias e história (historia.js) ---------- */
+const HIST = window.CBIST_HISTORIA || null;
+let HERO = null;
+function desenharHistoria(){
+  const f = document.getElementById("faltam"), dias = Math.ceil((new Date(EVENTO.prazo) - new Date()) / 864e5);
+  f.hidden = !(dias > 0); if (dias > 0) f.textContent = m().faltam(dias);
+  if (!HIST) return;
+  const p = document.getElementById("porque"); p.innerHTML = HIST.faixa(LANG, "../#historia"); p.hidden = false;
+  if (HERO) HERO.refresh();
+}
+
+/* ---------- copiar números de pagamento ---------- */
+document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+  const v = b.dataset.copy, antes = b.textContent;
+  try { await navigator.clipboard.writeText(v); }
+  catch(e) { const ta = document.createElement("textarea"); ta.value = v; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch(e2) {} ta.remove(); }
+  b.textContent = m().copiado; setTimeout(() => { b.textContent = antes; }, 1800);
+}));
+
+/* ---------- rascunho: guardado só neste aparelho (sem ficheiros) ---------- */
+const CHAVE_R = "cbist-insc-rascunho";
+const CAMPOS_R = ["clube","pais","cidade","cores","resp_nome","resp_tel","resp_email","treinador_nome","treinador_tel","delegado_nome","delegado_tel","metodo","referencia","obs"];
+const COLS_R = ["nome","nasc","nac","doc_tipo","doc_num","camisola"];
+let tR = null, aRestaurar = false;
+function guardarRascunho(){
+  if (aRestaurar) return;
+  clearTimeout(tR);
+  tR = setTimeout(() => { try {
+    const r = {v:1, t:Date.now(), campos:{}, cat:(catSel() || {}).cod || "", moeda:(document.querySelector('input[name="moeda"]:checked') || {}).value || "MZN",
+               pagar_depois:document.getElementById("pagar_depois").checked, atletas:[]};
+    CAMPOS_R.forEach(id => r.campos[id] = document.getElementById(id).value);
+    linhas().forEach(d => { const a = {}; COLS_R.forEach(c => a[c] = d.querySelector(`[data-c="${c}"]`).value); r.atletas.push(a); });
+    while (r.atletas.length && !COLS_R.some(c => r.atletas[r.atletas.length - 1][c])) r.atletas.pop();
+    const vazio = !Object.values(r.campos).some(Boolean) && !r.cat && !r.atletas.length;
+    if (vazio) localStorage.removeItem(CHAVE_R); else localStorage.setItem(CHAVE_R, JSON.stringify(r));
+  } catch(e) {} }, 500);
+}
+function apagarRascunho(){ clearTimeout(tR); try { localStorage.removeItem(CHAVE_R); } catch(e) {} }
+function restaurarRascunho(){
+  let r = null; try { r = JSON.parse(localStorage.getItem(CHAVE_R) || "null"); } catch(e) {}
+  if (!r || r.v !== 1 || !r.campos || Date.now() - r.t > 60 * 864e5) return;
+  aRestaurar = true;
+  try {
+    CAMPOS_R.forEach(id => { if (typeof r.campos[id] === "string") document.getElementById(id).value = r.campos[id]; });
+    const c = r.cat && document.getElementById("cat-" + r.cat); if (c) c.checked = true;
+    const mo = document.getElementById("m-" + String(r.moeda || "").toLowerCase()); if (mo) mo.checked = true;
+    document.getElementById("pagar_depois").checked = !!r.pagar_depois;
+    const at = (r.atletas || []).slice(0, MAX_ATLETAS);
+    while (linhas().length < at.length) novaLinha();
+    at.forEach((a, i) => { const d = linhas()[i]; COLS_R.forEach(k => { const el = d.querySelector(`[data-c="${k}"]`); if (el && typeof a[k] === "string") el.value = a[k]; }); });
+    actualizarIdades(); contar();
+    const q = new Date(r.t).toLocaleString(LANG === "en" ? "en-GB" : "pt-PT", {day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"});
+    document.getElementById("rasc-txt").textContent = m().rasc(q);
+    document.getElementById("rascunho").hidden = false;
+  } catch(e) {}
+  aRestaurar = false;
+}
+document.getElementById("rasc-apagar").addEventListener("click", () => { apagarRascunho(); location.reload(); });
+document.getElementById("frm").addEventListener("input", guardarRascunho);
+document.getElementById("frm").addEventListener("change", guardarRascunho);
+
 /* ---------- arranque ---------- */
 document.getElementById("add").addEventListener("click", () => { const d = novaLinha(); d.querySelector("input").focus(); });
 for (let i = 0; i < LINHAS_INICIAIS; i++) novaLinha();
+if (HIST) { HIST.textura(); HERO = HIST.capa(document.querySelector("header.mast"), HIST.dados.inscricao.capa, () => LANG); }
 aplicarIdioma(LANG);
+restaurarRascunho();
+contarInscritas();
 if (!ENDPOINT) document.getElementById("cfg").hidden = false;
 if (new Date() > new Date(EVENTO.prazo)) { document.getElementById("fechado").hidden = false; document.getElementById("frm").hidden = true; }
 </script>
