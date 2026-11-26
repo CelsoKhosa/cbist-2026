@@ -133,6 +133,24 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
 #rascunho{background:var(--ok-soft);border:1px solid var(--ok);border-radius:9px;padding:12px 14px;display:grid;gap:8px;font-size:14.5px}
 #rascunho p{margin:0}
 .porque{background:color-mix(in srgb,var(--surface) 92%,transparent)}
+.antes ul,.ajuda ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.antes li{font-size:15px}
+#painel ul{display:grid;gap:10px;list-style:none;padding-left:0}
+#painel li{display:grid;gap:2px;padding-left:12px;border-left:3px solid currentColor}
+#painel.err li{border-color:var(--bad)} #painel.warn li{border-color:var(--warn)}
+#painel li.vai{cursor:pointer}
+#painel li b{font-weight:700}
+#painel li .fix{font-size:14.5px}
+#painel li .fix::before{content:attr(data-r) " ";font-weight:700}
+#painel .acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px;font-size:14px}
+a.wa{display:inline-block;font:600 15px/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ok);color:var(--ok);border-radius:8px;padding:10px 14px;text-decoration:none}
+details.ajuda{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+details.ajuda summary{cursor:pointer;font:700 20px/1.2 var(--font-display);letter-spacing:.02em;text-transform:uppercase}
+details.ajuda[open] summary{margin-bottom:12px}
+details.ajuda dl{margin:0;display:grid;gap:12px}
+details.ajuda dt{font-weight:700}
+details.ajuda dd{margin:2px 0 0;color:var(--muted);font-size:15px}
+details.ajuda .fim{margin:14px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:15px}
 @media (max-width:420px){.logo{width:70px;height:70px}.brand{font-size:12.5px;letter-spacing:.1em}.chip{letter-spacing:.03em}}
 </style>
 </head>
@@ -180,6 +198,10 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
 
     <form id="frm" novalidate>
       <div id="rascunho" hidden><p id="rasc-txt"></p><p><button type="button" class="ghost mini" id="rasc-apagar" data-t="rasc-apagar">Apagar rascunho e recomeçar</button></p></div>
+      <section class="card antes">
+        <h2 data-t="antes-t">Antes de começar</h2>
+        <ul data-t="antes-l"><li>Cada equipa confirmada envia aqui a sua <b>lista de atletas</b>: uma inscrição por escalão (uma equipa em dois escalões preenche duas vezes).</li><li>Lista de <b>7 a 15 atletas</b>: nome completo, data de nascimento, número do documento e número da camisola.</li><li>Para <b>cada atleta</b>: uma fotografia do BI ou passaporte e uma fotografia tipo passe. Pode tirá-las na hora com a câmara do telemóvel.</li><li>Pagamento: se a organização já confirmou o pagamento da equipa, basta marcar «Já paguei». Caso contrário, anexe o comprovativo (imagem ou PDF).</li><li>Demora cerca de 15 minutos. O que escrever fica guardado neste aparelho: pode parar e continuar depois.</li><li>Se algo falhar, a página diz o que falta e <b>como resolver</b>. No fim da página há uma lista de problemas e soluções.</li></ul>
+      </section>
       <section class="card">
         <h2><span class="n">1</span><span data-t="s1">Equipa</span></h2>
         <div class="grid">
@@ -201,10 +223,7 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
           <label class="f"><span data-t="cores">Cores do equipamento</span><input id="cores" name="cores" maxlength="60" placeholder="ex.: laranja / preto"></label>
         </div>
         <datalist id="clubes">
-          <option value="Mahotas"><option value="Mozal"><option value="CFM Hoopers"><option value="Mentality">
-          <option value="INSS"><option value="Mutarara"><option value="Maluti Dinosaurs"><option value="Galpão Basketball Team">
-          <option value="Petromoc"><option value="Colegas"><option value="Chulos do Maxaquene"><option value="Monstros">
-          <option value="Amigas de Maputo"><option value="EDM">
+          <option value="Mahotas"><option value="Mozal Players"><option value="CFM Hoopers"><option value="INSS"><option value="Petro Ballers"><option value="Prudencial"><option value="Velhas Glórias de Boane"><option value="Craques da Boca"><option value="Mentality"><option value="Maluti Dinosaurs"><option value="Petromoc"><option value="Colegas"><option value="Young Legends"><option value="Craques da Boca Tete"><option value="ABC Internacional"><option value="Monstros"><option value="EDM"><option value="Amigas de Maputo"><option value="Batonificadas"><option value="The Powerpuff Ladies"><option value="G30"><option value="JP Stars"><option value="Diliza"><option value="Divas do Cesto"><option value="Amigas do Basket">
         </datalist>
         <div>
           <p class="f req" style="margin:0 0 8px;font-weight:600;font-size:14px" data-t="cat">Categoria (uma inscrição por categoria)</p>
@@ -263,6 +282,7 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
           <label class="f"><span data-t="ref">Referência / n.º da transacção</span><input id="referencia" name="referencia" maxlength="60"></label>
           <label class="f"><span data-t="comprov">Comprovativo (imagem ou PDF, máx. 5 MB)</span><input id="comprovativo" name="comprovativo" type="file" accept="image/*,application/pdf"></label>
         </div>
+        <label class="check"><input type="checkbox" id="ja_pago" name="ja_pago"> <span data-t="japago">Já paguei e a organização confirmou (a equipa está na lista de confirmações).</span></label>
         <label class="check"><input type="checkbox" id="pagar_depois" name="pagar_depois"> <span data-t="depois">Ainda não paguei: envio o comprovativo à organização antes do prazo.</span></label>
       </section>
 
@@ -285,6 +305,11 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
         <button class="btn" id="btn" type="submit" data-t="enviar">Submeter inscrição</button>
         <span class="hint" id="estado-envio"></span>
       </div>
+      <details class="ajuda" id="ajuda">
+        <summary data-t="aj-t">Problemas? Como resolver</summary>
+        <dl data-t="aj-l"><dt>O botão «Submeter» não avança</dt><dd>Leia a caixa colorida por cima do botão: cada linha diz o que falta e como resolver. Toque na linha para ir directamente ao campo.</dd><dt>Não consigo anexar o documento ou a fotografia</dt><dd>Toque em «Escolher ficheiro» e escolha «Câmara» para fotografar na hora, ou «Galeria» / «Ficheiros». Se o ficheiro chegou pelo WhatsApp, guarde-o primeiro na galeria do telemóvel e escolha-o a partir daí.</dd><dt>«O ficheiro tem mais de … MB» ou «Os anexos somam mais de 20 MB»</dt><dd>Envie fotografias em vez de PDF digitalizados. As fotografias são reduzidas sozinhas antes do envio; os PDF não (máximo 2 MB cada).</dd><dt>A idade aparece a vermelho</dt><dd>O atleta não tem a idade mínima da categoria no dia 3 de Dezembro de 2026. Confirme a data de nascimento e a categoria escolhida. Atletas mais velhos podem jogar numa categoria mais nova; o contrário não.</dd><dt>Fiquei sem internet ou a página fechou</dt><dd>O que escreveu fica guardado neste aparelho. Abra de novo esta página no mesmo telemóvel e no mesmo navegador: só tem de escolher outra vez os ficheiros.</dd><dt>Submeti e não apareceu o número da inscrição</dt><dd>Não submeta outra vez de imediato. Espere um minuto e pergunte à organização pelo WhatsApp se a inscrição entrou, para não ficar repetida.</dd><dt>Enganei-me depois de submeter</dt><dd>Não repita a inscrição. Envie a correcção à organização pelo WhatsApp, com o número da inscrição (por exemplo M40-03).</dd><dt>Quero inscrever a mesma equipa noutra categoria</dt><dd>Depois de submeter, use «Inscrever outra categoria»: a equipa e os contactos ficam preenchidos.</dd></dl>
+        <p class="fim"><span data-t="aj-fim">Continua com dificuldades? Envie uma captura do ecrã com a mensagem de erro:</span> <a class="wa" id="wa-geral" target="_blank" rel="noopener" data-t="aj-wa">Pedir ajuda pelo WhatsApp</a></p>
+      </details>
       <p class="hint" data-t="rasc-hint">O que escrever fica guardado só neste aparelho até submeter (as fotos e os documentos não). Num computador partilhado, apague o rascunho no fim.</p>
     </form>
     <footer data-t="rodape">Associação Craques da Boca · Dúvidas: WhatsApp +258 84 787 4692</footer>
@@ -308,7 +333,7 @@ const CATEGORIAS = [
 ];
 const MIN_ATLETAS = 7, MAX_ATLETAS = 15, LINHAS_INICIAIS = 10;
 const ABAIXO_TOLERADOS = 0;          // igual a ATLETAS_ABAIXO_DA_IDADE no Code.gs
-const EXIGIR_DOC = false, EXIGIR_FOTO = false;   // false = cópia do documento e fotografia facultativas (mostram o original na acreditação)
+const EXIGIR_DOC = true, EXIGIR_FOTO = true;   // true = cópia do documento e fotografia obrigatórias para cada atleta
 /* ================================================================ */
 
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -328,11 +353,14 @@ const T = {
     s3:"Players", "s3-hint":"For each player: an ID document (ID card or passport, photo or PDF) and a passport-style photo. Photos are shrunk automatically before sending.",
     add:"+ Add player", s4:"Payment", "pag-mpesa":"M-Pesa: <b>84 787 4692</b> (Sérgio Hitié)", "pag-bim":"Millennium BIM · NIB <b>0001 0000 0112 6308 9055 7</b> (Associação Craques da Boca)",
     "pag-ref":"In the transfer reference write your club name and category.", metodo:"Method", "m-trf":"Bank transfer (BIM)", "m-card":"Card", "m-cash":"Cash",
-    ref:"Reference / transaction no.", comprov:"Proof of payment (image or PDF, max 5 MB)", depois:"I have not paid yet: I will send the proof to the organisers before the deadline.",
+    ref:"Reference / transaction no.", comprov:"Proof of payment (image or PDF, max 5 MB)", depois:"I have not paid yet: I will send the proof to the organisers before the deadline.", japago:"I have already paid and the organisers confirmed it (the team is on the confirmation list).",
     s5:"Logo and notes", logo:"Club logo (PNG or JPG, for the poster; optional)", obs:"Notes",
     s6:"Declarations", decl1:"I declare that the data and documents sent are true and that every player meets the minimum age of the category.",
     decl2:"I authorise the organisers to use this data only to check ages, issue accreditation and publish tournament names and statistics. Contacts and documents are never published.",
     enviar:"Submit registration", rodape:"Associação Craques da Boca · Questions: WhatsApp +258 84 787 4692",
+    "antes-t":"Before you start", "antes-l":"<li>Each confirmed team sends its <b>player list</b> here: one registration per age category (a team in two categories fills it in twice).</li><li>A list of <b>7 to 15 players</b>: full name, date of birth, ID number and jersey number.</li><li>For <b>each player</b>: a photo of the ID card or passport and a passport-style photo. You can take them on the spot with the phone camera.</li><li>Payment: if the organisers have already confirmed the team's payment, just tick “I have already paid”. Otherwise attach the proof (image or PDF).</li><li>It takes about 15 minutes. What you type is saved on this device: you can stop and continue later.</li><li>If something fails, the page says what is missing and <b>how to fix it</b>. A list of problems and solutions is at the bottom of the page.</li>",
+    "aj-t":"Problems? How to fix them", "aj-l":"<dt>The “Submit” button does nothing</dt><dd>Read the coloured box above the button: each line says what is missing and how to fix it. Tap a line to jump to that field.</dd><dt>I cannot attach the ID or the photo</dt><dd>Tap “Choose file” and pick “Camera” to take the picture now, or “Gallery” / “Files”. If the file arrived on WhatsApp, save it to the phone gallery first and choose it from there.</dd><dt>“The file is larger than … MB” or “Attachments add up to more than 20 MB”</dt><dd>Send photos instead of scanned PDFs. Photos are shrunk automatically before sending; PDFs are not (2 MB each at most).</dd><dt>The age shows in red</dt><dd>The player is below the minimum age of the category on 3 December 2026. Check the date of birth and the category. Older players may play in a younger category, not the other way round.</dd><dt>I lost the connection or the page closed</dt><dd>What you typed is saved on this device. Open this page again on the same phone and browser: you only have to choose the files again.</dd><dt>I submitted and no registration number appeared</dt><dd>Do not submit again straight away. Wait a minute and ask the organisers on WhatsApp whether the entry arrived, so it is not duplicated.</dd><dt>I made a mistake after submitting</dt><dd>Do not register again. Send the correction to the organisers on WhatsApp with the registration number (for example M40-03).</dd><dt>I want to enter the same team in another category</dt><dd>After submitting, use “Register another category”: team and contacts stay filled in.</dd>",
+    "aj-fim":"Still stuck? Send a screenshot showing the error message:", "aj-wa":"Ask for help on WhatsApp",
     hist:"Our story →", "cp-mpesa":"Copy M-Pesa no.", "cp-nib":"Copy NIB", "rasc-apagar":"Delete draft and start again",
     "rasc-hint":"What you type is saved only on this device until you submit (photos and documents are not). On a shared computer, delete the draft when you finish."
   }
@@ -350,12 +378,40 @@ const M = {
     eTipo:(i)=>`Linha ${i}: escolha o tipo de documento.`, eDoc:(i)=>`Linha ${i}: falta o número do documento.`, eCam:(i)=>`Linha ${i}: falta o número da camisola.`,
     eCamRep:(i,c)=>`Linha ${i}: a camisola ${c} já está noutro atleta.`, eDocRep:(i)=>`Linha ${i}: o documento já está noutro atleta.`,
     eFdoc:(i)=>`Linha ${i}: anexe o documento de identificação.`, eFfoto:(i)=>`Linha ${i}: anexe a fotografia.`,
-    ePag:"Anexe o comprovativo ou marque «Ainda não paguei».", eDecl:"Aceite as duas declarações.",
+    ePag:"Falta indicar o pagamento (secção 4).", pagoOrg:"Pagamento já confirmado pela organização.", eDecl:"Aceite as duas declarações.",
     eGrande:(f,mb)=>`O ficheiro «${f}» tem mais de ${mb} MB.`, eTotal:(mb)=>`Os anexos somam ${mb} MB, acima do limite de 20 MB. Use digitalizações mais leves.`,
     eLer:(f,i)=>`Não foi possível ler «${f}»${i?` (linha ${i})`:""}. Copie o ficheiro para uma pasta do computador e volte a escolhê-lo.`,
     wVelho:(i,n,a)=>`Linha ${i}: ${n} tem ${a} anos. Confirme a data de nascimento.`, wCam:(i,c)=>`Linha ${i}: a camisola «${c}» não é um número de 0 a 99 (ou 00).`,
     wTreinador:"Não indicou treinador.",
     wAnexos:(n)=>n === 1 ? "1 atleta sem cópia do documento ou fotografia: terá de mostrar o documento original na acreditação." : `${n} atletas sem cópia do documento ou fotografia: terão de mostrar o documento original na acreditação.`,
+    resolver:"Como resolver:", irPara:"Toque numa linha para ir ao campo.",
+    fClube:"Escreva o nome da equipa no campo «Nome do clube / equipa» (secção 1).",
+    fPais:"Escolha o país na lista (secção 1). Se não estiver na lista, escolha «Outro».",
+    fCat:"Toque numa das seis categorias (secção 1). Para a mesma equipa jogar em duas categorias, faça duas inscrições.",
+    fResp:"Escreva o nome da pessoa que a organização deve contactar (secção 2).",
+    fTel:"Escreva o número com indicativo, por exemplo +258 84 000 0000 (secção 2).",
+    fEmail:"Corrija o endereço (exemplo: nome@gmail.com) ou deixe o campo vazio: o e-mail é facultativo.",
+    fNumMenos:`Preencha pelo menos ${MIN_ATLETAS} atletas. Use «+ Adicionar atleta» para ter mais linhas; as linhas sem nome não contam.`,
+    fNumMais:`Remova atletas com «✕ Remover» até ficarem ${MAX_ATLETAS}.`,
+    fNasc:"Escolha o dia, o mês e o ano de nascimento no calendário dessa linha. No telemóvel, toque no ano para o mudar mais depressa.",
+    fIdade:(d)=>`A idade conta no dia ${d}. Se a data de nascimento estiver errada, corrija-a. Se estiver certa, este atleta não pode jogar nesta categoria: remova-o com «✕ Remover» ou escolha uma categoria mais nova.`,
+    fTipo:"Nessa linha, escolha BI, Passaporte, DIRE ou Outro.", fDoc:"Escreva o número tal como está no documento.",
+    fDocRep:"Dois atletas têm o mesmo número de documento. Confirme os dois números: cada atleta só pode aparecer uma vez.",
+    fCam:"Escreva o número da camisola (0 a 99).", fCamRep:"Dê números diferentes aos dois atletas.",
+    fFdoc:"Nessa linha, toque em «Documento (foto ou PDF)» e escolha a fotografia do BI ou passaporte. Pode fotografar na hora com a câmara do telemóvel.",
+    fFfoto:"Nessa linha, toque em «Fotografia tipo passe» e escolha uma fotografia do rosto. Pode tirar uma na hora com o telemóvel.",
+    fPag:"Na secção 4, marque «Já paguei e a organização confirmou», ou anexe a imagem ou o PDF do comprovativo. Se ainda não pagou, marque «Ainda não paguei».",
+    fDecl:"Marque as duas caixas da secção 6.",
+    fGrande:"Tire uma fotografia do documento com o telemóvel em vez de enviar o PDF, ou envie uma captura de ecrã do ficheiro.",
+    fAvisoOk:"Se estiver certo, carregue em «Confirmar e submeter».",
+    hRede:"A ligação à internet falhou a meio do envio.", hRedeFix:"O que escreveu continua guardado neste aparelho. Ligue-se a Wi-Fi ou a uma rede melhor e carregue de novo em «Submeter inscrição», sem fechar a página.",
+    hPesoFix:"Envie fotografias em vez de PDF digitalizados (as fotografias são reduzidas sozinhas). Se for preciso, fotografe os documentos com o telemóvel.",
+    hLerFix:"Guarde o ficheiro na galeria ou numa pasta do aparelho e volte a escolhê-lo. Ficheiros abertos directamente do WhatsApp ou da nuvem às vezes não se deixam ler.",
+    hOcupadoFix:"Outra equipa está a submeter neste momento. Espere um minuto e carregue de novo em «Submeter inscrição». Não precisa de preencher nada outra vez.",
+    hFechadoFix:"O prazo terminou. Contacte a organização pelo WhatsApp.",
+    hServFix:"Corrija o que a mensagem indica e submeta de novo. Os dados continuam preenchidos.",
+    hOutroFix:"Espere um minuto e tente outra vez. Se voltar a falhar, envie uma captura deste ecrã à organização pelo WhatsApp.",
+    waBtn:"Pedir ajuda pelo WhatsApp", waMsg:(clube,cat,erro)=>`CBIST 2026: preciso de ajuda com a inscrição.\nEquipa: ${clube || "-"}\nCategoria: ${cat || "-"}\nMensagem: ${erro || "-"}`,
     opc:" (facultativo)", s3opc:"Para cada atleta: nome, data de nascimento, documento e número da camisola. A cópia do documento (BI ou passaporte) e a fotografia tipo passe são facultativas aqui: quem não as anexar mostra o documento original na acreditação. As fotografias são reduzidas automaticamente antes do envio.",
     prazo:(d)=>`Prazo: ${d}`, fechado:(d)=>`As inscrições fecharam a ${d}. Contacte a organização: +258 84 787 4692.`, hoje:"Termina hoje",
     falhou:"Não foi possível submeter a inscrição.", motivo:"Motivo:", tentar:"Corrija e tente de novo. Se persistir, contacte +258 84 787 4692.",
@@ -377,12 +433,40 @@ const M = {
     eTipo:(i)=>`Row ${i}: choose the document type.`, eDoc:(i)=>`Row ${i}: document number is missing.`, eCam:(i)=>`Row ${i}: jersey number is missing.`,
     eCamRep:(i,c)=>`Row ${i}: jersey ${c} is already used by another player.`, eDocRep:(i)=>`Row ${i}: this document is already used by another player.`,
     eFdoc:(i)=>`Row ${i}: attach the ID document.`, eFfoto:(i)=>`Row ${i}: attach the photo.`,
-    ePag:"Attach the proof of payment or tick “I have not paid yet”.", eDecl:"Accept both declarations.",
+    ePag:"Payment information is missing (section 4).", pagoOrg:"Payment already confirmed by the organisers.", eDecl:"Accept both declarations.",
     eGrande:(f,mb)=>`The file “${f}” is larger than ${mb} MB.`, eTotal:(mb)=>`Attachments add up to ${mb} MB, above the 20 MB limit. Use lighter scans.`,
     eLer:(f,i)=>`Could not read “${f}”${i?` (row ${i})`:""}. Copy the file to a local folder and choose it again.`,
     wVelho:(i,n,a)=>`Row ${i}: ${n} is ${a}. Check the date of birth.`, wCam:(i,c)=>`Row ${i}: jersey “${c}” is not a number from 0 to 99 (or 00).`,
     wTreinador:"No coach given.",
     wAnexos:(n)=>n === 1 ? "1 player without an ID copy or photo: he or she must show the original document at accreditation." : `${n} players without an ID copy or photo: they must show the original document at accreditation.`,
+    resolver:"How to fix:", irPara:"Tap a line to jump to the field.",
+    fClube:"Type the team name in “Club / team name” (section 1).",
+    fPais:"Choose the country from the list (section 1). If it is not listed, choose “Other”.",
+    fCat:"Tap one of the six categories (section 1). For the same team to play in two categories, register twice.",
+    fResp:"Type the name of the person the organisers should contact (section 2).",
+    fTel:"Type the number with country code, for example +27 82 000 0000 (section 2).",
+    fEmail:"Correct the address (example: name@gmail.com) or leave it empty: e-mail is optional.",
+    fNumMenos:`Fill in at least ${MIN_ATLETAS} players. Use “+ Add player” for more rows; rows without a name do not count.`,
+    fNumMais:`Remove players with “✕ Remove” until ${MAX_ATLETAS} are left.`,
+    fNasc:"Choose day, month and year of birth in that row's calendar. On a phone, tap the year to change it faster.",
+    fIdade:(d)=>`Age is counted on ${d}. If the date of birth is wrong, correct it. If it is right, this player cannot play in this category: remove him or her with “✕ Remove”, or choose a younger category.`,
+    fTipo:"In that row, choose ID card, Passport, DIRE or Other.", fDoc:"Type the number exactly as printed on the document.",
+    fDocRep:"Two players have the same document number. Check both numbers: each player can appear only once.",
+    fCam:"Type the jersey number (0 to 99).", fCamRep:"Give the two players different numbers.",
+    fFdoc:"In that row, tap “ID document (photo or PDF)” and choose the photo of the ID card or passport. You can take it now with the phone camera.",
+    fFfoto:"In that row, tap “Passport-style photo” and choose a photo of the face. You can take one now with the phone.",
+    fPag:"In section 4, tick “I have already paid and the organisers confirmed it”, or attach the image or PDF of the proof of payment. If you have not paid yet, tick “I have not paid yet”.",
+    fDecl:"Tick both boxes in section 6.",
+    fGrande:"Take a photo of the document with the phone instead of sending the PDF, or send a screenshot of the file.",
+    fAvisoOk:"If this is correct, press “Confirm and submit”.",
+    hRede:"The internet connection dropped while sending.", hRedeFix:"What you typed is still saved on this device. Connect to Wi-Fi or a better network and press “Submit registration” again, without closing the page.",
+    hPesoFix:"Send photos instead of scanned PDFs (photos are shrunk automatically). If needed, photograph the documents with the phone.",
+    hLerFix:"Save the file to the gallery or a folder on the device and choose it again. Files opened straight from WhatsApp or the cloud sometimes cannot be read.",
+    hOcupadoFix:"Another team is submitting right now. Wait a minute and press “Submit registration” again. You do not need to fill anything in again.",
+    hFechadoFix:"The deadline has passed. Contact the organisers on WhatsApp.",
+    hServFix:"Correct what the message says and submit again. Your data stays filled in.",
+    hOutroFix:"Wait a minute and try again. If it fails again, send a screenshot of this screen to the organisers on WhatsApp.",
+    waBtn:"Ask for help on WhatsApp", waMsg:(clube,cat,erro)=>`CBIST 2026: I need help with the registration.\nTeam: ${clube || "-"}\nCategory: ${cat || "-"}\nMessage: ${erro || "-"}`,
     opc:" (optional)", s3opc:"For each player: name, date of birth, ID document and jersey number. The copy of the ID (ID card or passport) and the passport-style photo are optional here: players without them show the original document at accreditation. Photos are shrunk automatically before sending.",
     prazo:(d)=>`Deadline: ${d}`, fechado:(d)=>`Registration closed on ${d}. Contact the organisers: +258 84 787 4692.`, hoje:"Closes today",
     falhou:"The registration could not be submitted.", motivo:"Reason:", tentar:"Fix it and try again. If it persists, contact +258 84 787 4692.",
@@ -516,6 +600,8 @@ function aplicarIdioma(lang){
   });
   contar(); actualizarIdades();
   if (avisosAceites) document.getElementById("btn").textContent = m().confirmar;
+  document.getElementById("wa-geral").href = linkWA("");
+  document.getElementById("painel").hidden = true;
   desenharHistoria();
 }
 document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => aplicarIdioma(b.dataset.lang)));
@@ -525,48 +611,79 @@ let avisosAceites = "";
 const val = id => document.getElementById(id).value.trim();
 function validar(){
   const t = m(), erros = [], avisos = [], c = catSel();
-  if (!val("clube")) erros.push({msg:t.eClube, el:"clube"});
-  if (!val("pais")) erros.push({msg:t.ePais, el:"pais"});
-  if (!c) erros.push({msg:t.eCat, el:"cats"});
-  if (!val("resp_nome")) erros.push({msg:t.eResp, el:"resp_nome"});
-  if (!val("resp_tel")) erros.push({msg:t.eTel, el:"resp_tel"});
-  if (val("resp_email") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val("resp_email"))) erros.push({msg:t.eEmail, el:"resp_email"});
-  if (!val("treinador_nome")) avisos.push({msg:t.wTreinador});
+  if (!val("clube")) erros.push({msg:t.eClube, fix:t.fClube, el:"clube"});
+  if (!val("pais")) erros.push({msg:t.ePais, fix:t.fPais, el:"pais"});
+  if (!c) erros.push({msg:t.eCat, fix:t.fCat, el:"cats"});
+  if (!val("resp_nome")) erros.push({msg:t.eResp, fix:t.fResp, el:"resp_nome"});
+  if (!val("resp_tel")) erros.push({msg:t.eTel, fix:t.fTel, el:"resp_tel"});
+  if (val("resp_email") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val("resp_email"))) erros.push({msg:t.eEmail, fix:t.fEmail, el:"resp_email"});
+  if (!val("treinador_nome")) avisos.push({msg:t.wTreinador, fix:t.fAvisoOk, el:"treinador_nome"});
   const cheias = linhas().filter(preenchida);
-  if (cheias.length < MIN_ATLETAS || cheias.length > MAX_ATLETAS) erros.push({msg:t.eNum(cheias.length), el:"players"});
+  if (cheias.length < MIN_ATLETAS) erros.push({msg:t.eNum(cheias.length), fix:t.fNumMenos, el:"players"});
+  else if (cheias.length > MAX_ATLETAS) erros.push({msg:t.eNum(cheias.length), fix:t.fNumMais, el:"players"});
   const cams = {}, docs = {}; let abaixo = 0, semAnexos = 0;
   linhas().forEach((d,ix) => {
     d.classList.remove("erro","aviso");
     if (!preenchida(d)) return;
     const i = ix + 1, g = s => d.querySelector(`[data-c="${s}"]`).value.trim(), nome = g("nome");
-    const marca = (msg, aviso) => { (aviso ? avisos : erros).push({msg, row:d}); d.classList.add(aviso ? "aviso" : "erro"); };
+    const marca = (msg, fix, campo, aviso) => { (aviso ? avisos : erros).push({msg, fix, row:d, campo}); d.classList.add(aviso ? "aviso" : "erro"); };
     const idade = idadeEm(g("nasc"), EVENTO.dataRef);
-    if (idade === null) marca(t.eNasc(i));
-    else if (c && idade < c.min) { abaixo++; if (abaixo > ABAIXO_TOLERADOS) marca(t.eIdade(i, nome, idade, c.min)); }
-    else if (idade > 75) marca(t.wVelho(i, nome, idade), true);
-    if (!g("doc_tipo")) marca(t.eTipo(i));
+    if (idade === null) marca(t.eNasc(i), t.fNasc, '[data-c="nasc"]');
+    else if (c && idade < c.min) { abaixo++; if (abaixo > ABAIXO_TOLERADOS) marca(t.eIdade(i, nome, idade, c.min), t.fIdade(fmtD(EVENTO.dataRef)), '[data-c="nasc"]'); }
+    else if (idade > 75) marca(t.wVelho(i, nome, idade), t.fAvisoOk, '[data-c="nasc"]', true);
+    if (!g("doc_tipo")) marca(t.eTipo(i), t.fTipo, '[data-c="doc_tipo"]');
     const doc = g("doc_num").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    if (!doc) marca(t.eDoc(i)); else if (docs[doc]) marca(t.eDocRep(i)); else docs[doc] = 1;
+    if (!doc) marca(t.eDoc(i), t.fDoc, '[data-c="doc_num"]'); else if (docs[doc]) marca(t.eDocRep(i), t.fDocRep, '[data-c="doc_num"]'); else docs[doc] = 1;
     const cam = g("camisola");
-    if (!cam) marca(t.eCam(i)); else if (cams[cam]) marca(t.eCamRep(i, cam)); else cams[cam] = 1;
-    if (cam && !/^(00|[0-9]|[1-9][0-9])$/.test(cam)) marca(t.wCam(i, cam), true);
+    if (!cam) marca(t.eCam(i), t.fCam, '[data-c="camisola"]'); else if (cams[cam]) marca(t.eCamRep(i, cam), t.fCamRep, '[data-c="camisola"]'); else cams[cam] = 1;
+    if (cam && !/^(00|[0-9]|[1-9][0-9])$/.test(cam)) marca(t.wCam(i, cam), t.fAvisoOk, '[data-c="camisola"]', true);
     const temDoc = !!d.querySelector('[data-f="doc"]').files[0], temFoto = !!d.querySelector('[data-f="foto"]').files[0];
-    if (EXIGIR_DOC && !temDoc) marca(t.eFdoc(i));
-    if (EXIGIR_FOTO && !temFoto) marca(t.eFfoto(i));
+    if (EXIGIR_DOC && !temDoc) marca(t.eFdoc(i), t.fFdoc, '[data-f="doc"]');
+    if (EXIGIR_FOTO && !temFoto) marca(t.eFfoto(i), t.fFfoto, '[data-f="foto"]');
     if ((!EXIGIR_DOC && !temDoc) || (!EXIGIR_FOTO && !temFoto)) semAnexos++;
   });
-  if (semAnexos) avisos.push({msg:t.wAnexos(semAnexos)});
-  if (!document.getElementById("comprovativo").files[0] && !document.getElementById("pagar_depois").checked) erros.push({msg:t.ePag, el:"comprovativo"});
-  if (!document.getElementById("decl1").checked || !document.getElementById("decl2").checked) erros.push({msg:t.eDecl, el:"decl1"});
+  if (semAnexos) avisos.push({msg:t.wAnexos(semAnexos), fix:t.fAvisoOk});
+  if (!document.getElementById("comprovativo").files[0] && !document.getElementById("pagar_depois").checked && !document.getElementById("ja_pago").checked) erros.push({msg:t.ePag, fix:t.fPag, el:"comprovativo"});
+  if (!document.getElementById("decl1").checked || !document.getElementById("decl2").checked) erros.push({msg:t.eDecl, fix:t.fDecl, el:"decl1"});
   return {erros, avisos};
 }
-function painel(tipo, itens){
+const WA_ORG = "258847874692";
+function linkWA(erro){
+  const c = catSel();
+  return "https://wa.me/" + WA_ORG + "?text=" + encodeURIComponent(m().waMsg(val("clube"), c ? c.curto : "", erro || ""));
+}
+function alvoDe(x){
+  if (x.row) return (x.campo && x.row.querySelector(x.campo)) || x.row.querySelector("input,select") || x.row;
+  const e = x.el && document.getElementById(x.el);
+  return e ? (e.matches("input,select,textarea") ? e : (e.querySelector("input,select") || e)) : null;
+}
+function irPara(x){
+  const a = alvoDe(x); if (!a) return;
+  a.scrollIntoView({block:"center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  setTimeout(() => { try { a.focus({preventScroll:true}); } catch(e) {} }, 350);
+}
+function painel(tipo, itens, ajuda){
   const p = document.getElementById("painel"), t = m();
   p.className = tipo; p.hidden = false;
-  p.innerHTML = `<h3>${tipo === "err" ? t.errosT : t.avisosT}</h3><ul>${itens.map(x => `<li>${esc(x.msg)}</li>`).join("")}</ul>`;
-  const alvo = itens[0] && (itens[0].row || (itens[0].el && document.getElementById(itens[0].el)));
+  const algumAlvo = itens.some(x => alvoDe(x)), ditas = new Set();   // a mesma instrução só aparece na primeira linha a que se aplica
+  p.innerHTML = `<h3>${tipo === "err" ? t.errosT : t.avisosT}</h3>` +
+    `<ul>${itens.map((x,i) => { const mostra = x.fix && !ditas.has(x.fix); if (x.fix) ditas.add(x.fix);
+      return `<li data-i="${i}" class="${alvoDe(x) ? "vai" : ""}"><b>${esc(x.msg)}</b>${mostra ? `<span class="fix" data-r="${esc(t.resolver)}">${esc(x.fix)}</span>` : ""}</li>`; }).join("")}</ul>` +
+    `<div class="acoes">${algumAlvo ? `<span>${esc(t.irPara)}</span>` : ""}${tipo === "err" && ajuda ? `<a class="wa" target="_blank" rel="noopener" href="${esc(linkWA(itens[0] && itens[0].msg))}">${esc(t.waBtn)}</a>` : ""}</div>`;
+  p.querySelectorAll("li.vai").forEach(li => li.addEventListener("click", () => irPara(itens[+li.dataset.i])));
   p.scrollIntoView({block:"center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
-  if (alvo && alvo.querySelector) { const inp = alvo.matches("input,select") ? alvo : alvo.querySelector("input,select"); if (inp) setTimeout(() => inp.focus({preventScroll:true}), 300); }
+  if (tipo === "err" && itens[0] && alvoDe(itens[0])) setTimeout(() => { try { alvoDe(itens[0]).focus({preventScroll:true}); } catch(e) {} }, 300);
+}
+/* falha no envio: diz o que aconteceu em linguagem simples e como resolver */
+function explicarFalha(e){
+  const t = m(), s = String(e && e.message ? e.message : e || "");
+  if (e && e.tipo === "peso") return {msg:s, fix:t.hPesoFix};
+  if (e && e.tipo === "ler") return {msg:s, fix:t.hLerFix, row:e.row};
+  if (/failed to fetch|networkerror|load failed|network request failed|err_internet|timeout/i.test(s) || (e && e.name === "TypeError")) return {msg:t.hRede, fix:t.hRedeFix};
+  if (/ocupado|busy/i.test(s)) return {msg:s, fix:t.hOcupadoFix};
+  if (/fecharam|is closed/i.test(s)) return {msg:s, fix:t.hFechadoFix};
+  if (/^HTTP \d+/.test(s) || !s) return {msg:`${t.falhou} (${s || "?"})`, fix:t.hOutroFix};
+  return {msg:`${t.falhou} ${t.motivo} ${s}`, fix:t.hServFix};
 }
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
 
@@ -610,7 +727,7 @@ document.getElementById("frm").addEventListener("submit", async ev => {
   const t = m(), btn = document.getElementById("btn"), st = document.getElementById("estado-envio");
   document.getElementById("painel").hidden = true;
   const {erros, avisos} = validar();
-  if (erros.length){ avisosAceites = ""; btn.textContent = t.enviar || T.en.enviar; aplicarTextoBtn(); return painel("err", erros); }
+  if (erros.length){ avisosAceites = ""; aplicarTextoBtn(); return painel("err", erros, true); }
   const assin = avisos.map(a => a.msg).join("|");
   if (avisos.length && avisosAceites !== assin){ avisosAceites = assin; btn.textContent = t.confirmar; return painel("warn", avisos); }
 
@@ -623,7 +740,7 @@ document.getElementById("frm").addEventListener("submit", async ev => {
   ["comprovativo","logotipo"].forEach(id => { const inp = document.getElementById(id); if (inp.files[0]) anexos.push({inp, campo:id, tipo:id}); });
   for (const a of anexos){
     const f = a.inp.files[0], lim = limiteMB(f, a.tipo);
-    if (f.size > lim * 1048576) { if (a.row) a.row.classList.add("erro"); return painel("err", [{msg:t.eGrande(f.name, lim), row:a.row, el:a.inp.id}]); }
+    if (f.size > lim * 1048576) { if (a.row) a.row.classList.add("erro"); return painel("err", [{msg:t.eGrande(f.name, lim), fix:t.fGrande, row:a.row, campo:a.row ? `[data-f="${a.tipo}"]` : "", el:a.inp.id}], true); }
   }
   btn.disabled = true;
   try {
@@ -631,7 +748,9 @@ document.getElementById("frm").addEventListener("submit", async ev => {
     ["clube","pais","cidade","cores","resp_nome","resp_tel","resp_email","treinador_nome","treinador_tel","delegado_nome","delegado_tel","metodo","referencia","obs"].forEach(id => dados.campos[id] = val(id));
     dados.campos.categoria = catSel().cod;
     dados.campos.moeda = document.querySelector('input[name="moeda"]:checked').value;
-    dados.campos.pagar_depois = document.getElementById("pagar_depois").checked;
+    const jaPago = document.getElementById("ja_pago").checked;
+    dados.campos.pagar_depois = document.getElementById("pagar_depois").checked && !jaPago;
+    if (jaPago && !dados.campos.referencia) dados.campos.referencia = "Já pago (confirmado pela organização)";
     dados.campos.idioma = LANG;
     linhas().filter(preenchida).forEach(d => {
       const g = s => d.querySelector(`[data-c="${s}"]`).value.trim();
@@ -641,10 +760,10 @@ document.getElementById("frm").addEventListener("submit", async ev => {
     for (const a of anexos){
       btn.textContent = t.preparar(++feitos, anexos.length);
       try { dados.ficheiros.push({campo:a.campo, ...(await preparar(a.inp.files[0], a.tipo))}); }
-      catch(e) { if (a.row) a.row.classList.add("erro"); throw new Error(t.eLer(a.inp.files[0].name, a.row ? linhas().indexOf(a.row) + 1 : 0)); }
+      catch(e) { if (a.row) a.row.classList.add("erro"); throw Object.assign(new Error(t.eLer(a.inp.files[0].name, a.row ? linhas().indexOf(a.row) + 1 : 0)), {tipo:"ler", row:a.row}); }
     }
     const corpo = JSON.stringify(dados);
-    if (corpo.length > MAX_TOTAL) throw new Error(t.eTotal((corpo.length / 1048576).toFixed(1)));
+    if (corpo.length > MAX_TOTAL) throw Object.assign(new Error(t.eTotal((corpo.length / 1048576).toFixed(1))), {tipo:"peso"});
     btn.textContent = t.enviando;
     if (!ENDPOINT){ sucesso({ok:true, id:"TESTE", moeda:dados.campos.moeda, valor:{MZN:30000,ZAR:7000,USD:450}[dados.campos.moeda]}, true); return; }
     const resp = await fetch(ENDPOINT, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:corpo});
@@ -652,7 +771,7 @@ document.getElementById("frm").addEventListener("submit", async ev => {
     if (!resp.ok || out.ok === false) throw new Error(out.erro || ("HTTP " + resp.status));
     sucesso(out, false);
   } catch(e) {
-    painel("err", [{msg:`${t.falhou} ${t.motivo} ${e && e.message ? e.message : "?"} — ${t.tentar}`}]);
+    painel("err", [explicarFalha(e)], true);
     btn.disabled = false; aplicarTextoBtn();
   }
 });
@@ -665,7 +784,7 @@ function sucesso(out, teste){
   document.getElementById("ok-id").textContent = out.id;
   const valor = out.valor ? new Intl.NumberFormat(LANG === "en" ? "en-GB" : "pt-PT").format(out.valor) + " " + (out.moeda === "MZN" ? "MT" : out.moeda) : "";
   document.getElementById("ok-msg").textContent = (teste ? t.teste + " " : "") +
-    (document.getElementById("comprovativo").files[0] ? t.pagoComp : t.pagar(valor));
+    (document.getElementById("comprovativo").files[0] ? t.pagoComp : document.getElementById("ja_pago").checked ? t.pagoOrg : t.pagar(valor));
   document.getElementById("sucesso").hidden = false;
   window.scrollTo({top:0});
 }
@@ -709,7 +828,7 @@ function guardarRascunho(){
   clearTimeout(tR);
   tR = setTimeout(() => { try {
     const r = {v:1, t:Date.now(), campos:{}, cat:(catSel() || {}).cod || "", moeda:(document.querySelector('input[name="moeda"]:checked') || {}).value || "MZN",
-               pagar_depois:document.getElementById("pagar_depois").checked, atletas:[]};
+               pagar_depois:document.getElementById("pagar_depois").checked, ja_pago:document.getElementById("ja_pago").checked, atletas:[]};
     CAMPOS_R.forEach(id => r.campos[id] = document.getElementById(id).value);
     linhas().forEach(d => { const a = {}; COLS_R.forEach(c => a[c] = d.querySelector(`[data-c="${c}"]`).value); r.atletas.push(a); });
     while (r.atletas.length && !COLS_R.some(c => r.atletas[r.atletas.length - 1][c])) r.atletas.pop();
@@ -726,7 +845,7 @@ function restaurarRascunho(){
     CAMPOS_R.forEach(id => { if (typeof r.campos[id] === "string") document.getElementById(id).value = r.campos[id]; });
     const c = r.cat && document.getElementById("cat-" + r.cat); if (c) c.checked = true;
     const mo = document.getElementById("m-" + String(r.moeda || "").toLowerCase()); if (mo) mo.checked = true;
-    document.getElementById("pagar_depois").checked = !!r.pagar_depois;
+    document.getElementById("pagar_depois").checked = !!r.pagar_depois; document.getElementById("ja_pago").checked = !!r.ja_pago;
     const at = (r.atletas || []).slice(0, MAX_ATLETAS);
     while (linhas().length < at.length) novaLinha();
     at.forEach((a, i) => { const d = linhas()[i]; COLS_R.forEach(k => { const el = d.querySelector(`[data-c="${k}"]`); if (el && typeof a[k] === "string") el.value = a[k]; }); });
