@@ -155,7 +155,7 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
       </div>
     </div>
     <div class="chips">
-      <span class="chip hot" data-t="prazo">Prazo: 9 Nov 2026</span>
+      <span class="chip hot" id="prazo-chip">Prazo: 1 Dez 2026</span>
       <span class="chip gold" id="faltam" hidden></span>
       <span class="chip" data-t="taxa">30.000 MT · 7.000 ZAR · 450 USD por categoria</span>
     </div>
@@ -167,7 +167,7 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
   <main>
     <section class="card porque" id="porque" hidden></section>
     <div class="cfg" id="cfg" hidden data-t="cfg">Formulário em modo de teste: ainda não está ligado ao sistema de registo. Não envie dados reais.</div>
-    <div class="closed" id="fechado" hidden data-t="fechado">As inscrições fecharam a 9 de Novembro de 2026. Contacte a organização: +258 84 787 4692.</div>
+    <div class="closed" id="fechado" hidden></div>
 
     <div id="sucesso" hidden>
       <h2 data-t="ok-t">Inscrição recebida</h2>
@@ -297,7 +297,7 @@ button.mini{font-size:13.5px;padding:8px 10px;border-width:1px}
    API = URL /exec da Web App do Apps Script (o mesmo nas três páginas).
    Depois de cada alteração: carregar o ficheiro para o GitHub e abrir com Ctrl+F5. */
 const API = "https://script.google.com/macros/s/AKfycbxR28668y76usK0EXG9Xmalj7M1e0Ho_QBLB7WQ9PC4PDaFyDizS54uoEG7Qd5712j_/exec";   // Web App CBIST 2026 (implementação v1, 11/10/2026)
-const EVENTO = { dataRef: "2026-12-03", prazo: "2026-11-09T23:59:59+02:00" };
+const EVENTO = { dataRef: "2026-12-03", prazo: "2026-12-01T23:59:59+02:00" };   // prazo: igual a EVENTO.prazo no Code.gs (o do Code.gs manda)
 const CATEGORIAS = [
   {cod:"M35", curto:"M+35", min:35, pt:"Masculino", en:"Men"},
   {cod:"M40", curto:"M+40", min:40, pt:"Masculino", en:"Men"},
@@ -308,7 +308,7 @@ const CATEGORIAS = [
 ];
 const MIN_ATLETAS = 7, MAX_ATLETAS = 15, LINHAS_INICIAIS = 10;
 const ABAIXO_TOLERADOS = 0;          // igual a ATLETAS_ABAIXO_DA_IDADE no Code.gs
-const EXIGIR_DOC = true, EXIGIR_FOTO = true;
+const EXIGIR_DOC = false, EXIGIR_FOTO = false;   // false = cópia do documento e fotografia facultativas (mostram o original na acreditação)
 /* ================================================================ */
 
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -318,9 +318,8 @@ const T = {
   pt: {},
   en: {
     h1:"Team registration", sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 December 2026",
-    prazo:"Deadline: 9 Nov 2026", taxa:"30,000 MT · 7,000 ZAR · 450 USD per category",
+    taxa:"30,000 MT · 7,000 ZAR · 450 USD per category",
     cfg:"Test mode: this form is not yet connected to the registration system. Do not send real data.",
-    fechado:"Registration closed on 9 November 2026. Contact the organisers: +258 84 787 4692.",
     "ok-t":"Registration received", "ok-id":"Registration number:", "ok-next":"Your place is secured once the organisers verify the payment. Keep this number and quote it in any contact.",
     outra:"Register another category",
     s1:"Team", clube:"Club / team name", pais:"Country", escolher:"Choose…", "p-moz":"Mozambique", "p-rsa":"South Africa", "p-les":"Lesotho", "p-esw":"Eswatini", "p-nam":"Namibia", "p-out":"Other",
@@ -356,6 +355,9 @@ const M = {
     eLer:(f,i)=>`Não foi possível ler «${f}»${i?` (linha ${i})`:""}. Copie o ficheiro para uma pasta do computador e volte a escolhê-lo.`,
     wVelho:(i,n,a)=>`Linha ${i}: ${n} tem ${a} anos. Confirme a data de nascimento.`, wCam:(i,c)=>`Linha ${i}: a camisola «${c}» não é um número de 0 a 99 (ou 00).`,
     wTreinador:"Não indicou treinador.",
+    wAnexos:(n)=>n === 1 ? "1 atleta sem cópia do documento ou fotografia: terá de mostrar o documento original na acreditação." : `${n} atletas sem cópia do documento ou fotografia: terão de mostrar o documento original na acreditação.`,
+    opc:" (facultativo)", s3opc:"Para cada atleta: nome, data de nascimento, documento e número da camisola. A cópia do documento (BI ou passaporte) e a fotografia tipo passe são facultativas aqui: quem não as anexar mostra o documento original na acreditação. As fotografias são reduzidas automaticamente antes do envio.",
+    prazo:(d)=>`Prazo: ${d}`, fechado:(d)=>`As inscrições fecharam a ${d}. Contacte a organização: +258 84 787 4692.`, hoje:"Termina hoje",
     falhou:"Não foi possível submeter a inscrição.", motivo:"Motivo:", tentar:"Corrija e tente de novo. Se persistir, contacte +258 84 787 4692.",
     teste:"Modo de teste: a inscrição não foi enviada (falta o URL do sistema). Os dados passaram todas as verificações.",
     pagar:(v)=>`Valor a pagar: ${v}.`, pagoComp:"Comprovativo recebido.",
@@ -380,6 +382,9 @@ const M = {
     eLer:(f,i)=>`Could not read “${f}”${i?` (row ${i})`:""}. Copy the file to a local folder and choose it again.`,
     wVelho:(i,n,a)=>`Row ${i}: ${n} is ${a}. Check the date of birth.`, wCam:(i,c)=>`Row ${i}: jersey “${c}” is not a number from 0 to 99 (or 00).`,
     wTreinador:"No coach given.",
+    wAnexos:(n)=>n === 1 ? "1 player without an ID copy or photo: he or she must show the original document at accreditation." : `${n} players without an ID copy or photo: they must show the original document at accreditation.`,
+    opc:" (optional)", s3opc:"For each player: name, date of birth, ID document and jersey number. The copy of the ID (ID card or passport) and the passport-style photo are optional here: players without them show the original document at accreditation. Photos are shrunk automatically before sending.",
+    prazo:(d)=>`Deadline: ${d}`, fechado:(d)=>`Registration closed on ${d}. Contact the organisers: +258 84 787 4692.`, hoje:"Closes today",
     falhou:"The registration could not be submitted.", motivo:"Reason:", tentar:"Fix it and try again. If it persists, contact +258 84 787 4692.",
     teste:"Test mode: nothing was sent (the system URL is not set). The data passed every check.",
     pagar:(v)=>`Amount due: ${v}.`, pagoComp:"Proof of payment received.",
@@ -403,6 +408,21 @@ function idadeEm(nasc, ref){
   let i = +r[1] - +a[1]; if (+r[2] < +a[2] || (+r[2] === +a[2] && +r[3] < +a[3])) i--;
   return (i < 10 || i > 100) ? null : i;
 }
+const MESES = {pt:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"], en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]};
+const MESES_L = {pt:["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"], en:["January","February","March","April","May","June","July","August","September","October","November","December"]};
+function prazoTxt(longo){
+  const [y,mo,d] = EVENTO.prazo.slice(0,10).split("-");
+  if (!longo) return `${+d} ${MESES[LANG][+mo-1]} ${y}`;
+  return LANG === "en" ? `${+d} ${MESES_L.en[+mo-1]} ${y}` : `${+d} de ${MESES_L.pt[+mo-1]} de ${y}`;
+}
+/* prazo: chip, aviso de fecho e formulário aberto/fechado — tudo a partir de EVENTO.prazo */
+function pintarPrazo(){
+  document.getElementById("prazo-chip").textContent = m().prazo(prazoTxt(false));
+  const fe = document.getElementById("fechado"), fechou = new Date() > new Date(EVENTO.prazo);
+  fe.textContent = m().fechado(prazoTxt(true)); fe.hidden = !fechou;
+  if (fechou) document.getElementById("frm").hidden = true;
+  else if (document.getElementById("sucesso").hidden) document.getElementById("frm").hidden = false;
+}
 const catSel = () => CATEGORIAS.find(c => c.cod === (document.querySelector('input[name="categoria"]:checked')||{}).value);
 
 /* ---------- categorias (com o número de equipas já inscritas) ---------- */
@@ -412,6 +432,7 @@ async function contarInscritas(){
   try {
     const r = await fetch(ENDPOINT + (ENDPOINT.includes("?") ? "&" : "?") + "acao=publico&_=" + Date.now(), {cache:"no-store"});
     const j = await r.json(); if (!j.ok) return;
+    if (j.evento && /^\d{4}-\d{2}-\d{2}T/.test(j.evento.prazo || "") && j.evento.prazo !== EVENTO.prazo) { EVENTO.prazo = j.evento.prazo; pintarPrazo(); desenharHistoria(); }
     INSCRITAS = {}; (j.equipas || []).forEach(e => INSCRITAS[e.cat] = (INSCRITAS[e.cat] || 0) + 1);
     desenharCats();
   } catch(e) {}
@@ -441,8 +462,8 @@ function novaLinha(){
     <label class="ndoc">${t.ndoc}<input id="a${k}_doc" data-c="doc_num" maxlength="30" autocomplete="off"></label>
     <label class="cam">${t.cam}<input id="a${k}_cam" data-c="camisola" maxlength="2" inputmode="numeric" autocomplete="off"></label>
     <div class="files">
-      <label>${t.fdoc}<input id="a${k}_fdoc" type="file" data-f="doc" accept="image/*,application/pdf"></label>
-      <label>${t.ffoto}<input id="a${k}_ffoto" type="file" data-f="foto" accept="image/*"></label>
+      <label>${t.fdoc}${EXIGIR_DOC ? "" : t.opc}<input id="a${k}_fdoc" type="file" data-f="doc" accept="image/*,application/pdf"></label>
+      <label>${t.ffoto}${EXIGIR_FOTO ? "" : t.opc}<input id="a${k}_ffoto" type="file" data-f="foto" accept="image/*"></label>
     </div>
     <button type="button" class="del" aria-label="${t.remover}">✕ ${t.remover}</button>`;
   d.querySelector('[data-c="nasc"]').addEventListener("change", () => actualizarIdade(d));
@@ -481,10 +502,12 @@ function aplicarIdioma(lang){
   });
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
   document.getElementById("regra-idade").textContent = m().regra(fmtD(EVENTO.dataRef));
+  if (!EXIGIR_DOC || !EXIGIR_FOTO) document.querySelector('[data-t="s3-hint"]').textContent = m().s3opc;
+  pintarPrazo();
   desenharCats();
   linhas().forEach(d => {
     const t = m(), lab = d.querySelectorAll("label");
-    const rot = [t.nome,t.nasc,t.idade,t.nac,t.tipo,t.ndoc,t.cam,t.fdoc,t.ffoto];
+    const rot = [t.nome,t.nasc,t.idade,t.nac,t.tipo,t.ndoc,t.cam,t.fdoc + (EXIGIR_DOC ? "" : t.opc),t.ffoto + (EXIGIR_FOTO ? "" : t.opc)];
     lab.forEach((l,i) => { if (l.firstChild && l.firstChild.nodeType === 3) l.firstChild.nodeValue = rot[i]; });
     const sn = d.querySelector('[data-c="nac"]'), st = d.querySelector('[data-c="doc_tipo"]');
     [...sn.options].slice(1).forEach((o,i) => o.textContent = t.nacs[i]);
@@ -511,7 +534,7 @@ function validar(){
   if (!val("treinador_nome")) avisos.push({msg:t.wTreinador});
   const cheias = linhas().filter(preenchida);
   if (cheias.length < MIN_ATLETAS || cheias.length > MAX_ATLETAS) erros.push({msg:t.eNum(cheias.length), el:"players"});
-  const cams = {}, docs = {}; let abaixo = 0;
+  const cams = {}, docs = {}; let abaixo = 0, semAnexos = 0;
   linhas().forEach((d,ix) => {
     d.classList.remove("erro","aviso");
     if (!preenchida(d)) return;
@@ -527,9 +550,12 @@ function validar(){
     const cam = g("camisola");
     if (!cam) marca(t.eCam(i)); else if (cams[cam]) marca(t.eCamRep(i, cam)); else cams[cam] = 1;
     if (cam && !/^(00|[0-9]|[1-9][0-9])$/.test(cam)) marca(t.wCam(i, cam), true);
-    if (EXIGIR_DOC && !d.querySelector('[data-f="doc"]').files[0]) marca(t.eFdoc(i));
-    if (EXIGIR_FOTO && !d.querySelector('[data-f="foto"]').files[0]) marca(t.eFfoto(i));
+    const temDoc = !!d.querySelector('[data-f="doc"]').files[0], temFoto = !!d.querySelector('[data-f="foto"]').files[0];
+    if (EXIGIR_DOC && !temDoc) marca(t.eFdoc(i));
+    if (EXIGIR_FOTO && !temFoto) marca(t.eFfoto(i));
+    if ((!EXIGIR_DOC && !temDoc) || (!EXIGIR_FOTO && !temFoto)) semAnexos++;
   });
+  if (semAnexos) avisos.push({msg:t.wAnexos(semAnexos)});
   if (!document.getElementById("comprovativo").files[0] && !document.getElementById("pagar_depois").checked) erros.push({msg:t.ePag, el:"comprovativo"});
   if (!document.getElementById("decl1").checked || !document.getElementById("decl2").checked) erros.push({msg:t.eDecl, el:"decl1"});
   return {erros, avisos};
@@ -658,8 +684,8 @@ document.getElementById("outra").addEventListener("click", () => {
 const HIST = window.CBIST_HISTORIA || null;
 let HERO = null;
 function desenharHistoria(){
-  const f = document.getElementById("faltam"), dias = Math.ceil((new Date(EVENTO.prazo) - new Date()) / 864e5);
-  f.hidden = !(dias > 0); if (dias > 0) f.textContent = m().faltam(dias);
+  const f = document.getElementById("faltam"), resta = new Date(EVENTO.prazo) - new Date(), dias = Math.floor(resta / 864e5);
+  f.hidden = !(resta > 0); if (resta > 0) f.textContent = dias >= 1 ? m().faltam(dias) : m().hoje;
   if (!HIST) return;
   const p = document.getElementById("porque"); p.innerHTML = HIST.faixa(LANG, "../#historia"); p.hidden = false;
   if (HERO) HERO.refresh();
@@ -723,7 +749,6 @@ aplicarIdioma(LANG);
 restaurarRascunho();
 contarInscritas();
 if (!ENDPOINT) document.getElementById("cfg").hidden = false;
-if (new Date() > new Date(EVENTO.prazo)) { document.getElementById("fechado").hidden = false; document.getElementById("frm").hidden = true; }
 </script>
 </body>
 </html>
