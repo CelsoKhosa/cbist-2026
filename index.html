@@ -170,6 +170,11 @@ const REFRESH_S = 30;
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const ENDPOINT = (LOCAL && new URLSearchParams(location.search).get("api")) || API;
 
+const PRAZO_ISO = "2026-12-01T23:59:59+02:00";   // fim das inscrições: igual a EVENTO.prazo no Code.gs e no formulário
+const prazoTxt = (lang, longo) => { const [, mo, d] = PRAZO_ISO.slice(0,10).split("-"), i = +mo - 1;
+  const c = {pt:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"], en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]};
+  const l = {pt:["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"], en:["January","February","March","April","May","June","July","August","September","October","November","December"]};
+  return !longo ? `${+d} ${c[lang][i]}` : (lang === "en" ? `${+d} ${l.en[i]}` : `${+d} de ${l.pt[i]}`); };
 const L = {
   pt: { sub:"Craques da Boca International Summer Tournament · 10.ª edição · Maputo, 3–5 Dez 2026",
     tabs:{jogos:"Jogos", class:"Classificação", lideres:"Marcadores", equipas:"Equipas", historia:"História"}, todas:"Todas",
@@ -178,7 +183,7 @@ const L = {
     carregando:"A carregar…", act:(h)=>`Actualizado às ${h}`, auto:`Actualiza sozinho a cada ${REFRESH_S} s`, falha:"Sem ligação — a mostrar os últimos dados",
     demo:"Demonstração com dados de exemplo: jogos, resultados e jogadores são fictícios. As equipas são as da lista de confirmações de 6 Out.",
     aoVivo:"Ao vivo", final:"Final", agendado:"Agendado", adiado:"Adiado", cancelado:"Cancelado", porMarcar:"Data por marcar",
-    semJogos:"Ainda não há jogos marcados. O calendário sai depois do fecho das inscrições (9 Nov).",
+    semJogos:`Ainda não há jogos marcados. O calendário sai depois do fecho das inscrições (${prazoTxt("pt")}).`,
     q:["1.º","2.º","3.º","4.º","Prol."], campo:"Campo",
     grupo:"Grupo", fase:{"Grupos":"Fase de grupos","Quartos-de-final":"Quartos-de-final","Meia-final":"Meia-final","3.º lugar":"3.º lugar","Final":"Final"},
     cab:{pos:"#", eq:"Equipa", j:"J", v:"V", d:"D", pts:"Pts", pm:"PM", ps:"PS", dif:"Dif"},
@@ -189,10 +194,10 @@ const L = {
     resumo:(f,n)=>`${f} de ${n} ${n===1?"jogo terminado":"jogos terminados"}`,
     equipasN:(n)=>`${n} ${n===1?"equipa":"equipas"}`, conf:"Confirmada", pend:"Pagamento por confirmar",
     semEquipas:"Ainda sem inscrições nesta categoria.",
-    catSemJogos:"Ainda sem jogos nesta categoria. O calendário sai depois do fecho das inscrições (9 Nov).",
+    catSemJogos:`Ainda sem jogos nesta categoria. O calendário sai depois do fecho das inscrições (${prazoTxt("pt")}).`,
     catSemClass:"A classificação aparece quando houver jogos nesta categoria.",
     catSemPontos:"Ainda sem pontos registados nesta categoria.",
-    rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:"Inscrever uma equipa (até 9 Nov) →",
+    rodape:"Associação Craques da Boca · Resultados oficiais da mesa · WhatsApp +258 84 787 4692", insc:`Inscrever uma equipa (até ${prazoTxt("pt")}) →`,
     dias:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"], meses:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]},
   en: { sub:"Craques da Boca International Summer Tournament · 10th edition · Maputo, 3–5 Dec 2026",
     tabs:{jogos:"Games", class:"Standings", lideres:"Scorers", equipas:"Teams", historia:"History"}, todas:"All",
@@ -201,7 +206,7 @@ const L = {
     carregando:"Loading…", act:(h)=>`Updated at ${h}`, auto:`Refreshes every ${REFRESH_S} s`, falha:"No connection — showing the last data",
     demo:"Demo with sample data: games, scores and players are fictional. Teams are those on the 6 Oct confirmation list.",
     aoVivo:"Live", final:"Final", agendado:"Scheduled", adiado:"Postponed", cancelado:"Cancelled", porMarcar:"Date to be set",
-    semJogos:"No games scheduled yet. The schedule comes out after registration closes (9 Nov).",
+    semJogos:`No games scheduled yet. The schedule comes out after registration closes (${prazoTxt("en")}).`,
     q:["Q1","Q2","Q3","Q4","OT"], campo:"Court",
     grupo:"Group", fase:{"Grupos":"Group stage","Quartos-de-final":"Quarter-final","Meia-final":"Semi-final","3.º lugar":"3rd place","Final":"Final"},
     cab:{pos:"#", eq:"Team", j:"GP", v:"W", d:"L", pts:"Pts", pm:"PF", ps:"PA", dif:"Diff"},
@@ -212,10 +217,10 @@ const L = {
     resumo:(f,n)=>`${f} of ${n} ${n===1?"game":"games"} played`,
     equipasN:(n)=>`${n} ${n===1?"team":"teams"}`, conf:"Confirmed", pend:"Payment pending",
     semEquipas:"No registrations in this category yet.",
-    catSemJogos:"No games in this category yet. The schedule comes out after registration closes (9 Nov).",
+    catSemJogos:`No games in this category yet. The schedule comes out after registration closes (${prazoTxt("en")}).`,
     catSemClass:"Standings appear once this category has games.",
     catSemPontos:"No points recorded in this category yet.",
-    rodape:"Associação Craques da Boca · Official table results · WhatsApp +258 84 787 4692", insc:"Register a team (until 9 Nov) →",
+    rodape:"Associação Craques da Boca · Official table results · WhatsApp +258 84 787 4692", insc:`Register a team (until ${prazoTxt("en")}) →`,
     dias:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], meses:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]}
 };
 let LANG = "pt", TAB = "jogos", CAT = "", DATA = null, falhou = false;
@@ -224,7 +229,7 @@ const TABS = ["jogos","class","lideres","equipas","historia"];
 if (TABS.includes(location.hash.slice(1))) TAB = location.hash.slice(1);
 const HIST = window.CBIST_HISTORIA || null;
 const PAGINA = location.href.split("#")[0].split("?")[0];
-const INICIO = new Date("2026-12-03T00:00:00+02:00"), PRAZO = new Date("2026-11-09T23:59:59+02:00");
+const INICIO = new Date("2026-12-03T00:00:00+02:00"), PRAZO = new Date(PRAZO_ISO);
 const t = () => L[LANG];
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const n0 = v => (v === "" || v === null || v === undefined) ? null : Number(v);
@@ -397,7 +402,7 @@ function vEquipas(){
 }
 function vHistoria(){
   if (!HIST) return `<p class="empty">—</p>`;
-  return HIST.vistaHistoria(LANG, {inscricaoAberta: new Date() <= PRAZO, linkInscricao: "inscricao/"});
+  return HIST.vistaHistoria(LANG, {inscricaoAberta: new Date() <= PRAZO, linkInscricao: "inscricao/", prazoTxt: prazoTxt(LANG, true)});
 }
 function textoJogo(g){
   const x = t(), tc = n0(g.tc), tf = n0(g.tf), tem = tc !== null && tf !== null;
@@ -435,7 +440,7 @@ function desenhar(){
   document.getElementById("tabs").innerHTML = Object.entries(x.tabs).map(([k,v]) => `<button type="button" role="tab" id="tab-${k}" aria-selected="${k===TAB}" data-tab="${k}">${v}</button>`).join("");
   document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { TAB = b.dataset.tab; history.replaceState(null, "", "#" + TAB); desenhar(); });
   document.getElementById("foot").textContent = x.rodape;
-  const li = document.getElementById("link-insc"); li.textContent = x.insc; li.hidden = new Date() > new Date("2026-11-09T23:59:59+02:00");
+  const li = document.getElementById("link-insc"); li.textContent = x.insc; li.hidden = new Date() > PRAZO;
   const pulse = document.getElementById("pulse");
   if (TAB === "historia") pintar();
   if (!DATA){ const mn = document.getElementById("main"); if (TAB !== "historia" && mn.dataset.k) { mn.innerHTML = ""; mn.dataset.k = ""; }
