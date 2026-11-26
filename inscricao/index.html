@@ -206,7 +206,13 @@ details.ajuda .fim{margin:14px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-it
         <h2><span class="n">1</span><span data-t="s1">Equipa</span></h2>
         <div class="grid">
           <label class="f"><span class="req" data-t="clube">Nome do clube / equipa</span>
-            <input id="clube" name="clube" list="clubes" autocomplete="organization" maxlength="80" required></label>
+            <select id="clube_sel" required>
+              <option value="" data-t="escolher">Escolher…</option>
+              <option value="ABC Internacional">ABC Internacional</option><option value="Amigas de Maputo">Amigas de Maputo</option><option value="Amigas do Basket">Amigas do Basket</option><option value="Batonificadas">Batonificadas</option><option value="CFM Hoopers">CFM Hoopers</option><option value="Colegas">Colegas</option><option value="Craques da Boca">Craques da Boca</option><option value="Craques da Boca Tete">Craques da Boca Tete</option><option value="Diliza">Diliza</option><option value="Divas do Cesto">Divas do Cesto</option><option value="EDM">EDM</option><option value="G30">G30</option><option value="INSS">INSS</option><option value="JP Stars">JP Stars</option><option value="Mahotas">Mahotas</option><option value="Maluti Dinosaurs">Maluti Dinosaurs</option><option value="Mentality">Mentality</option><option value="Monstros">Monstros</option><option value="Mozal Players">Mozal Players</option><option value="Petro Ballers">Petro Ballers</option><option value="Petromoc">Petromoc</option><option value="Prudencial">Prudencial</option><option value="The Powerpuff Ladies">The Powerpuff Ladies</option><option value="Velhas Glórias de Boane">Velhas Glórias de Boane</option><option value="Young Legends">Young Legends</option>
+              <option value="__outros" data-t="clube-outros">Outros (escrever o nome)</option>
+            </select></label>
+          <label class="f" id="clube_outros" hidden><span class="req" data-t="clube-nome">Nome da equipa</span>
+            <input id="clube" name="clube" autocomplete="organization" maxlength="80"></label>
           <label class="f"><span class="req" data-t="pais">País</span>
             <select id="pais" name="pais" required>
               <option value="" data-t="escolher">Escolher…</option>
@@ -222,9 +228,6 @@ details.ajuda .fim{margin:14px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-it
           <label class="f"><span data-t="cidade">Cidade</span><input id="cidade" name="cidade" maxlength="60"></label>
           <label class="f"><span data-t="cores">Cores do equipamento</span><input id="cores" name="cores" maxlength="60" placeholder="ex.: laranja / preto"></label>
         </div>
-        <datalist id="clubes">
-          <option value="Mahotas"><option value="Mozal Players"><option value="CFM Hoopers"><option value="INSS"><option value="Petro Ballers"><option value="Prudencial"><option value="Velhas Glórias de Boane"><option value="Craques da Boca"><option value="Mentality"><option value="Maluti Dinosaurs"><option value="Petromoc"><option value="Colegas"><option value="Young Legends"><option value="Craques da Boca Tete"><option value="ABC Internacional"><option value="Monstros"><option value="EDM"><option value="Amigas de Maputo"><option value="Batonificadas"><option value="The Powerpuff Ladies"><option value="G30"><option value="JP Stars"><option value="Diliza"><option value="Divas do Cesto"><option value="Amigas do Basket">
-        </datalist>
         <div>
           <p class="f req" style="margin:0 0 8px;font-weight:600;font-size:14px" data-t="cat">Categoria (uma inscrição por categoria)</p>
           <div class="cats" id="cats" role="radiogroup"></div>
@@ -347,7 +350,7 @@ const T = {
     cfg:"Test mode: this form is not yet connected to the registration system. Do not send real data.",
     "ok-t":"Registration received", "ok-id":"Registration number:", "ok-next":"Your place is secured once the organisers verify the payment. Keep this number and quote it in any contact.",
     outra:"Register another category",
-    s1:"Team", clube:"Club / team name", pais:"Country", escolher:"Choose…", "p-moz":"Mozambique", "p-rsa":"South Africa", "p-les":"Lesotho", "p-esw":"Eswatini", "p-nam":"Namibia", "p-out":"Other",
+    s1:"Team", clube:"Club / team name", "clube-outros":"Other (type the name)", "clube-nome":"Team name", pais:"Country", escolher:"Choose…", "p-moz":"Mozambique", "p-rsa":"South Africa", "p-les":"Lesotho", "p-esw":"Eswatini", "p-nam":"Namibia", "p-out":"Other",
     cidade:"City", cores:"Kit colours", cat:"Category (one registration per category)",
     s2:"Contacts", resp:"Team contact person", tel:"Phone / WhatsApp", email:"E-mail", treinador:"Coach", delegado:"Team manager",
     s3:"Players", "s3-hint":"For each player: an ID document (ID card or passport, photo or PDF) and a passport-style photo. Photos are shrunk automatically before sending.",
@@ -385,7 +388,7 @@ const M = {
     wTreinador:"Não indicou treinador.",
     wAnexos:(n)=>n === 1 ? "1 atleta sem cópia do documento ou fotografia: terá de mostrar o documento original na acreditação." : `${n} atletas sem cópia do documento ou fotografia: terão de mostrar o documento original na acreditação.`,
     resolver:"Como resolver:", irPara:"Toque numa linha para ir ao campo.",
-    fClube:"Escreva o nome da equipa no campo «Nome do clube / equipa» (secção 1).",
+    fClube:"Escolha a equipa na lista (secção 1). Se não estiver na lista, escolha «Outros» e escreva o nome.",
     fPais:"Escolha o país na lista (secção 1). Se não estiver na lista, escolha «Outro».",
     fCat:"Toque numa das seis categorias (secção 1). Para a mesma equipa jogar em duas categorias, faça duas inscrições.",
     fResp:"Escreva o nome da pessoa que a organização deve contactar (secção 2).",
@@ -440,7 +443,7 @@ const M = {
     wTreinador:"No coach given.",
     wAnexos:(n)=>n === 1 ? "1 player without an ID copy or photo: he or she must show the original document at accreditation." : `${n} players without an ID copy or photo: they must show the original document at accreditation.`,
     resolver:"How to fix:", irPara:"Tap a line to jump to the field.",
-    fClube:"Type the team name in “Club / team name” (section 1).",
+    fClube:"Choose the team from the list (section 1). If it is not listed, choose “Other” and type the name.",
     fPais:"Choose the country from the list (section 1). If it is not listed, choose “Other”.",
     fCat:"Tap one of the six categories (section 1). For the same team to play in two categories, register twice.",
     fResp:"Type the name of the person the organisers should contact (section 2).",
@@ -611,7 +614,7 @@ let avisosAceites = "";
 const val = id => document.getElementById(id).value.trim();
 function validar(){
   const t = m(), erros = [], avisos = [], c = catSel();
-  if (!val("clube")) erros.push({msg:t.eClube, fix:t.fClube, el:"clube"});
+  if (!val("clube")) erros.push({msg:t.eClube, fix:t.fClube, el:document.getElementById("clube_sel").value === "__outros" ? "clube" : "clube_sel"});
   if (!val("pais")) erros.push({msg:t.ePais, fix:t.fPais, el:"pais"});
   if (!c) erros.push({msg:t.eCat, fix:t.fCat, el:"cats"});
   if (!val("resp_nome")) erros.push({msg:t.eResp, fix:t.fResp, el:"resp_nome"});
@@ -860,12 +863,28 @@ document.getElementById("rasc-apagar").addEventListener("click", () => { apagarR
 document.getElementById("frm").addEventListener("input", guardarRascunho);
 document.getElementById("frm").addEventListener("change", guardarRascunho);
 
+/* ---------- equipa: lista das confirmadas + «Outros» ---------- */
+const selClube = document.getElementById("clube_sel"), inpClube = document.getElementById("clube");
+function clubeMudou(){
+  const outros = selClube.value === "__outros";
+  document.getElementById("clube_outros").hidden = !outros;
+  if (!outros) inpClube.value = selClube.value;
+  else if ([...selClube.options].some(o => o.value === inpClube.value)) inpClube.value = "";
+}
+function clubeParaLista(){   // depois de repor um rascunho: acerta a lista com o nome guardado
+  const v = inpClube.value.trim();
+  selClube.value = !v ? "" : ([...selClube.options].some(o => o.value === v && v !== "__outros") ? v : "__outros");
+  document.getElementById("clube_outros").hidden = selClube.value !== "__outros";
+}
+selClube.addEventListener("change", () => { clubeMudou(); if (selClube.value === "__outros") inpClube.focus(); guardarRascunho(); });
+
 /* ---------- arranque ---------- */
 document.getElementById("add").addEventListener("click", () => { const d = novaLinha(); d.querySelector("input").focus(); });
 for (let i = 0; i < LINHAS_INICIAIS; i++) novaLinha();
 if (HIST) { HIST.textura(); HERO = HIST.capa(document.querySelector("header.mast"), HIST.dados.inscricao.capa, () => LANG); }
 aplicarIdioma(LANG);
 restaurarRascunho();
+clubeParaLista();
 contarInscritas();
 if (!ENDPOINT) document.getElementById("cfg").hidden = false;
 </script>
