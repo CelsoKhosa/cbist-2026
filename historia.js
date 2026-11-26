@@ -1,6 +1,7 @@
 /* =====================================================================
    CBIST — A NOSSA HISTÓRIA  ·  fundos fotográficos da Central e da Inscrição
-   Versão 2.2 (26/11/2026): 34 equipas confirmadas; ilustrações sem etiqueta visível (etiqueta: false)
+   Versão 2.3 (26/11/2026): fotografia de Maputo nos cabeçalhos, cartazes oficiais e equipa anfitriã na galeria;
+   ilustrações sem etiqueta visível (etiqueta: false)
 
    PARTE 1 (DADOS) é a única a editar: fotos, legendas, edições, campeões.
    PARTE 2 (MOTOR) monta o cabeçalho com fotos, o separador «História»,
@@ -36,6 +37,7 @@ const DADOS = {
   // Cabeçalho da Central: as fotos passam por esta ordem e contam a história.
   // ano/ed = de quando é a foto; pt/en = legenda curta (aparece ao lado do ano).
   capa: [
+    {id: "c0", foto: "maputo-baia", foco: "50% 78%", ano: "", ed: "", pt: "Maputo vista da Katembe · Foto: Claus Wonnemann, CC BY-SA 4.0 (recortada)", en: "Maputo seen from Katembe · Photo: Claus Wonnemann, CC BY-SA 4.0 (cropped)"},
     {id: "c1", foto: "", foco: "50% 40%", ano: "", ed: 1,  pt: "O início", en: "Where it all began",
      vaga: {pt: "A primeira equipa ou os fundadores dos Craques da Boca, na 1.ª edição. Horizontal.",
             en: "The first Craques da Boca team or the founders, at the 1st edition. Landscape."}},
@@ -59,6 +61,7 @@ const DADOS = {
   // Formulário de inscrição
   inscricao: {
     capa: [
+      {id: "i0", foto: "maputo-baia", foco: "50% 78%", ano: "", ed: "", pt: "Maputo vista da Katembe · Foto: Claus Wonnemann, CC BY-SA 4.0 (recortada)", en: "Maputo seen from Katembe · Photo: Claus Wonnemann, CC BY-SA 4.0 (cropped)"},
       {id: "i1", foto: "", foco: "50% 45%", ano: "", ed: "", pt: "A abertura", en: "Opening day",
        vaga: {pt: "Todas as equipas alinhadas em campo na abertura, ou a bancada cheia. Horizontal, larga.",
               en: "All teams lined up on court at the opening, or a packed stand. Wide landscape."}}
@@ -70,8 +73,8 @@ const DADOS = {
       {id: "f2", foto: "", foco: "50% 40%", titulo: {pt: "Amizade", en: "Friendship"},
        texto: {pt: "Adversários em campo, amigos fora dele.", en: "Rivals on court, friends off it."},
        vaga: {pt: "Equipas juntas depois do jogo, o convívio. Vertical ou quadrada.", en: "Teams together after the game. Portrait or square."}},
-      {id: "f3", foto: "", foco: "50% 40%", titulo: {pt: "Internacional", en: "International"},
-       texto: {pt: "Equipas de Moçambique e da região.", en: "Teams from Mozambique and the region."},
+      {id: "f3", foto: "craques-da-boca-2026", foco: "50% 45%", titulo: {pt: "Internacional", en: "International"},
+       texto: {pt: "Os Craques da Boca em Luanda, 2026.", en: "Craques da Boca in Luanda, 2026."},
        vaga: {pt: "Uma equipa visitante (Lesoto, África do Sul, Essuatíni…). Vertical ou quadrada.", en: "A visiting team (Lesotho, South Africa, Eswatini…). Portrait or square."}},
       {id: "f4", foto: "", foco: "50% 40%", titulo: {pt: "Glória", en: "Glory"},
        texto: {pt: "Troféus, medalhas e a gala final.", en: "Trophies, medals and the awards gala."},
@@ -93,9 +96,7 @@ const DADOS = {
       {foto: "ia-feminino", foco: "74% 50%", pt: "As categorias femininas",    en: "The women's categories"},
       {foto: "ia-trofeu",   foco: "70% 30%", pt: "A caminho do título",        en: "Chasing the title"}
     ],
-    inscricao: [
-      {foto: "ia-abertura", foco: "50% 60%", pt: "Basquetebol, amizade e Verão em Maputo", en: "Basketball, friendship and summer in Maputo"}
-    ],
+    inscricao: [],   // o cabeçalho da inscrição usa só a fotografia de Maputo
     faixa: {f1: "ia-competicao", f2: "ia-amizade", f3: "ia-internacional", f4: "ia-gloria"}
   },
 
@@ -112,11 +113,16 @@ const DADOS = {
     {ed: 7,  ano: "", datas: "", local: "", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
     {ed: 8,  ano: "", datas: "", local: "", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
     {ed: 9,  ano: "2025", datas: "4–6 Dez", local: "Maputo", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
-    {ed: 10, ano: "2026", datas: "3–5 Dez", local: "Maputo", foto: "", foco: "", equipas: 34, paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: "", actual: true}
+    {ed: 10, ano: "2026", datas: "3–5 Dez", local: "Maputo", foto: "cartaz-2026", foco: "50% 20%", equipas: 34, paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: "", actual: true}
   ],
 
   // Mais fotografias (qualquer edição): {foto:"", ano:"", pt:"", en:""}
-  galeria: [],
+  galeria: [
+    {foto: "cartaz-2026",             ano: "2026", pt: "Cartaz oficial da 10.ª edição", en: "Official poster of the 10th edition"},
+    {foto: "equipas-femininas-2026",  ano: "2026", pt: "Equipas femininas confirmadas", en: "Women's teams confirmed"},
+    {foto: "equipas-masculinas-2026", ano: "2026", pt: "Equipas masculinas confirmadas", en: "Men's teams confirmed"},
+    {foto: "craques-da-boca-2026",    ano: "2026", pt: "Os Craques da Boca em Luanda", en: "Craques da Boca in Luanda"}
+  ],
 
   // Lendas: quem marcou o torneio (fundadores, presentes em todas as edições, …)
   // {nome:"", clube:"", foto:"", titulo:{pt:"Fundador", en:"Founder"}}
@@ -172,7 +178,7 @@ function vagaHTML(titulo, desc, cls) {
 function imgHTML(nome, foco, alt, opts) {
   opts = opts || {};
   return `<img src="${src(nome, 800)}" ${opts.grande ? `srcset="${srcset(nome)}" sizes="${opts.sizes || "100vw"}"` : ""} alt="${esc(alt)}" loading="lazy" decoding="async"` +
-    ` style="object-position:${esc(foco || "50% 50%")}" ${opts.zoom ? `data-zoom="${esc(nome)}" data-legenda="${esc(alt)}"` : ""} onerror="this.remove()">`;
+    ` style="object-position:${esc(foco || "50% 50%")}" ${opts.zoom ? `data-zoom="${esc(nome)}" data-legenda="${esc(alt)}"` : ""} onerror="if(this.dataset.r){(this.closest('.galeria figure')||this).remove()}else{this.dataset.r=1;this.removeAttribute('srcset');this.src=this.src.split('?')[0]+'?r=1'}">`;
 }
 
 /* ---------- cabeçalho com fotografias que passam ---------- */
@@ -199,9 +205,9 @@ function capa(header, lista, getLang) {
       const im = new Image();
       im.alt = ""; im.decoding = "async"; im.sizes = "100vw";
       if (k === 0) try { im.fetchPriority = "high"; } catch (e) {}
-      im.srcset = srcset(s.foto); im.src = src(s.foto, 1600);
+      im.srcset = srcset(s.foto); im.src = src(s.foto, 800);
       im.style.objectPosition = s.foco || "50% 50%";
-      im.onerror = () => { im.remove(); d.classList.add("falhou"); };
+      im.onerror = () => { if (!im.dataset.r) { im.dataset.r = 1; im.removeAttribute("srcset"); im.src = src(s.foto, 800) + "?r=1"; return; } im.remove(); d.classList.add("falhou"); };
       d.appendChild(im);
     }   // sem foto (só no modo guia): fica o fundo de linhas de campo e a legenda diz que foto falta
   }
@@ -344,7 +350,7 @@ function ligarZoom(raiz, getLang) {
     }
     const lang = getLang ? getLang() : "pt";
     dlg.querySelector("button").setAttribute("aria-label", T(lang).fechar);
-    const g = dlg.querySelector("img"); g.src = src(im.dataset.zoom, 1600); g.alt = im.dataset.legenda || "";
+    const g = dlg.querySelector("img"); g.onerror = () => { g.onerror = null; g.src = src(im.dataset.zoom, 800); }; g.src = src(im.dataset.zoom, 1600); g.alt = im.dataset.legenda || "";
     dlg.querySelector("p").textContent = im.dataset.legenda || "";
     try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
   });
