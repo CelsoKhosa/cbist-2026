@@ -1,6 +1,6 @@
 /* =====================================================================
    CBIST — A NOSSA HISTÓRIA  ·  fundos fotográficos da Central e da Inscrição
-   Versão 2 (17/10/2026)
+   Versão 2.2 (26/11/2026): 34 equipas confirmadas; ilustrações sem etiqueta visível (etiqueta: false)
 
    PARTE 1 (DADOS) é a única a editar: fotos, legendas, edições, campeões.
    PARTE 2 (MOTOR) monta o cabeçalho com fotos, o separador «História»,
@@ -30,7 +30,7 @@ const DADOS = {
   numeros: [
     {v: "10", pt: "edições",                  en: "editions"},
     {v: "6",  pt: "categorias",               en: "categories"},
-    {v: "7",  pt: "países convidados em 2026", en: "countries invited in 2026"}
+    {v: "34", pt: "equipas confirmadas em 2026", en: "teams confirmed for 2026"}
   ],
 
   // Cabeçalho da Central: as fotos passam por esta ordem e contam a história.
@@ -82,18 +82,19 @@ const DADOS = {
   // Textura muito leve no fundo das duas páginas (opcional): bola, rede ou piso, sem pessoas
   textura: "",
 
-  // ILUSTRAÇÕES (IA) — imagens fictícias geradas por inteligência artificial, usadas só enquanto
-  // não houver fotografias reais. Mostram sempre a etiqueta «Imagem ilustrativa (IA)» e nunca
-  // aparecem na linha do tempo da História. Para as retirar de todo: usar: false.
+  // ILUSTRAÇÕES — imagens de ambiente (não são fotografias do torneio), usadas enquanto não houver
+  // fotografias reais em cada sítio. Nunca aparecem na linha do tempo da História, que é só para factos.
+  // etiqueta: true volta a mostrar «Imagem ilustrativa (IA)». Para as retirar de todo: usar: false.
   ilustracoes: {
     usar: true,
+    etiqueta: false,
     central: [
       {foto: "ia-jogo",     foco: "66% 40%", pt: "Basquetebol de veteranos",   en: "Veterans' basketball"},
       {foto: "ia-feminino", foco: "74% 50%", pt: "As categorias femininas",    en: "The women's categories"},
-      {foto: "ia-trofeu",   foco: "70% 30%", pt: "A conquista do título",      en: "Winning the title"}
+      {foto: "ia-trofeu",   foco: "70% 30%", pt: "A caminho do título",        en: "Chasing the title"}
     ],
     inscricao: [
-      {foto: "ia-abertura", foco: "50% 60%", pt: "A abertura do torneio",      en: "Opening day"}
+      {foto: "ia-abertura", foco: "50% 60%", pt: "Basquetebol, amizade e Verão em Maputo", en: "Basketball, friendship and summer in Maputo"}
     ],
     faixa: {f1: "ia-competicao", f2: "ia-amizade", f3: "ia-internacional", f4: "ia-gloria"}
   },
@@ -111,7 +112,7 @@ const DADOS = {
     {ed: 7,  ano: "", datas: "", local: "", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
     {ed: 8,  ano: "", datas: "", local: "", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
     {ed: 9,  ano: "2025", datas: "4–6 Dez", local: "Maputo", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: ""},
-    {ed: 10, ano: "2026", datas: "3–5 Dez", local: "Maputo", foto: "", foco: "", equipas: "", paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: "", actual: true}
+    {ed: 10, ano: "2026", datas: "3–5 Dez", local: "Maputo", foto: "", foco: "", equipas: 34, paises: "", texto: {pt: "", en: ""}, campeoes: {}, mvp: "", actual: true}
   ],
 
   // Mais fotografias (qualquer edição): {foto:"", ano:"", pt:"", en:""}
@@ -208,7 +209,7 @@ function capa(header, lista, getLang) {
     if (!cap) return;
     const s = itens[i], lang = getLang(), quando = [s.ano, s.ed ? T(lang).ed(+s.ed) : ""].filter(Boolean).join(" · ");
     if (!s.foto) { cap.innerHTML = `<b>📷 ${esc(T(lang).vaga)} ${i + 1}/${itens.length}</b><span>${esc(txt(s, lang))} — ${esc(txt(s.vaga, lang))}</span>`; return; }
-    if (s.ia) { cap.innerHTML = `<b>${esc(T(lang).ia)}</b><span>${esc(txt(s, lang))}</span>`; return; }
+    if (s.ia) { cap.innerHTML = `${(DADOS.ilustracoes || {}).etiqueta ? `<b>${esc(T(lang).ia)}</b>` : ""}<span>${esc(txt(s, lang))}</span>`; return; }
     cap.innerHTML = `${quando ? `<b>${esc(quando)}</b>` : ""}<span>${esc(txt(s, lang))}</span>`;
   }
   function controlos() {
@@ -248,8 +249,8 @@ function faixa(lang, linkHistoria) {
     const tit = txt(f.titulo, lang), tx = txt(f.texto, lang);
     if (!f.foto && GUIA) return `<div class="tile vaga"><b>📷 ${esc(tit)}</b><span>${esc(txt(f.vaga, lang))}</span></div>`;
     const I = DADOS.ilustracoes || {}, ia = !f.foto && I.usar && I.faixa && I.faixa[f.id];
-    const img = f.foto ? imgHTML(f.foto, f.foco, `${tit} — ${tx}`) : ia ? imgHTML(ia, "50% 35%", `${t.iaCurta}: ${tit}`) : "";
-    return `<figure class="tile">${img}${ia ? `<span class="ia-tag">${esc(t.iaCurta)}</span>` : ""}<figcaption><b>${esc(tit)}</b><span>${esc(tx)}</span></figcaption></figure>`;
+    const img = f.foto ? imgHTML(f.foto, f.foco, `${tit} — ${tx}`) : ia ? imgHTML(ia, "50% 35%", `${tit} — ${tx}`) : "";
+    return `<figure class="tile">${img}${ia && I.etiqueta ? `<span class="ia-tag">${esc(t.iaCurta)}</span>` : ""}<figcaption><b>${esc(tit)}</b><span>${esc(tx)}</span></figcaption></figure>`;
   }).join("");
   return `<div class="porque-top"><h2>${esc(t.porque)}</h2>${linkHistoria ? `<a class="hero-link" style="color:var(--accent-ink)" href="${esc(linkHistoria)}">${esc(t.verHist)}</a>` : ""}</div>
     ${numerosHTML(lang)}<div class="tiles">${tiles}</div>`;
