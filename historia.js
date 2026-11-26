@@ -141,7 +141,7 @@ const L = {
        porConf: "Ano, datas e campeões por confirmar.", ajudaT: "Ajude-nos a contar a história",
        ajudaP: "Tem fotografias, cartazes ou a lista de campeões das edições anteriores? Envie pelo WhatsApp como Documento (para manter a qualidade), com o ano e a categoria de cada foto.",
        ajudaB: "Enviar fotos pelo WhatsApp", ajudaMsg: "Olá! Tenho fotos/informação das edições anteriores do Craques da Boca International Summer Tournament:",
-       agoraP: "A próxima página escreve-se em campo. Inscrições até 9 de Novembro.", agoraFim: "A 10.ª edição está a ser escrita em campo.",
+       agoraP: p => "A próxima página escreve-se em campo." + (p ? ` Inscrições até ${p}.` : ""), agoraFim: "A 10.ª edição está a ser escrita em campo.",
        inscrever: "Inscrever equipa", aoVivo: "Resultados ao vivo", porque: "10 edições de basquetebol e amizade", verHist: "A nossa história →",
        vagaEd: n => `Equipa campeã, cartaz ou fotografia de grupo da ${n}.ª edição.`, vagaGal: "Mais fotos de qualquer edição (jogos, bancada, convívio).",
        categoria: "Categoria", fechar: "Fechar", titulos: "Títulos por clube", lendas: "Lendas do torneio",
@@ -154,7 +154,7 @@ const L = {
        porConf: "Year, dates and champions to be confirmed.", ajudaT: "Help us tell the story",
        ajudaP: "Do you have photos, posters or the list of champions from past editions? Send them on WhatsApp as a Document (to keep the quality), with the year and category of each photo.",
        ajudaB: "Send photos on WhatsApp", ajudaMsg: "Hello! I have photos/information from past editions of the Craques da Boca International Summer Tournament:",
-       agoraP: "The next chapter is written on court. Registration closes 9 November.", agoraFim: "The 10th edition is being written on court.",
+       agoraP: p => "The next chapter is written on court." + (p ? ` Registration closes ${p}.` : ""), agoraFim: "The 10th edition is being written on court.",
        inscrever: "Register a team", aoVivo: "Live results", porque: "10 editions of basketball and friendship", verHist: "Our story →",
        vagaEd: n => `Champion team, poster or group photo of the ${ord(n, "en")} edition.`, vagaGal: "More photos from any edition (games, crowd, socials).",
        categoria: "Category", fechar: "Close", titulos: "Titles by club", lendas: "Tournament legends",
@@ -319,7 +319,7 @@ function edicaoHTML(e, lang, ctx) {
     acts = `<div class="acts">${ctx.inscricaoAberta && ctx.linkInscricao ? `<a class="btnl" href="${esc(ctx.linkInscricao)}">${esc(t.inscrever)}</a>` : ""}` +
       `<a class="btnl ghost" href="#jogos" data-tab="jogos">${esc(t.aoVivo)}</a></div>`;
   }
-  const texto = txt(e.texto, lang) || (e.actual ? (ctx.inscricaoAberta ? t.agoraP : t.agoraFim) : (!e.ano || (!camp && GUIA) ? t.porConf : ""));
+  const texto = txt(e.texto, lang) || (e.actual ? (ctx.inscricaoAberta ? t.agoraP(ctx.prazoTxt) : t.agoraFim) : (!e.ano || (!camp && GUIA) ? t.porConf : ""));
   return `<li class="ed ${e.actual ? "agora" : ""}">${ph}<div class="bd">
     <div class="yr"><b>${esc(e.ano || "—")}</b><span>${esc(titulo)}${onde ? " · " + esc(onde) : ""}</span></div>
     ${texto ? `<p>${esc(texto)}</p>` : ""}
