@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorteio CBIST 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+/* VOICE: a public ceremony on a projector — loud, clear, fair to watch.
+   IDEA: the draw table — a pot of balls, one ball pulled at a time, names landing in group boards.
+   PICTURE: the stage itself: the drawn name very large, the group boards filling up beneath it.
+   COLOUR and TYPE: CBIST court navy ground, orange ball, gold for seeds; Barlow Condensed for names.
+   LAYOUT: setup screen (lists, format) -> stage (one category at a time) -> results (all categories, copy). */
+:root{color-scheme:dark;--bg:#0E1026;--court:#1B2290;--deep:#0A0D5C;--panel:#171A3E;--line:#2D3263;--ink:#F2F1F6;--muted:#A3A6C2;--ball:#FF7A2F;--ball2:#D2400B;--gold:#F7CB10;--ok:#4CC27F}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:radial-gradient(1200px 520px at 50% -8%,rgba(70,90,255,.22),transparent 62%),radial-gradient(900px 420px at 8% 108%,rgba(255,122,47,.09),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font:16px/1.5 Barlow,"Segoe UI",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.cond{font-family:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;letter-spacing:.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{min-height:44px;padding:0 18px;border-radius:10px;border:2px solid var(--line);background:var(--panel);cursor:pointer;font-weight:600}
+button:hover{border-color:var(--muted)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.go{background:var(--ball);border-color:var(--ball);color:#1a0b03;font:800 22px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:0 30px;min-height:58px}
+button.go:disabled{background:var(--line);border-color:var(--line);color:var(--muted);cursor:default}
+button.ghost{background:transparent}
+input,select,textarea{background:#0B0D20;border:2px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;font-size:16px}
+header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px max(4vw,16px);background:linear-gradient(135deg,var(--court),var(--deep));border-bottom:6px solid var(--ball)}
+header.top h1{margin:0;font-size:30px;text-transform:uppercase;flex:1}
+header.top h1 small{display:block;font:600 15px/1.2 Barlow,sans-serif;color:#C9CCF0;text-transform:none;letter-spacing:0}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap}nav.tabs button[aria-current=true]{background:var(--ink);color:var(--deep);border-color:var(--ink)}
+main{padding:clamp(16px,3vw,36px) max(4vw,16px);max-width:1500px;margin:0 auto}
+.hint{color:var(--muted);font-size:15px;margin:6px 0 0}
+/* setup */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px}
+.cat{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
+.cat h3{margin:0;font-size:30px;color:var(--ball);display:flex;justify-content:space-between;align-items:baseline}
+.cat h3 span{font:500 15px Barlow,sans-serif;color:var(--muted)}
+.cat textarea{min-height:190px;resize:vertical;line-height:1.45}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row label{display:grid;gap:4px;font-size:14px;color:var(--muted)}
+.state{font-size:14px;color:var(--muted)}.warn{margin:0;padding:10px 12px;border-radius:10px;background:#3A2B12;border:2px solid #E8A33A;color:#FFE2B0;font-size:14px}label.state{display:grid;gap:6px}.state b{color:var(--ok)}
+.global{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px;display:grid;gap:10px}
+/* stage */
+.stage{display:grid;gap:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.bar button[aria-pressed=true]{border-color:var(--gold);color:var(--gold)}.bar h2{margin:0;font-size:clamp(34px,4vw,54px);text-transform:uppercase;flex:1;line-height:1}
+.bar h2 small{display:block;font:600 16px Barlow,sans-serif;color:var(--muted);text-transform:none;margin-top:4px}
+.show{display:grid;grid-template-columns:var(--ms) minmax(0,1fr) minmax(250px,320px);gap:18px;align-items:stretch;--ms:clamp(260px,41vh,460px)}
+.machine{position:relative;width:var(--ms);height:var(--ms);justify-self:center}
+.machine canvas{width:100%;height:100%;display:block}
+.machine .cnt{position:absolute;left:50%;bottom:1.5%;translate:-50% 0;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1a1305;background:linear-gradient(180deg,#FFE680,#C99A06);padding:4px 10px;border-radius:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(0,0,0,.5);white-space:nowrap}
+.ballbox{position:relative;border-radius:18px;background:linear-gradient(180deg,#1C2290 0%,#0E1158 55%,#090B3A 100%);border:1px solid #3a41a8;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:clamp(14px,2vw,30px);padding:24px clamp(18px,2.4vw,36px);overflow:hidden;min-height:230px;container-type:inline-size}
+.ballbox:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--ball2),var(--ball) 40%,var(--gold))}
+.ballbox:after{content:"";position:absolute;width:560px;height:560px;border-radius:50%;border:2px solid rgba(255,255,255,.05);right:-300px;bottom:-330px;pointer-events:none}
+.rb{position:relative;width:clamp(92px,11vw,156px);width:clamp(92px,24cqw,210px);aspect-ratio:1;transition:opacity .25s}
+.rb img{width:100%;height:100%;display:block;filter:drop-shadow(0 14px 12px rgba(0,0,0,.55))}
+.rb .num{position:absolute;right:-5%;bottom:-3%;width:36%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#FFE680,#C99A06);color:#1a1305;font:800 clamp(17px,2vw,27px)/1 "Barlow Condensed",sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 3px 8px rgba(0,0,0,.5)}
+.rb .ring{position:absolute;inset:0;border-radius:50%;border:5px solid var(--ball);opacity:0;pointer-events:none}
+.ballbox.vazio .rb{opacity:.25}.ballbox.vazio .num{display:none}
+.ballbox.spin .rb{opacity:0}
+.ballbox .lbl{font:700 17px/1 "Barlow Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.ballbox .name{font:800 clamp(34px,4.7vw,86px)/.95 "Barlow Condensed",sans-serif;font-size:clamp(34px,9.4cqw,96px);text-transform:uppercase;margin:10px 0 12px;text-wrap:balance;overflow-wrap:anywhere}
+.ballbox .dest{display:inline-block;font:700 clamp(19px,2.1vw,30px)/1 "Barlow Condensed",sans-serif;color:#1a0b03;background:linear-gradient(180deg,#FF9A5A,var(--ball));text-transform:uppercase;padding:7px 14px;border-radius:6px;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.ballbox .dest:empty{display:none}
+.ballbox.spin .name{color:#9aa0e0;animation:pulsa 1s ease-in-out infinite}
+@keyframes pulsa{50%{opacity:.4}}
+.ballbox.landed .rb{animation:cai .7s cubic-bezier(.3,1.45,.5,1)}
+@keyframes cai{0%{transform:translateY(-190%) rotate(-220deg);opacity:0}50%{opacity:1}100%{transform:none;opacity:1}}
+.ballbox.landed .name{animation:entra .5s .2s both cubic-bezier(.2,.9,.3,1)}
+.ballbox.landed .dest{animation:entra .5s .36s both cubic-bezier(.2,.9,.3,1)}
+@keyframes entra{from{transform:translateX(46px);opacity:0}to{transform:none;opacity:1}}
+.ballbox.landed .rb .ring{animation:ring .8s .4s ease-out}
+.pot{background:linear-gradient(180deg,rgba(27,31,84,.92),rgba(16,18,54,.92));border:1px solid #2f357a;border-radius:18px;padding:16px;display:grid;gap:12px;align-content:start;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.pot .row{display:grid;grid-template-columns:1fr auto;gap:8px}.pot .row #prox{grid-column:1/-1}.pot button.go{padding:0 14px;min-height:54px}.pot button.ghost{padding:0 12px;font-size:14px;min-height:54px}.pot .balls{gap:6px}.pot .chip{font-size:15px;padding:5px 10px}.pot .hint{margin:0;font-size:12.5px}
+.pot h3{margin:0;font-size:22px;text-transform:uppercase;display:flex;justify-content:space-between;letter-spacing:.04em}.pot h3 span{color:var(--gold)}
+@keyframes ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+.board li.new{animation:drop .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes drop{0%{transform:translateY(-26px) scale(1.06);box-shadow:0 0 0 0 rgba(255,122,47,.9)}100%{transform:none;box-shadow:0 0 0 14px rgba(255,122,47,0)}}
+.board li.edit{cursor:pointer;border-style:solid;border-color:var(--line)}.board li.edit:hover{border-color:var(--muted)}
+.board li.sel{border-color:var(--gold)!important;background:#3a3008!important}
+.board li i.ed{color:#8fd3ff}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.confetti span{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){.board li.new,.ballbox.landed .rb,.ballbox.landed .name,.ballbox.landed .dest,.ballbox.landed .rb .ring,.ballbox.spin .name{animation:none!important}}
+.balls{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:6px 12px;border-radius:999px;background:#0B0D20;border:2px solid var(--line);font:700 19px/1 "Barlow Condensed",sans-serif;text-transform:uppercase}
+.chip.seed{border-color:var(--gold);color:var(--gold)}.chip.hot{background:var(--ball);border-color:var(--ball);color:#1a0b03}
+.boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.board{background:linear-gradient(180deg,rgba(27,31,84,.92),rgba(16,18,54,.92));border:1px solid #2f357a;border-radius:16px;overflow:hidden;box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.board h4{margin:0;padding:9px 16px;background:linear-gradient(90deg,#1B2290,#2a33c0);border-bottom:3px solid var(--ball);font:800 26px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.03em;display:flex;justify-content:space-between;align-items:baseline}.board h4 span{font:600 15px Barlow,sans-serif;color:#C9CCF0;letter-spacing:0}
+.board ol{list-style:none;margin:0;padding:8px 10px 12px;display:grid;gap:6px}
+.board li{display:grid;grid-template-columns:42px 1fr;align-items:center;min-height:42px;border-radius:8px;border:1px dashed #3a4090;font:700 26px/1.05 "Barlow Condensed",sans-serif;text-transform:uppercase}
+.board li b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;margin:auto;background:#0B0D20;border:1px solid #343a80;font-size:17px;color:var(--muted)}.board li.full b{background:var(--ball);border-color:var(--ball);color:#1a0b03}
+.board li.full{border-style:solid;border-color:transparent;background:linear-gradient(90deg,#0B0D20,#12153d)}
+.board li.new{border-color:var(--ball);background:#2a1608}
+.board li i{font:italic 500 13px Barlow,sans-serif;color:var(--gold);text-transform:none;margin-left:8px}
+.foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;color:var(--muted);font-size:14px}
+kbd{border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+/* full screen: the stage gets the whole projector */
+:root:fullscreen header.top,:root:fullscreen .foot{display:none}:root:fullscreen main{padding-top:12px;padding-bottom:8px;max-width:1840px}
+/* results */
+.res{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px}
+.res .cat ol{margin:0;padding-left:0;list-style:none;display:grid;gap:4px}.res .cat h4{margin:6px 0 2px;color:var(--gold);font:700 20px "Barlow Condensed",sans-serif;text-transform:uppercase}
+.res .cat li{font:600 20px/1.2 "Barlow Condensed",sans-serif;text-transform:uppercase}.res .cat li span{color:var(--muted);display:inline-block;width:28px}
+pre.log{background:#0B0D20;border:2px solid var(--line);border-radius:12px;padding:12px;white-space:pre-wrap;font-size:14px;max-height:260px;overflow:auto}
+dialog{background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:16px;max-width:480px;padding:22px}dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin:0 0 8px;font-size:26px}dialog .row{justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:18px;left:50%;translate:-50% 0;background:var(--ok);color:#06210f;padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}.toast.on{opacity:1}
+@media(max-width:960px){.show{grid-template-columns:var(--ms) minmax(0,1fr)}.pot{grid-column:1/-1}}
+@media(max-width:640px){.show{grid-template-columns:1fr}.ballbox{min-height:0}}
+@media print{body{background:#fff;color:#000}header.top,nav,.noprint{display:none!important}.cat{border-color:#999;background:#fff;break-inside:avoid}.res .cat li span{color:#555}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1 id="tit">Sorteio CBIST 2026<small id="subt">Craques da Boca International Summer Tournament · Maputo, 3–5 Dez 2026</small></h1>
+  <nav class="tabs noprint" aria-label="Ecrãs">
+    <button data-v="prep">1 · Preparação</button><button data-v="palco">2 · Sorteio</button><button data-v="res">3 · Resultados</button>
+    <button id="fs" class="ghost" title="Ecrã inteiro (F)">⛶</button>
+  </nav>
+</header>
+<main id="app"></main>
+<dialog id="dlg"><h3 id="dlgT"></h3><p id="dlgP"></p><div class="row"><button id="dlgNo" class="ghost">Cancelar</button><button id="dlgYes" class="go">Sim</button></div></dialog>
+<div class="toast" id="toast"></div>
+<script>
+{
+const KEY = "cbist-sorteio-v1";
+const LETRAS = "ABCDEFGH";
+const DEF = {
+  titulo: "Sorteio CBIST 2026", semente: "", comissao: "",
+  cats: [
+    {cod:"M35", nome:"Masculino +35", grupos:2, equipas:["Craques da Boca","CFM Hoopers","Inss","Mahotas","Mozal Players","Petro Ballers","Prudencial","Velhas Glórias de Boane"]},
+    {cod:"M40", nome:"Masculino +40", grupos:2, equipas:["Colegas","Craques da Boca","Craques da Boca Tete","Inss","Mahotas","Maluti Dinosaurs","Mentality","Mozal Players","Petromoc","Young Legends"]},
+    {cod:"M50", nome:"Masculino +50", grupos:1, equipas:["ABC Internacional","EDM","Monstros"]},
+    {cod:"F30", nome:"Feminino +30", grupos:1, equipas:["Amigas de Maputo","Batonificadas","G30","Petromoc","The Powerpuff Ladies"]},
+    {cod:"F40", nome:"Feminino +40", grupos:1, equipas:["Amigas de Maputo","Batonificadas","Diliza","Inss","JP Stars"]},
+    {cod:"F50", nome:"Feminino +50", grupos:1, equipas:["Amigas do Basket","Divas do Cesto","EDM"]}
+  ]
+};
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!S || !S.cats) S = JSON.parse(JSON.stringify(DEF));
+S.cats.forEach(c => { c.res = c.res || []; c.cab = c.cab || []; }); S.anul = S.anul || [];
+S.view = S.view || "prep"; S.atual = S.atual || 0; S.comissao = S.comissao || ""; if (S.som === undefined) S.som = true;
+const guardar = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+const app = document.getElementById("app");
+const toast = t => { const el = document.getElementById("toast"); el.textContent = t; el.classList.add("on"); setTimeout(() => el.classList.remove("on"), 1800); };
+
+/* ---------- aleatoriedade ---------- */
+/* Sem semente: crypto.getRandomValues (aleatório verdadeiro do computador).
+   Com semente pública: gerador determinístico — a mesma semente e as mesmas listas dão sempre o mesmo sorteio. */
+function hash32(str){ let h = 1779033703 ^ str.length; for (let i = 0; i < str.length; i++){ h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return (h ^= h >>> 16) >>> 0; }
+function mulberry(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function aleatorio(c){
+  if (S.semente.trim()) { const r = mulberry(hash32(S.semente.trim() + "|" + c.cod + "|" + c.res.length)); r(); return r(); }
+  const u = new Uint32Array(1); crypto.getRandomValues(u); return u[0] / 4294967296;
+}
+
+/* ---------- regras do sorteio (Regulamento Geral CBIST 2026) ----------
+   Art. 7.º: até 5 equipas, todos contra todos numa volta e o 1.º e 2.º vão à final;
+             mais de 5 equipas, por séries (2 ou mais) e passam os dois primeiros de cada série aos cruzamentos.
+   Art. 6.º d): menos de 4 equipas num escalão, é disputado em sistema de escalão único. */
+const regraGrupos = c => c.equipas.length <= 5 ? 1 : Math.max(2, Math.min(c.grupos || 2, Math.floor(c.equipas.length / 3)));
+const maxGrupos = c => Math.max(1, Math.min(4, Math.floor(c.equipas.length / 2)));
+function ajustarGrupos(c){ if (c.manual && c.grupos >= 1 && c.grupos <= maxGrupos(c)) return c.grupos; c.manual = false; return regraGrupos(c); }
+const foraDaRegra = c => (c.equipas.length <= 5) !== (c.grupos === 1);
+const letra = (c, g) => ((c.nomes || [])[g] || "").trim() || LETRAS[g];
+S.cats.forEach(c => { c.grupos = ajustarGrupos(c); });
+const regraTxt = c => (c.grupos === 1 ? "Todos contra todos numa volta; o 1.º e o 2.º vão à final" : `${c.grupos} séries; passam os 2 primeiros de cada série aos cruzamentos`) + (foraDaRegra(c) ? " (decisão da Comissão Técnica, Art. 15.º)" : " (Art. 7.º)");
+const poucas = c => c.equipas.length > 0 && c.equipas.length < 4;
+const tamanhos = c => { const n = c.equipas.length, g = Math.max(1, c.grupos); return Array.from({length:g}, (_, i) => Math.floor(n / g) + (i < n % g ? 1 : 0)); };
+const noPote = c => c.equipas.filter(e => !c.res.some(r => r.equipa === e));
+function proximoDestino(c, equipa){
+  const t = tamanhos(c), cont = t.map((_, g) => c.res.filter(r => r.grupo === g).length);
+  let g;
+  if (c.cab.includes(equipa)) { g = c.res.filter(r => c.cab.includes(r.equipa)).length % t.length; }   /* cabeças de série: um por grupo, A, B, ... */
+  else { let melhor = -1; t.forEach((tam, i) => { if (cont[i] < tam && (melhor < 0 || cont[i] < cont[melhor])) melhor = i; }); g = melhor; }
+  let pos = 1; while (c.res.some(r => r.grupo === g && r.pos === pos)) pos++;
+  return {grupo: g, pos};
+}
+function sortearUm(c){
+  const pote = noPote(c); if (!pote.length) return null;
+  const cabs = pote.filter(e => c.cab.includes(e)), escolha = cabs.length ? cabs : pote;   /* cabeças de série saem primeiro */
+  const equipa = escolha[Math.floor(aleatorio(c) * escolha.length)];
+  const d = proximoDestino(c, equipa);
+  const r = {equipa, grupo: d.grupo, pos: d.pos, n: c.res.length + 1, hora: new Date().toLocaleTimeString("pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"})};
+  c.res.push(r); guardar(); return r;
+}
+const nomeGrupo = (c, g) => c.grupos > 1 ? "Série " + letra(c, g) : "Série única";
+const destinoTxt = (c, r) => c.grupos > 1 ? `Série ${letra(c, r.grupo)} · posição ${r.pos}` : `Posição ${r.pos}`;
+const agora = () => new Date().toLocaleTimeString("pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+
+/* ---------- diálogo ---------- */
+const dlg = document.getElementById("dlg");
+function confirmar(t, p, sim){ document.getElementById("dlgT").textContent = t; document.getElementById("dlgP").textContent = p; document.getElementById("dlgYes").onclick = () => { dlg.close(); sim(); }; document.getElementById("dlgNo").onclick = () => dlg.close(); try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
+
+/* ---------- ecrã 1: preparação ---------- */
+function vPrep(){
+  return `<section class="global">
+    <div class="row"><label style="flex:1">Título no ecrã<input id="gTit" value="${esc(S.titulo)}"></label>
+    <label style="flex:1">Semente pública (opcional)<input id="gSem" value="${esc(S.semente)}" placeholder="vazio = aleatório do computador"></label></div>
+    <label style="display:grid;gap:4px;font-size:14px;color:var(--muted)">Comissão Técnica presente (Art. 11.º: representantes identificados por cada equipa no dia do sorteio)<input id="gCom" value="${esc(S.comissao)}" placeholder="Nome (equipa), Nome (equipa), …"></label>
+    <p class="hint">Sem semente, cada bola é tirada ao acaso pelo computador. Com uma semente dita em voz alta (por exemplo, um número escolhido por um capitão), o sorteio pode ser repetido por qualquer pessoa e dá sempre o mesmo resultado. Escreva-a antes do primeiro clique e não a mude depois.</p>
+  </section>
+  <div class="grid">${S.cats.map((c, i) => {
+    const t = tamanhos(c), feito = c.res.length, n = c.equipas.length;
+    return `<section class="cat" data-i="${i}">
+      <h3>${esc(c.cod.replace(/(\D)(\d)/, "$1+$2"))}<span>${esc(c.nome)} · ${n} equipas</span></h3>
+      <label class="state">Equipas, uma por linha. Cabeças de série não estão previstas no Regulamento: use * no início da linha só se a Comissão Técnica decidir.
+      <textarea data-f="eq" ${feito ? "disabled" : ""}>${esc(c.equipas.map(e => (c.cab.includes(e) ? "* " : "") + e).join("\n"))}</textarea></label>
+      <div class="row"><label>Formato<select data-f="gr" ${feito ? "disabled" : ""}>${Array.from({length: maxGrupos(c)}, (_, k) => k + 1).map(g => `<option value="${g}" ${g === c.grupos ? "selected" : ""}>${g === 1 ? "Todos contra todos" : g + " séries"}${g === regraGrupos(c) ? " (Regulamento)" : ""}</option>`).join("")}</select></label>
+      ${c.grupos > 1 ? `<label>Nomes das séries<input data-f="nm" value="${esc(Array.from({length: c.grupos}, (_, g) => letra(c, g)).join(", "))}" ${feito ? "disabled" : ""} style="width:150px"></label>` : ""}
+      <span class="state">${c.grupos > 1 ? t.map((x, g) => `${esc(letra(c, g))}: ${x}`).join(" · ") : `Ordem 1 a ${n}`}</span></div>
+      <p class="state" style="margin:0">${esc(regraTxt(c))}.</p>
+      ${foraDaRegra(c) ? `<p class="warn">Formato diferente do Art. 7.º. Use só por decisão da Comissão Técnica (Art. 15.º, casos omissos); fica escrito na acta.</p>` : ""}
+      ${poucas(c) ? `<p class="warn">Art. 6.º d): menos de 4 equipas, este escalão é disputado em sistema de escalão único. A Comissão Técnica decide como, antes do sorteio (por exemplo, juntar as equipas a outro escalão nesta lista).</p>` : ""}
+      <div class="row"><span class="state" style="flex:1">${feito === n && n ? "<b>Sorteada</b>" : feito ? `Em curso: ${feito} de ${n}` : "Por sortear"}</span>
+      ${feito ? `<button class="ghost" data-a="reset">Recomeçar</button>` : ""}<button data-a="ir">${feito === n && n ? "Ver" : "Sortear"}</button></div>
+    </section>`; }).join("")}</div>
+  <p class="hint">As listas ficam guardadas neste computador. Depois do primeiro sorteio de uma categoria a lista fica bloqueada; use «Recomeçar» para a alterar.</p>
+  <div class="row noprint" style="margin-top:12px"><button class="ghost" id="repor">Repor as listas dos cartazes de 26/11</button></div>`;
+}
+function ligarPrep(){
+  document.getElementById("gTit").oninput = e => { S.titulo = e.target.value; document.getElementById("tit").firstChild.nodeValue = S.titulo; guardar(); };
+  document.getElementById("gSem").oninput = e => { S.semente = e.target.value; guardar(); };
+  document.getElementById("gCom").oninput = e => { S.comissao = e.target.value; guardar(); };
+  app.querySelectorAll(".cat").forEach(sec => {
+    const c = S.cats[+sec.dataset.i];
+    const ta = sec.querySelector("[data-f=eq]");
+    ta.onchange = () => { const linhas = ta.value.split("\n").map(l => l.trim()).filter(Boolean); const vistas = new Set();
+      c.equipas = []; c.cab = [];
+      linhas.forEach(l => { const cab = l.startsWith("*"), nome = l.replace(/^\*\s*/, "").trim(); if (!nome || vistas.has(nome.toLowerCase())) return; vistas.add(nome.toLowerCase()); c.equipas.push(nome); if (cab) c.cab.push(nome); });
+      c.grupos = ajustarGrupos(c);
+      if (c.cab.length > c.grupos) toast(`${c.cod}: há mais cabeças de série do que séries`);
+      guardar(); render(); };
+    sec.querySelector("[data-f=gr]").onchange = e => { c.grupos = +e.target.value; c.manual = c.grupos !== regraGrupos(c); guardar(); render(); };
+    const nm = sec.querySelector("[data-f=nm]"); if (nm) nm.onchange = () => { c.nomes = nm.value.split(",").map(x => x.trim()).slice(0, c.grupos); guardar(); render(); };
+    sec.querySelector("[data-a=ir]").onclick = () => { S.atual = +sec.dataset.i; S.view = "palco"; guardar(); render(); };
+    const rs = sec.querySelector("[data-a=reset]"); if (rs) rs.onclick = () => confirmar(`Recomeçar ${c.nome}?`, "Apaga o sorteio já feito nesta categoria. Só faça isto se a sala concordar.", () => { S.anul.push({cod: c.cod, n: 0, equipa: "categoria recomeçada (" + c.res.length + " bolas apagadas)", hora: new Date().toLocaleTimeString("pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"})}); c.res = []; guardar(); render(); });
+  });
+  document.getElementById("repor").onclick = () => confirmar("Repor as listas?", "Volta às equipas dos cartazes de 26/11 e apaga todos os sorteios feitos.", () => { const t = S.titulo, s = S.semente; S = JSON.parse(JSON.stringify(DEF)); S.titulo = t; S.semente = s; S.cats.forEach(c => { c.res = []; c.cab = []; c.grupos = ajustarGrupos(c); }); S.anul = []; S.view = "prep"; S.atual = 0; guardar(); render(); });
+}
+
+/* ---------- ecrã 2: palco ---------- */
+let girando = false, ultimo = null, editar = false, sel = null, festa = false;
+/* ---------- máquina do sorteio (canvas de alta resolução). É só apresentação: não decide o resultado. ---------- */
+const M = {key: "", balls: [], mix: false, sai: null, onOut: null, cv: null, ctx: null, raf: 0, calmo: 0, r: 19, t0: 0, tb: 0, esc: 2};
+const MW = 300, CX = 150, CY = 142, RR = 100, sprites = {};
+function bolaSprite(gold){ const k = gold ? "g" : "o"; if (sprites[k]) return sprites[k];
+  const Z = 320, cv = document.createElement("canvas"); cv.width = cv.height = Z; const x = cv.getContext("2d"), R0 = Z / 2 - 2;
+  x.beginPath(); x.arc(Z / 2, Z / 2, R0, 0, 7); x.clip();
+  const g = x.createRadialGradient(Z * .45, Z * .42, Z * .05, Z / 2, Z / 2, R0); g.addColorStop(0, gold ? "#F3CB3C" : "#EE8234"); g.addColorStop(1, gold ? "#B58606" : "#BF5510"); x.fillStyle = g; x.fillRect(0, 0, Z, Z);
+  const rnd = mulberry(gold ? 77 : 33);
+  for (let i = 0; i < 4200; i++) { x.fillStyle = i % 2 ? "rgba(70,22,0,.17)" : "rgba(255,214,160,.10)"; x.beginPath(); x.arc(rnd() * Z, rnd() * Z, .9 + rnd() * 1.1, 0, 7); x.fill(); }
+  const costuras = () => { x.beginPath(); x.moveTo(0, Z / 2); x.lineTo(Z, Z / 2); x.moveTo(Z / 2, 0); x.lineTo(Z / 2, Z); x.moveTo(Z * .16, Z * .1); x.bezierCurveTo(Z * .37, Z * .32, Z * .37, Z * .68, Z * .16, Z * .9); x.moveTo(Z * .84, Z * .1); x.bezierCurveTo(Z * .63, Z * .32, Z * .63, Z * .68, Z * .84, Z * .9); };
+  x.lineCap = "round"; x.strokeStyle = "rgba(255,190,120,.28)"; x.lineWidth = Z * .05; costuras(); x.stroke();
+  x.strokeStyle = gold ? "#3A2A00" : "#1E0A02"; x.lineWidth = Z * .026; costuras(); x.stroke();
+  return sprites[k] = cv; }
+function luzSprite(){ if (sprites.l) return sprites.l; const Z = 320, cv = document.createElement("canvas"); cv.width = cv.height = Z; const x = cv.getContext("2d"), R0 = Z / 2 - 2;
+  x.beginPath(); x.arc(Z / 2, Z / 2, R0, 0, 7); x.clip();
+  let g = x.createRadialGradient(Z * .4, Z * .34, Z * .08, Z / 2, Z / 2, R0); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(.55, "rgba(0,0,0,.08)"); g.addColorStop(1, "rgba(0,0,0,.62)"); x.fillStyle = g; x.fillRect(0, 0, Z, Z);
+  g = x.createRadialGradient(Z * .33, Z * .26, 0, Z * .33, Z * .26, Z * .3); g.addColorStop(0, "rgba(255,255,255,.6)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, Z, Z);
+  g = x.createRadialGradient(Z * .74, Z * .8, 0, Z * .74, Z * .8, Z * .32); g.addColorStop(0, "rgba(130,160,255,.16)"); g.addColorStop(1, "rgba(130,160,255,0)"); x.fillStyle = g; x.fillRect(0, 0, Z, Z);
+  return sprites.l = cv; }
+function bolaURL(gold){ const k = "u" + (gold ? "g" : "o"); if (sprites[k]) return sprites[k]; const Z = 320, cv = document.createElement("canvas"); cv.width = cv.height = Z; const x = cv.getContext("2d");
+  x.translate(Z / 2, Z / 2); x.rotate(-.5); x.drawImage(bolaSprite(gold), -Z / 2, -Z / 2); x.rotate(.5); x.drawImage(luzSprite(), -Z / 2, -Z / 2); return sprites[k] = cv.toDataURL("image/png"); }
+function mSync(c){ const pote = noPote(c), n = c.equipas.length; M.r = n <= 6 ? 22 : n <= 10 ? 19 : n <= 14 ? 16 : 13.5;
+  if (M.key !== c.cod) { M.key = c.cod; M.balls = []; M.sai = null; M.mix = false; }
+  M.balls = M.balls.filter(b => !b.fora && pote.includes(b.e));
+  pote.forEach(e => { if (!M.balls.some(b => b.e === e)) { const a = Math.random() * 6.28, d = Math.random() * (RR - M.r - 10); M.balls.push({e, gold: c.cab.includes(e), x: CX + Math.cos(a) * d * .8, y: CY - 25 + Math.sin(a) * d * .5, vx: (Math.random() - .5) * 80, vy: 0, ang: Math.random() * 6.28, va: 0}); } });
+  M.calmo = 0; }
+function mStep(dt){ const r = M.r, lim = RR - r - 3, e = M.mix ? .82 : .38, B = M.balls;
+  for (const b of B) {
+    if (b === M.sai) {
+      if (!b.fase) { const tx = CX, ty = CY - lim; b.vx += ((tx - b.x) * 70 - b.vx * 12) * dt; b.vy += ((ty - b.y) * 70 - b.vy * 12) * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.ang += 6 * dt; if (Math.hypot(tx - b.x, ty - b.y) < 5) { b.fase = 1; b.x = CX; som(240, .14, .1, "sine"); } }
+      else { b.y -= 430 * dt; b.ang += 9 * dt; if (b.y < -r - 6) { b.fora = true; M.sai = null; const f = M.onOut; M.onOut = null; if (f) f(); } }
+      continue; }
+    let ax = 0, ay = 1500;
+    if (M.mix) { const dx = (b.x - CX) / RR, dy = (b.y - CY) / RR; ay -= 5600 * Math.max(0, dy + .35) * (1 - Math.min(1, Math.abs(dx)) * .6); ax += (Math.random() - .5) * 3000 - dy * 1100; ay += (Math.random() - .5) * 2200 + dx * 1100; }
+    b.vx += ax * dt; b.vy += ay * dt; const k = M.mix ? .996 : .975; b.vx *= k; b.vy *= k;
+    const v = Math.hypot(b.vx, b.vy); if (v > 900) { b.vx *= 900 / v; b.vy *= 900 / v; }
+    b.x += b.vx * dt; b.y += b.vy * dt; b.ang += b.va * dt; b.va *= .99;
+    const dx = b.x - CX, dy = b.y - CY, d = Math.hypot(dx, dy);
+    if (d > lim) { const nx = dx / d, ny = dy / d; b.x = CX + nx * lim; b.y = CY + ny * lim; const vn = b.vx * nx + b.vy * ny;
+      if (vn > 0) { b.vx -= (1 + e) * vn * nx; b.vy -= (1 + e) * vn * ny; b.va = (-b.vx * ny + b.vy * nx) / r; if (M.mix && vn > 330 && performance.now() - M.tb > 85) { M.tb = performance.now(); som(150 + Math.random() * 80, .06, .05, "sine"); sopro("tick"); } } }
+  }
+  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) { const a = B[i], b = B[j]; if (a === M.sai || b === M.sai) continue;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01, min = 2 * r;
+    if (d < min) { const nx = dx / d, ny = dy / d, o = (min - d) / 2; a.x -= nx * o; a.y -= ny * o; b.x += nx * o; b.y += ny * o; const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+      if (vn < 0) { const imp = -(1 + e) * vn / 2; a.vx -= imp * nx; a.vy -= imp * ny; b.vx += imp * nx; b.vy += imp * ny; } } }
+}
+function mDraw(){ const x = M.ctx; if (!x) return; const z = M.esc, r = M.r, tw = r + 6; x.setTransform(z, 0, 0, z, 0, 0); x.clearRect(0, 0, MW, MW);
+  let g;
+  /* sombra no chão e plinto de madeira */
+  x.save(); x.translate(CX, 284); x.scale(1, .16); g = x.createRadialGradient(0, 0, 6, 0, 0, 140); g.addColorStop(0, "rgba(0,0,0,.6)"); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 140, 0, 7); x.fill(); x.restore();
+  for (const [dy, esc2] of [[6, .55], [0, 1]]) { x.save(); x.translate(CX, 272 + dy); x.scale(1, .17); g = x.createLinearGradient(-112, 0, 112, 0); [[0, "#7A4E24"], [.25, "#C8935A"], [.5, "#E3B67E"], [.75, "#C08A50"], [1, "#74481F"]].forEach(([p, c2]) => g.addColorStop(p, c2)); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 112, 0, 7); x.fill();
+    if (esc2 < 1) { x.fillStyle = "rgba(0,0,0,.45)"; x.fill(); } else { x.clip(); x.strokeStyle = "rgba(60,30,8,.35)"; x.lineWidth = 1; for (let i = -100; i <= 100; i += 25) { x.beginPath(); x.moveTo(i, -120); x.lineTo(i, 120); x.stroke(); } g = x.createRadialGradient(-30, -40, 5, 0, 0, 120); g.addColorStop(0, "rgba(255,255,255,.28)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(-120, -120, 240, 240); }
+    x.restore(); }
+  /* pé cromado e colar dourado */
+  g = x.createLinearGradient(CX - 64, 0, CX + 64, 0); [[0, "#141833"], [.2, "#59618f"], [.45, "#EEF1FF"], [.6, "#8C94C0"], [.85, "#2a2f55"], [1, "#12152e"]].forEach(([p, c2]) => g.addColorStop(p, c2));
+  x.fillStyle = g; x.beginPath(); x.moveTo(CX - 30, 236); x.lineTo(CX + 30, 236); x.lineTo(CX + 60, 268); x.quadraticCurveTo(CX, 280, CX - 60, 268); x.closePath(); x.fill();
+  g = x.createLinearGradient(CX - 40, 0, CX + 40, 0); [[0, "#6b4c00"], [.35, "#FFE680"], [.6, "#D9A90C"], [1, "#5c4100"]].forEach(([p, c2]) => g.addColorStop(p, c2)); x.fillStyle = g; x.beginPath(); x.roundRect(CX - 36, 231, 72, 9, 4); x.fill();
+  /* esfera de vidro: fundo */
+  g = x.createRadialGradient(CX - 30, CY - 40, 10, CX, CY, RR); g.addColorStop(0, "rgba(80,96,235,.30)"); g.addColorStop(.6, "rgba(22,28,118,.45)"); g.addColorStop(1, "rgba(6,8,40,.82)"); x.fillStyle = g; x.beginPath(); x.arc(CX, CY, RR, 0, 7); x.fill();
+  x.save(); x.translate(CX, CY + RR - 9); x.scale(1, .28); x.fillStyle = "rgba(0,0,0,.5)"; x.beginPath(); x.arc(0, 0, 24, 0, 7); x.fill(); x.restore();
+  if (M.mix) { x.strokeStyle = "rgba(200,215,255,.10)"; x.lineWidth = 2; for (let i = -2; i <= 2; i++) { const o = (performance.now() / 6 + i * 37) % 120; x.beginPath(); x.moveTo(CX + i * 9, CY + RR - 14 - o); x.lineTo(CX + i * 13, CY + RR - 44 - o); x.stroke(); } }
+  /* tubo de saída */
+  x.fillStyle = "rgba(160,180,255,.07)"; x.fillRect(CX - tw, 0, tw * 2, CY - RR + 12); x.strokeStyle = "rgba(255,255,255,.24)"; x.lineWidth = 1.5; x.beginPath(); x.moveTo(CX - tw, 0); x.lineTo(CX - tw, CY - RR + 6); x.moveTo(CX + tw, 0); x.lineTo(CX + tw, CY - RR + 6); x.stroke();
+  /* bolas */
+  const bs = bolaSprite, luz = luzSprite();
+  for (const b of M.balls) { if (b.fora) continue; x.save(); x.translate(b.x, b.y); x.rotate(b.ang); x.drawImage(bs(b.gold), -r, -r, 2 * r, 2 * r); x.rotate(-b.ang); x.drawImage(luz, -r, -r, 2 * r, 2 * r); x.restore(); }
+  /* vidro: aro, brilhos e reflexos */
+  g = x.createLinearGradient(CX - RR, CY - RR, CX + RR, CY + RR); g.addColorStop(0, "rgba(255,255,255,.8)"); g.addColorStop(.5, "rgba(255,255,255,.12)"); g.addColorStop(1, "rgba(255,255,255,.38)"); x.strokeStyle = g; x.lineWidth = 2.5; x.beginPath(); x.arc(CX, CY, RR, 0, 7); x.stroke();
+  x.strokeStyle = "rgba(150,170,255,.10)"; x.lineWidth = 6; x.beginPath(); x.arc(CX, CY, RR - 4, 0, 7); x.stroke();
+  x.save(); x.translate(CX - 44, CY - 52); x.rotate(-.75); x.scale(1, .4); g = x.createRadialGradient(0, 0, 2, 0, 0, 54); g.addColorStop(0, "rgba(255,255,255,.42)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 54, 0, 7); x.fill(); x.restore();
+  x.strokeStyle = "rgba(255,255,255,.24)"; x.lineWidth = 3; x.lineCap = "round"; x.beginPath(); x.arc(CX, CY, RR - 10, .45, 1.05); x.stroke();
+  x.strokeStyle = "rgba(255,255,255,.4)"; x.lineWidth = 1.5; x.beginPath(); x.moveTo(CX - tw + 4, 4); x.lineTo(CX - tw + 4, CY - RR + 2); x.stroke();
+  g = x.createLinearGradient(CX - tw - 4, 0, CX + tw + 4, 0); [[0, "#6b4c00"], [.35, "#FFE680"], [.6, "#D9A90C"], [1, "#5c4100"]].forEach(([p, c2]) => g.addColorStop(p, c2)); x.fillStyle = g; x.beginPath(); x.roundRect(CX - tw - 4, CY - RR + 2, tw * 2 + 8, 6, 3); x.fill();
+}
+function mLoop(t){ M.raf = 0; const cv = M.cv; if (!cv || !cv.isConnected) return;
+  const dt = Math.min(.033, M.t0 ? (t - M.t0) / 1000 : .016); M.t0 = t; mStep(dt / 2); mStep(dt / 2); mDraw();
+  let vmax = 0; for (const b of M.balls) vmax = Math.max(vmax, Math.hypot(b.vx, b.vy));
+  M.calmo = !M.mix && !M.sai && vmax < 9 ? M.calmo + 1 : 0;
+  if (M.calmo < 45) M.raf = requestAnimationFrame(mLoop); else M.t0 = 0; }
+function mAcorda(){ M.calmo = 0; if (!M.raf) { M.t0 = 0; M.raf = requestAnimationFrame(mLoop); } }
+function mLiga(c){ const cv = document.getElementById("cv"); if (!cv) return; M.cv = cv; const lado = cv.clientWidth || MW, z = Math.max(2, Math.min(3, window.devicePixelRatio || 1)) * lado / MW;
+  cv.width = cv.height = Math.round(MW * z); M.esc = cv.width / MW; M.ctx = cv.getContext("2d"); mSync(c); mDraw(); mAcorda(); }
+let actx; function som(f, dur, vol, tipo){ if (!S.som) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain(); o.type = tipo || "triangle"; o.frequency.value = f; g.gain.setValueAtTime(vol || .08, actx.currentTime); g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + dur); o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + dur); } catch (e) {} }
+let ruido; function noiseBuf(){ if (ruido) return ruido; const n = actx.sampleRate * 1.2, b = actx.createBuffer(1, n, actx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; return ruido = b; }
+function sopro(tipo){ if (!S.som) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t = actx.currentTime, src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain(); src.buffer = noiseBuf();
+  if (tipo === "whoosh") { f.type = "bandpass"; f.Q.value = 1.4; f.frequency.setValueAtTime(260, t); f.frequency.exponentialRampToValueAtTime(1800, t + .28); f.frequency.exponentialRampToValueAtTime(420, t + .6); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.35, t + .22); g.gain.exponentialRampToValueAtTime(.0001, t + .62); src.start(t, Math.random() * .4, .65); }
+  else if (tipo === "swish") { f.type = "highpass"; f.frequency.setValueAtTime(2600, t); f.frequency.linearRampToValueAtTime(5200, t + .18); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.5, t + .03); g.gain.exponentialRampToValueAtTime(.06, t + .14); g.gain.exponentialRampToValueAtTime(.0001, t + .42); src.start(t, Math.random() * .4, .45); }
+  else { f.type = "highpass"; f.frequency.value = 3500; g.gain.setValueAtTime(.12, t); g.gain.exponentialRampToValueAtTime(.0001, t + .035); src.start(t, Math.random() * .8, .04); }
+  src.connect(f).connect(g).connect(actx.destination); } catch (e) {} }
+let ventoinha = null;
+function ventoOn(){ if (!S.som) return; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t = actx.currentTime, src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain(); src.buffer = noiseBuf(); src.loop = true; f.type = "bandpass"; f.frequency.value = 520; f.Q.value = .7; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.15, t + .35); src.connect(f).connect(g).connect(actx.destination); src.start(); ventoinha = {src, g}; } catch (e) {} }
+function ventoOff(){ if (!ventoinha) return; try { const t = actx.currentTime; ventoinha.g.gain.cancelScheduledValues(t); ventoinha.g.gain.setValueAtTime(.15, t); ventoinha.g.gain.exponentialRampToValueAtTime(.0001, t + .4); ventoinha.src.stop(t + .45); } catch (e) {} ventoinha = null; }
+function confettis(){ if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; const d = document.createElement("div"); d.className = "confetti"; const cores = ["#FF7A2F","#F7CB10","#F2F1F6","#4CC27F","#8fd3ff"]; d.innerHTML = Array.from({length: 90}, (_, i) => `<span style="left:${Math.random() * 100}%;background:${cores[i % cores.length]};animation-duration:${2 + Math.random() * 1.6}s;animation-delay:${Math.random() * .6}s"></span>`).join(""); document.body.appendChild(d); setTimeout(() => d.remove(), 4400); }
+function vPalco(){
+  const c = S.cats[S.atual], t = tamanhos(c), pote = noPote(c), n = c.equipas.length, r = c.res[c.res.length - 1];
+  const boards = t.map((tam, g) => `<div class="board"><h4>${esc(nomeGrupo(c, g))}<span>${c.res.filter(z => z.grupo === g).length}/${tam}</span></h4><ol>${Array.from({length: tam}, (_, p) => {
+      const x = c.res.find(z => z.grupo === g && z.pos === p + 1);
+      const eSel = sel && sel.g === g && sel.p === p + 1;
+      return `<li data-g="${g}" data-p="${p + 1}" class="${x ? "full" : ""} ${x && x === r && ultimo === r && !editar ? "new" : ""} ${editar ? "edit" : ""} ${eSel ? "sel" : ""}"><b>${p + 1}</b><span>${x ? esc(x.equipa) + (c.cab.includes(x.equipa) ? "<i>cabeça de série</i>" : "") + (x.editado ? `<i class="ed">alterado</i>` : "") : ""}</span></li>`; }).join("")}</ol></div>`).join("");
+  const fim = !pote.length && n;
+  return `<section class="stage">
+    <div class="bar"><h2>${esc(c.nome)}<small>${n} equipas · ${esc(regraTxt(c))}${c.grupos === 1 ? " · a ordem define os jogos" : ""}${S.semente.trim() ? ` · semente pública: «${esc(S.semente.trim())}»` : ""}</small></h2>
+      <button class="ghost noprint" id="editar" ${c.res.length ? "" : "disabled"} aria-pressed="${editar}">${editar ? "Terminar edição" : "Editar séries"}</button>
+      <button class="ghost noprint" id="som" aria-pressed="${S.som}" title="Som do sorteio">${S.som ? "Som ligado" : "Som desligado"}</button>
+      <select id="catSel" aria-label="Categoria">${S.cats.map((x, i) => `<option value="${i}" ${i === S.atual ? "selected" : ""}>${esc(x.nome)}${x.res.length === x.equipas.length && x.equipas.length ? " ✓" : ""}</option>`).join("")}</select></div>
+    <div class="show">
+      <div class="machine" id="drum" aria-hidden="true"><canvas id="cv"></canvas><span class="cnt">No pote · ${pote.length}</span></div>
+      <div class="ballbox ${r ? "" : "vazio"}" id="ball"><div class="rb"><div class="ring"></div><img alt="" src="${bolaURL(!!r && c.cab.includes(r.equipa))}"><b class="num">${r ? r.n : ""}</b></div>
+        <div><div class="lbl">${fim ? `Sorteio concluído · bola ${r.n} de ${n}` : r ? `Bola ${r.n} de ${n}` : "Pronto para sortear"}</div>
+        <div class="name" id="bname">${r ? esc(r.equipa) : "—"}</div><div class="dest" id="bdest">${r ? esc(destinoTxt(c, r)) : ""}</div></div></div>
+      <div class="pot"><h3>Por sortear <span>${pote.length}</span></h3>
+        <div class="balls">${pote.map(e => `<span class="chip ${c.cab.includes(e) ? "seed" : ""}" data-e="${esc(e)}">${esc(e)}</span>`).join("") || `<span class="state">Pote vazio.</span>`}</div>
+        ${c.cab.filter(e => pote.includes(e)).length ? `<p class="hint">As cabeças de série (a dourado) saem primeiro, uma para cada série.</p>` : ""}
+        <div class="row noprint"><button class="go" id="sortear" ${fim ? "disabled" : ""}>${fim ? "Concluído" : "Sortear"}</button>
+        <button class="ghost" id="desfazer" ${c.res.length && !editar ? "" : "disabled"}>Desfazer última</button>
+
+        ${fim && S.atual < S.cats.length - 1 ? `<button id="prox">Próxima categoria →</button>` : ""}</div>
+      </div>
+    </div>
+    ${poucas(c) ? `<p class="warn">Art. 6.º d): menos de 4 equipas neste escalão (sistema de escalão único).</p>` : ""}
+    ${editar ? `<p class="warn">Modo de edição: toque numa equipa e depois noutro lugar (vazio ou ocupado) para a mudar ou trocar. Cada alteração pede confirmação e fica na acta. Use só por decisão da Comissão Técnica.</p>` : ""}
+    <div class="boards">${boards}</div>
+    <div class="foot noprint"><span><kbd>Espaço</kbd> sortear · <kbd>F</kbd> ecrã inteiro · <kbd>→</kbd> próxima categoria</span><span>${S.semente.trim() ? "Sorteio reproduzível com a semente indicada" : "Aleatório do computador (crypto.getRandomValues)"}</span></div>
+  </section>`;
+}
+function ligarPalco(){
+  const c = S.cats[S.atual];
+  document.getElementById("catSel").onchange = e => { S.atual = +e.target.value; ultimo = null; editar = false; sel = null; guardar(); render(); };
+  const b = document.getElementById("sortear"); if (b) b.onclick = sortearAnimado;
+  document.getElementById("desfazer").onclick = () => confirmar("Desfazer a última bola?", `Volta a pôr «${c.res[c.res.length - 1].equipa}» no pote. Use só se houve um erro, à vista da sala.`, () => { const x = c.res.pop(); S.anul.push({cod: c.cod, n: x.n, equipa: x.equipa, hora: new Date().toLocaleTimeString("pt-PT", {hour:"2-digit", minute:"2-digit", second:"2-digit"})}); ultimo = null; guardar(); render(); });
+  mLiga(c);
+  const p = document.getElementById("prox"); if (p) p.onclick = () => { S.atual++; ultimo = null; editar = false; sel = null; guardar(); render(); };
+  document.getElementById("som").onclick = () => { S.som = !S.som; guardar(); render(); if (S.som) sopro("swish"); };
+  document.getElementById("editar").onclick = () => { editar = !editar; sel = null; render(); };
+  if (editar) app.querySelectorAll(".board li").forEach(li => li.onclick = () => {
+    const g = +li.dataset.g, pp = +li.dataset.p, aqui = c.res.find(z => z.grupo === g && z.pos === pp);
+    if (!sel) { if (aqui) { sel = {g, p: pp}; render(); } return; }
+    if (sel.g === g && sel.p === pp) { sel = null; render(); return; }
+    const a = c.res.find(z => z.grupo === sel.g && z.pos === sel.p);
+    const txt = aqui ? `Trocar «${a.equipa}» (${destinoTxt(c, a)}) com «${aqui.equipa}» (${destinoTxt(c, aqui)})?` : `Mover «${a.equipa}» de ${destinoTxt(c, a)} para ${destinoTxt(c, {grupo: g, pos: pp})}?`;
+    confirmar("Alteração manual", txt + " Fica registado na acta.", () => {
+      const de = destinoTxt(c, a), para = destinoTxt(c, {grupo: g, pos: pp});
+      if (aqui) { aqui.grupo = a.grupo; aqui.pos = a.pos; aqui.editado = true; }
+      a.grupo = g; a.pos = pp; a.editado = true;
+      S.anul.push({cod: c.cod, n: 0, tipo: "edit", equipa: aqui ? `${a.equipa} (${de} → ${para}) trocada com ${aqui.equipa} (${para} → ${de})` : `${a.equipa} movida de ${de} para ${para}`, hora: agora()});
+      sel = null; guardar(); render(); });
+  });
+}
+function sortearAnimado(){
+  const c = S.cats[S.atual], pote = noPote(c); if (girando || editar || !pote.length) return;
+  girando = true; document.getElementById("sortear").disabled = true;
+  const box = document.getElementById("ball"), nm = document.getElementById("bname"), ds = document.getElementById("bdest"), lb = box.querySelector(".lbl"), drum = document.getElementById("drum");
+  const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const r = sortearUm(c);   /* o resultado é decidido já (e guardado); a máquina só o revela */
+  let feito = false;
+  const fim = () => { if (feito) return; feito = true; ventoOff(); M.mix = false; M.sai = null; M.onOut = null; ultimo = r; girando = false; render(); sopro("swish"); setTimeout(() => som(196, .25, .09, "sine"), 60);
+    const b2 = document.getElementById("ball"); if (b2) b2.classList.add("landed");
+    if (!noPote(c).length) { festa = true; confettis(); [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => som(f, .4, .1), 200 + i * 130)); } };
+  if (reduz) return fim();
+  box.classList.remove("landed", "vazio"); box.classList.add("spin"); ds.textContent = ""; lb.textContent = `Bola ${r.n} de ${c.equipas.length}`; nm.textContent = "A misturar…"; drum.classList.add("mix");
+  M.mix = true; mAcorda(); sopro("whoosh"); ventoOn();
+  const tMix = 2100 + Math.min(pote.length, 10) * 40;
+  setTimeout(() => { if (feito) return; const b = M.balls.find(z => z.e === r.equipa); if (!b) return fim(); b.fase = 0; M.sai = b; M.onOut = fim; mAcorda(); }, tMix);
+  setTimeout(fim, tMix + 1500);
+}
+
+/* ---------- ecrã 3: resultados ---------- */
+function textoResultados(){
+  const linhas = [`*${S.titulo}*`, S.semente.trim() ? `Semente pública: ${S.semente.trim()}` : "Sorteio aleatório feito em público", ...(S.comissao.trim() ? [`Comissão Técnica: ${S.comissao.trim()}`] : []), ""];
+  S.cats.forEach(c => { if (!c.res.length) return; linhas.push(`*${c.nome}*`);
+    linhas.push(regraTxt(c));
+    tamanhos(c).forEach((_, g) => { if (c.grupos > 1) linhas.push(`Série ${letra(c, g)}`); c.res.filter(r => r.grupo === g).sort((a, b) => a.pos - b.pos).forEach(r => linhas.push(`${r.pos}. ${r.equipa}`)); });
+    if (c.res.length < c.equipas.length) linhas.push(`(incompleto: ${c.res.length} de ${c.equipas.length})`); linhas.push(""); });
+  return linhas.join("\n").trim();
+}
+function vRes(){
+  const feitos = S.cats.filter(c => c.res.length);
+  return `<div class="row noprint" style="margin-bottom:14px"><button class="go" id="copiar">Copiar para WhatsApp</button><button id="imprimir">Imprimir / PDF</button><span class="state">Os resultados também ficam guardados neste computador.</span></div>
+  ${feitos.length ? `<div class="res">${S.cats.map(c => c.res.length ? `<section class="cat"><h3>${esc(c.cod.replace(/(\D)(\d)/, "$1+$2"))}<span>${esc(c.nome)}${c.res.length < c.equipas.length ? ` · incompleto ${c.res.length}/${c.equipas.length}` : ""}</span></h3>
+    <p class="state" style="margin:0">${esc(regraTxt(c))}.</p>
+    ${tamanhos(c).map((_, g) => `${c.grupos > 1 ? `<h4>Série ${esc(letra(c, g))}</h4>` : ""}<ol>${c.res.filter(r => r.grupo === g).sort((a, b) => a.pos - b.pos).map(r => `<li><span>${r.pos}.</span>${esc(r.equipa)}</li>`).join("")}</ol>`).join("")}</section>` : "").join("")}</div>`
+  : `<p class="hint">Ainda não há categorias sorteadas.</p>`}
+  ${S.comissao.trim() ? `<p class="state" style="margin-top:18px">Comissão Técnica presente: ${esc(S.comissao.trim())}</p>` : ""}
+  <h3 style="margin-top:26px">Acta do sorteio (ordem das bolas)</h3>
+  <pre class="log">${esc(S.cats.flatMap(c => c.res.map(r => [r.hora, `${r.hora}  ${c.cod}  bola ${r.n}: ${r.equipa} → ${destinoTxt(c, r)}`])).concat(S.anul.map(a => [a.hora, a.tipo === "edit" ? `${a.hora}  ${a.cod}  ALTERAÇÃO MANUAL: ${a.equipa}` : `${a.hora}  ${a.cod}  ANULADA${a.n ? ` bola ${a.n}: ${a.equipa} (desfeita e devolvida ao pote)` : `: ${a.equipa}`}`])).sort((x, y) => x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0).map(x => x[1]).join("\n") || "—")}</pre>
+  ${S.cats.some(c => foraDaRegra(c) && c.res.length) ? `<p class="state">Formato diferente do Art. 7.º por decisão da Comissão Técnica: ${S.cats.filter(c => foraDaRegra(c) && c.res.length).map(c => esc(c.nome)).join(", ")}.</p>` : ""}
+  ${S.anul.length ? `<p class="state">Anulações e alterações: ${S.anul.length}. Com semente pública, uma bola desfeita volta a sair igual, por isso desfazer não permite «tirar outra vez».</p>` : ""}`;
+}
+function ligarRes(){
+  document.getElementById("copiar").onclick = async () => { try { await navigator.clipboard.writeText(textoResultados()); toast("Copiado"); } catch (e) { const ta = document.createElement("textarea"); ta.value = textoResultados(); document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("Copiado"); } catch (e2) { toast("Não foi possível copiar"); } ta.remove(); } };
+  document.getElementById("imprimir").onclick = () => { try { window.print(); } catch (e) { toast("Abra o ficheiro no navegador para imprimir"); } };
+}
+
+/* ---------- navegação ---------- */
+let vistaAnterior = null;
+function render(){
+  if (vistaAnterior !== S.view + S.atual) { vistaAnterior = S.view + S.atual; window.scrollTo(0, 0); }
+  document.querySelectorAll("nav.tabs [data-v]").forEach(b => b.setAttribute("aria-current", b.dataset.v === S.view));
+  document.getElementById("tit").firstChild.nodeValue = S.titulo;
+  if (S.view === "palco") { app.innerHTML = vPalco(); ligarPalco(); }
+  else if (S.view === "res") { app.innerHTML = vRes(); ligarRes(); }
+  else { app.innerHTML = vPrep(); ligarPrep(); }
+}
+document.querySelectorAll("nav.tabs [data-v]").forEach(b => b.onclick = () => { S.view = b.dataset.v; ultimo = null; editar = false; sel = null; guardar(); render(); });
+const ecraInteiro = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} };
+document.getElementById("fs").onclick = ecraInteiro;
+document.addEventListener("keydown", e => {
+  if (S.view !== "palco" || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || dlg.open) return;
+  if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); if (!editar) sortearAnimado(); }
+  else if (e.key === "f" || e.key === "F") ecraInteiro();
+  else if (e.key === "ArrowRight" && S.atual < S.cats.length - 1 && !girando) { S.atual++; ultimo = null; editar = false; sel = null; guardar(); render(); }
+  else if (e.key === "ArrowLeft" && S.atual > 0 && !girando) { S.atual--; ultimo = null; editar = false; sel = null; guardar(); render(); }
+});
+window.__sorteio = {S: () => S, sortearUm, tamanhos, textoResultados, foraDaRegra};
+render();
+}
+</script>
+</body>
+</html>
